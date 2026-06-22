@@ -4,45 +4,90 @@
   "country_assets": {
     "GB": {
       "solution": "NetSol",
+      "products": [
+        "오토론",
+        "리스",
+        "할부금융"
+      ],
+      "since": 2015,
       "build_cost": 5000,
       "build_months": 18,
       "reuse_factor": 0.7
     },
     "US": {
       "solution": "Salesforce",
+      "products": [
+        "오토론",
+        "리스"
+      ],
+      "since": 2017,
       "build_cost": 6000,
       "build_months": 20,
       "reuse_factor": 0.5
     },
     "AU": {
       "solution": "Self-built",
+      "products": [
+        "오토론",
+        "운용리스"
+      ],
+      "since": 2019,
       "build_cost": 4500,
       "build_months": 16,
       "reuse_factor": 1.0
+    },
+    "FR": {
+      "solution": "NetSol",
+      "products": [
+        "오토론",
+        "리스"
+      ],
+      "since": 2018
+    },
+    "IT": {
+      "solution": "Cetelem Core",
+      "products": [
+        "오토론",
+        "할부금융"
+      ],
+      "since": 2020
+    },
+    "DE": {
+      "solution": "Self-built",
+      "products": [
+        "오토론",
+        "운용리스",
+        "할부금융"
+      ],
+      "since": 2016
     }
   },
   "region_baselines": {
     "EU": "GB",
     "NA": "US",
-    "APAC": "AU"
+    "APAC": "AU",
+    "SA": "BR"
   },
   "country_status": {
     "GB": "운영중",
     "US": "운영중",
     "AU": "운영중",
-    "DE": "준비중",
+    "DE": "운영중",
     "ES": "미진출",
     "PL": "미진출",
     "CZ": "미진출",
     "HU": "미진출",
-    "FR": "미진출",
-    "IT": "미진출",
+    "FR": "운영중",
+    "IT": "운영중",
     "CA": "미진출",
     "MX": "미진출",
     "NZ": "미진출",
     "JP": "미진출",
     "KR": "미진출",
-    "SG": "미진출"
+    "SG": "미진출",
+    "IN": "미진출",
+    "ID": "미진출",
+    "CN": "미진출"
   },
   "country_to_region": {
     "ES": "EU",
@@ -60,7 +105,18 @@
     "NZ": "APAC",
     "JP": "APAC",
     "KR": "APAC",
-    "SG": "APAC"
+    "SG": "APAC",
+    "IN": "APAC",
+    "ID": "APAC",
+    "CN": "APAC",
+    "PR": "NA",
+    "BR": "SA",
+    "CL": "SA",
+    "AR": "SA",
+    "AT": "EU",
+    "DK": "EU",
+    "NL": "EU",
+    "PT": "EU"
   },
   "similarity_brackets": [
     {
@@ -385,8 +441,265 @@
       "country_name": "Australia",
       "system_solution": "Self-built",
       "as_of": "2026-06-21",
-      "_note": "[TODO] APAC 베이스라인 자료 미입력 — 운영자가 디멘전 점수 보강 필요",
-      "items": {}
+      "_note": "[MOCK] APAC 베이스라인(호주 성숙시장 가정) — 운영자 검증 후 보정 필요",
+      "items": {
+        "구매 패턴(할부·리스 비중)": {
+          "dimensions": {
+            "리스 취급 일치도": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "렌탈 취급 일치도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "플릿 취급 일치도": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "상품별 비중 유사도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        },
+        "데이터 현지화 의무": {
+          "dimensions": {
+            "현지 저장 강제": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "국외 이전 허용도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "동의·보관 규제": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "GDPR 동등성": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        },
+        "라이선스 체제(세그먼트별)": {
+          "dimensions": {
+            "취득방식(등록 vs 인가)": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "외국인 취득 가능": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "처리기간(개월)": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "최저자본금 수준": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "감독 강도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        },
+        "솔루션 유형": {
+          "dimensions": {
+            "배포형태(패키지/SI/SaaS)": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "커스터마이징 자유도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "벤더 종속도": {
+              "score": 3,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "멀티테넌시 여부": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        },
+        "디지털 채널 성숙도": {
+          "dimensions": {
+            "온라인 신청 연동": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "비대면 계약 가능": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "API 개방도": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "페이퍼리스 수준": {
+              "score": 5,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        },
+        "차량회수 절차 용이성": {
+          "dimensions": {
+            "사법절차 필요": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "회수 소요기간(일)": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "자력구제 허용": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            },
+            "회수율": {
+              "score": 4,
+              "note": "[MOCK] APAC 베이스라인 추정 — 운영자 검증 필요"
+            }
+          }
+        }
+      }
+    },
+    "BR": {
+      "country_name": "Brazil",
+      "system_solution": "(SA baseline)",
+      "as_of": "2026-06-22",
+      "_note": "남미(SA) 베이스라인 — 브라질 country JSON target_score 기반. 운영자 검증 후 보정.",
+      "items": {
+        "구매 패턴(할부·리스 비중)": {
+          "dimensions": {
+            "리스 취급 일치도": {
+              "score": 3,
+              "note": "[BR baseline] Leasing 신차 7% — 매우 낮음"
+            },
+            "렌탈 취급 일치도": {
+              "score": 3,
+              "note": "[BR baseline] 단기렌탈 일부 존재(Localiza·Movida)"
+            },
+            "플릿 취급 일치도": {
+              "score": 3,
+              "note": "[BR baseline] 플릿 일부, 캡티브 압도"
+            },
+            "상품별 비중 유사도": {
+              "score": 3,
+              "note": "[BR baseline] CDC 35%+Consórcio 18%(브라질 유일) 구조로 GB와 큰 차이"
+            }
+          }
+        },
+        "데이터 현지화 의무": {
+          "dimensions": {
+            "현지 저장 강제": {
+              "score": 5,
+              "note": "[BR baseline] LGPD — 강제 현지화 없음"
+            },
+            "국외 이전 허용도": {
+              "score": 4,
+              "note": "[BR baseline] 국제이전 적정성/SCC, EU 동등"
+            },
+            "동의·보관 규제": {
+              "score": 4,
+              "note": "[BR baseline] LGPD·ANPD 표준"
+            },
+            "GDPR 동등성": {
+              "score": 5,
+              "note": "[BR baseline] LGPD가 GDPR 직접 모델 — 동등성 높음"
+            }
+          }
+        },
+        "라이선스 체제(세그먼트별)": {
+          "dimensions": {
+            "취득방식(등록 vs 인가)": {
+              "score": 2,
+              "note": "[BR baseline] SCFI(BACEN) 인가 필수 — 부담 큼"
+            },
+            "외국인 취득 가능": {
+              "score": 4,
+              "note": "[BR baseline] 1995 개헌 이후 100% 허용"
+            },
+            "처리기간(개월)": {
+              "score": 2,
+              "note": "[BR baseline] BACEN 인가 12~24개월"
+            },
+            "최저자본금 수준": {
+              "score": 3,
+              "note": "[BR baseline] 자본 BRL 7M(USD 1.4M) — EU 평균보다 낮음"
+            },
+            "감독 강도": {
+              "score": 3,
+              "note": "[BR baseline] BACEN·CMN 통합 감독"
+            }
+          }
+        },
+        "솔루션 유형": {
+          "dimensions": {
+            "배포형태(패키지/SI/SaaS)": {
+              "score": 3,
+              "note": "[BR baseline] 라틴 특화 시스템(Consórcio·IOF) 필요로 NetSol 직접 재사용 50%대"
+            },
+            "커스터마이징 자유도": {
+              "score": 3,
+              "note": "[BR baseline] Stefanini·TOTVS 등 현지 SI 의존도 큼"
+            },
+            "벤더 종속도": {
+              "score": 2,
+              "note": "[BR baseline] 글로벌 패키지 + 라틴 SI 혼합, 종속도 높음"
+            },
+            "멀티테넌시 여부": {
+              "score": 3,
+              "note": "[BR baseline] 멀티테넌시 부분 지원"
+            }
+          }
+        },
+        "디지털 채널 성숙도": {
+          "dimensions": {
+            "온라인 신청 연동": {
+              "score": 5,
+              "note": "[BR baseline] Pix 1.5억 사용자 — 글로벌 톱급"
+            },
+            "비대면 계약 가능": {
+              "score": 5,
+              "note": "[BR baseline] gov.br·Open Finance Brasil 보편화"
+            },
+            "API 개방도": {
+              "score": 5,
+              "note": "[BR baseline] BACEN Open Finance 가장 진보"
+            },
+            "페이퍼리스 수준": {
+              "score": 4,
+              "note": "[BR baseline] 페이퍼리스 진행 중, 일부 종이 절차 잔존"
+            }
+          }
+        },
+        "차량회수 절차 용이성": {
+          "dimensions": {
+            "사법절차 필요": {
+              "score": 3,
+              "note": "[BR baseline] alienação fiduciária(신탁양도) 사법절차 빠름"
+            },
+            "회수 소요기간(일)": {
+              "score": 4,
+              "note": "[BR baseline] 평균 60~180일 — EU 평균 우월"
+            },
+            "자력구제 허용": {
+              "score": 2,
+              "note": "[BR baseline] 자력구제 제한적, busca e apreensão 사법"
+            },
+            "회수율": {
+              "score": 3,
+              "note": "[BR baseline] 사법지역 편차 큼"
+            }
+          }
+        }
+      }
     }
   },
   "tier_weights": {
@@ -522,9 +835,10 @@
   },
   "values": {
     "biz_attractiveness": {
-      "GDP 성장률": 0.25,
-      "자동차 판매대수": 0.2,
-      "시장규모(CAGR)": 0.2,
+      "GDP 성장률": 0.2,
+      "자동차 판매대수": 0.15,
+      "시장규모": 0.15,
+      "오토금융 성장률(CAGR)": 0.15,
       "금융 이용률": 0.15,
       "금융이용유형": 0.1,
       "경쟁강도": 0.1

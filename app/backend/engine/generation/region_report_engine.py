@@ -55,9 +55,10 @@ class RegionReportEngine:
 
     # config.values.biz_attractiveness 키 → 실제 조사항목 매핑
     ATTRACTIVENESS_ITEM_MAP = {
-        "GDP 성장률": {"item": "오토금융 성장률(CAGR)", "reverse": False},  # GDP 미수집 → CAGR 대체
+        "GDP 성장률": {"item": "GDP 성장률", "reverse": False},
         "자동차 판매대수": {"item": "신차 판매대수", "reverse": False},
-        "시장규모(CAGR)": {"item": "오토금융/리스 시장규모", "reverse": False},
+        "시장규모": {"item": "오토금융/리스 시장규모", "reverse": False},
+        "오토금융 성장률(CAGR)": {"item": "오토금융 성장률(CAGR)", "reverse": False},
         "금융 이용률": {"item": "금융 이용률(신차)", "reverse": False},
         "금융이용유형": {"item": "구매 패턴(할부·리스 비중)", "reverse": False},
         "경쟁강도": {"item": "캡티브 강도(점유율)", "reverse": True},  # 高=惡(역점수)
@@ -144,6 +145,51 @@ class RegionReportEngine:
         if rate is None:
             return None
         return amount * rate
+
+    def _load_region_news(self, max_items: int = 3) -> List[Dict[str, Any]]:
+        """권역 단위 뉴스 파일에서 '조사 필요' 가 아닌 항목을 최대 N건 반환.
+
+        파일 위치: region_data_path와 같은 디렉토리의 {CODE}_news_latest.json.
+        스키마: items[].value = [{headline, so_what, publisher, pub_date, url, news_category, scope}, ...]
+        """
+        from pathlib import Path
+        region_path = Path(self.region_data_path)
+        region_code = (self.region_data or {}).get("code") or region_path.parent.name
+        news_path = region_path.parent / f"{region_code}_news_latest.json"
+        if not news_path.exists():
+            return []
+        try:
+            with open(news_path, "r", encoding="utf-8") as f:
+                news_doc = json.load(f)
+        except Exception as e:
+            print(f"Error loading region news: {e}")
+            return []
+        items = news_doc.get("items") or []
+        collected: List[Dict[str, Any]] = []
+        for it in items:
+            val = it.get("value")
+            if not isinstance(val, list):
+                continue
+            for entry in val:
+                if not isinstance(entry, dict):
+                    continue
+                headline = (entry.get("headline") or "").strip()
+                if not headline or headline == "조사 필요":
+                    continue
+                collected.append({
+                    "scope": "region",
+                    "headline": headline,
+                    "headline_en": entry.get("headline_en"),
+                    "so_what": entry.get("so_what"),
+                    "so_what_en": entry.get("so_what_en"),
+                    "publisher": entry.get("publisher"),
+                    "date": entry.get("pub_date") or entry.get("date"),
+                    "url": entry.get("url"),
+                    "news_category": entry.get("news_category"),
+                })
+                if len(collected) >= max_items:
+                    return collected
+        return collected
 
     def _tier_multiplier(self, tier: Any) -> float:
         """Return weight multiplier for a source tier (1.0 for missing/invalid).
@@ -722,7 +768,10 @@ class RegionReportEngine:
                          "attractiveness": r["attractiveness"],
                          "it_similarity_band": r["it_similarity_band"]}
                         for r in ranked],
-            "note": "퀵윈 = 매력도×w_biz + IT유사도×w_it. 기준국(B국) 및 킬스위치 탈락국 제외. 10점 구간 표기.",
+            "note": {
+                "ko": "퀵윈 = 매력도×w_biz + IT유사도×w_it. 기준국(B국) 및 킬스위치 탈락국 제외. 10점 구간 표기.",
+                "en": "Quickwin = Attractiveness×w_biz + IT×w_it. Baseline and killswitch failures excluded. Reported in 10-point buckets.",
+            },
         }
 
     def build_top3_cards(self, quickwin: Dict, killswitch: Dict,
@@ -775,19 +824,26 @@ class RegionReportEngine:
     def build_executive_summary(self, quickwin: Dict, killswitch: Dict,
                                  attractiveness: Dict, it_similarity: Dict,
                                  top3: List[Dict]) -> Dict[str, Any]:
-        # A. 핵심 결론 (CALC 인용만)
+        # A. 핵심 결론 (CALC 인용만) — ko/en 동시 출력
         top_ranking = quickwin.get("ranking", [])[:3]
         why_top1 = None
         if top3:
             top1 = top3[0]
-            why_top1 = (
-                f"{top1['country_name']}({top1['country']}) — "
-                f"매력도 {top1['attractiveness']}, IT유사도 {top1['it_similarity_band']} 구간, "
-                f"퀵윈 {top1['quickwin_score_band']} 구간"
-            )
+            why_top1 = {
+                "ko": (
+                    f"{top1['country_name']}({top1['country']}) — "
+                    f"매력도 {top1['attractiveness']}, IT유사도 {top1['it_similarity_band']} 구간, "
+                    f"퀵윈 {top1['quickwin_score_band']} 구간"
+                ),
+                "en": (
+                    f"{top1['country_name']}({top1['country']}) — "
+                    f"Attractiveness {top1['attractiveness']}, IT band {top1['it_similarity_band']}, "
+                    f"Quickwin band {top1['quickwin_score_band']}"
+                ),
+            }
 
-        # B. AI 교차 인사이트 (탭 간 해석) — 기준국 제외하고 후보국 중에서 비교
-        ai_insights: List[str] = []
+        # B. AI 교차 인사이트 (탭 간 해석) — 기준국 제외하고 후보국 중에서 비교, 양 언어 dict로 반환
+        ai_insights: List[Dict[str, str]] = []
         baseline = quickwin.get("baseline_country")
         attr_rank = {r["country"]: r["rank"] for r in attractiveness["ranking"] if r["country"] != baseline}
         it_rank = {r["country"]: r["rank"] for r in it_similarity["ranking"] if r["country"] != baseline}
@@ -795,26 +851,64 @@ class RegionReportEngine:
             top_attr = min(attr_rank, key=lambda k: attr_rank[k])
             top_it = min(it_rank, key=lambda k: it_rank[k])
             if top_attr != top_it:
-                ai_insights.append(
-                    f"후보국 중 매력도 1위({top_attr})와 IT유사도 1위({top_it})가 일치하지 않음 — "
-                    f"단기 확산(IT 유사)과 시장 잠재력(매력도) 사이 트레이드오프 존재."
-                )
+                ai_insights.append({
+                    "ko": (
+                        f"후보국 중 매력도 1위({top_attr})와 IT유사도 1위({top_it})가 일치하지 않음 — "
+                        f"단기 확산(IT 유사)과 시장 잠재력(매력도) 사이 트레이드오프 존재."
+                    ),
+                    "en": (
+                        f"Top attractiveness ({top_attr}) and top IT similarity ({top_it}) "
+                        f"are different countries — trade-off between fast deployment (IT) and "
+                        f"market potential (attractiveness)."
+                    ),
+                })
             else:
-                ai_insights.append(
-                    f"{top_attr}이 후보국 매력도·IT유사도 모두 1위 — 권역 진출의 명백한 1순위."
-                )
+                ai_insights.append({
+                    "ko": f"{top_attr}이 후보국 매력도·IT유사도 모두 1위 — 권역 진출의 명백한 1순위.",
+                    "en": (
+                        f"{top_attr} ranks #1 in both attractiveness and IT similarity — "
+                        f"the clear top entry candidate for the region."
+                    ),
+                })
         if baseline:
-            ai_insights.append(
-                f"기준국 {baseline}은 이미 시스템 보유국 → 순위에서 제외(B국 시스템 확산의 비교 기준)."
-            )
+            ai_insights.append({
+                "ko": f"기준국 {baseline}은 이미 시스템 보유국 → 순위에서 제외(B국 시스템 확산의 비교 기준).",
+                "en": (
+                    f"Baseline {baseline} already operates a deployed system — "
+                    f"excluded from the ranking (used as the reference for system expansion)."
+                ),
+            })
         if killswitch.get("failed"):
-            ai_insights.append(
-                f"킬스위치 탈락국: {', '.join(killswitch['failed'])} — "
-                f"규제·신용등급 게이트로 사전 차단(스코어링 제외)."
-            )
+            failed_str = ", ".join(killswitch["failed"])
+            ai_insights.append({
+                "ko": (
+                    f"킬스위치 탈락국: {failed_str} — "
+                    f"규제·신용등급 게이트로 사전 차단(스코어링 제외)."
+                ),
+                "en": (
+                    f"Killswitch failed: {failed_str} — "
+                    f"pre-blocked by regulatory/credit-rating gates (excluded from scoring)."
+                ),
+            })
 
-        # C. 외부 이슈 스캔 (NEWS, 권역 + 상위3국)
+        # C. 외부 이슈 스캔 (NEWS) — 권역 공통 이슈를 가장 위에, 그 다음 상위 3개국 헤드라인
         news: List[Dict[str, Any]] = []
+        # C-1. 권역 단위 뉴스 (별도 파일 {CODE}_news_latest.json)
+        region_news = self._load_region_news(max_items=3)
+        for item in region_news:
+            news.append({
+                "country": None,                  # 권역 공통 — 특정 국가 없음
+                "scope": "region",
+                "headline": item.get("headline"),
+                "headline_en": item.get("headline_en"),
+                "so_what": item.get("so_what"),
+                "so_what_en": item.get("so_what_en"),
+                "publisher": item.get("publisher"),
+                "date": item.get("date"),
+                "url": item.get("url"),
+                "news_category": item.get("news_category"),
+            })
+        # C-2. 상위 3개국 헤드라인
         for country in self.region_data.get("countries", []):
             code = country.get("code")
             if code not in [t["country"] for t in top3]:
@@ -825,8 +919,11 @@ class RegionReportEngine:
                 first = country_news[0]
                 news.append({
                     "country": code,
+                    "scope": "country",
                     "headline": first.get("headline") if isinstance(first, dict) else str(first),
+                    "headline_en": first.get("headline_en") if isinstance(first, dict) else None,
                     "so_what": first.get("so_what") if isinstance(first, dict) else None,
+                    "so_what_en": first.get("so_what_en") if isinstance(first, dict) else None,
                     "publisher": first.get("publisher") if isinstance(first, dict) else None,
                     "date": first.get("date") if isinstance(first, dict) else None,
                 })
@@ -845,7 +942,11 @@ class RegionReportEngine:
             "external_news_scan": {
                 "source_flag": "NEWS",
                 "items": news,
-                "note": "권역 + 상위 3개국 헤드라인. 추가 권역 공통 이슈는 향후 별도 수집.",
+                "region_news_count": len(region_news),
+                "note": {
+                    "ko": f"권역 공통 이슈 {len(region_news)}건 + 상위 3개국 헤드라인. '조사 필요' 항목은 제외.",
+                    "en": f"{len(region_news)} region-wide issues + top-3 country headlines. '조사 필요' (research needed) entries excluded.",
+                },
             },
         }
 

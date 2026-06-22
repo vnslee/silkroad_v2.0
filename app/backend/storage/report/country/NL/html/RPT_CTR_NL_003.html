@@ -143,42 +143,6 @@
 </head>
 <body class="bg-surface min-h-screen font-body-md text-text-primary antialiased">
 <div class="w-full flex flex-col relative bg-surface">
-    <header class="border-b border-surface-border px-margin-desktop py-lg shrink-0">
-        <div class="max-w-7xl mx-auto flex justify-between items-start gap-gutter">
-            <div class="flex gap-md items-start">
-                <div class="w-12 h-12 rounded-lg overflow-hidden border border-surface-border shrink-0 bg-surface-container flex items-center justify-center">
-                    <img alt="네덜란드 Flag" class="w-full h-full object-cover" src="https://flagcdn.com/w160/nl.png"/>
-                </div>
-                <div>
-                    <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight m-0"><span data-i18n="report_title" data-en="Netherlands Market Entry Diagnostic Report">네덜란드 진출 진단 보고서</span></h1>
-                    <div class="flex items-center gap-sm mt-xs flex-wrap">
-                        <span class="font-label-sm text-label-sm uppercase tracking-wider text-text-secondary">Report ID: RPT_CTR_NL_003</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary">Generated: 2026-06-22 17:43</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary"><span data-i18n="header_data_year" data-en="Data year">데이터 기준연도</span> 2025</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="inline-flex items-center gap-xs px-2 py-[2px] rounded-full border font-label-sm text-label-sm uppercase tracking-wide bg-surface-container text-text-secondary border-surface-border">
-                            <span class="material-symbols-outlined text-[12px]">explore</span>
-                            <span data-i18n="entry_status" data-en="Not entered">미진출</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-sm shrink-0 no-print">
-                <button id="lang-toggle" onclick="toggleLang()" class="flex items-center gap-xs px-md py-sm border border-surface-border text-text-secondary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">language</span>
-                    <span id="lang-label">EN</span>
-                </button>
-                <button id="btn-pdf" class="flex items-center gap-xs px-md py-sm border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>PDF
-                </button>
-                <button id="btn-share" class="flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">share</span>Share
-                </button>
-            </div>
-        </div>
-    </header>
     <main class="flex-1 p-margin-desktop">
         <div class="max-w-7xl mx-auto">
             
@@ -4071,10 +4035,8 @@
         const current = (document.documentElement.lang || 'ko').toLowerCase().startsWith('en') ? 'en' : 'ko';
         applyLang(current === 'en' ? 'ko' : 'en');
     }
-    try {
-        const saved = localStorage.getItem(I18N_KEY);
-        if (saved === 'en') applyLang('en');
-    } catch (_) {}
+    // 언어 토글 UI 제거됨 — 항상 기본값(한글)로 표시. 과거 저장된 'en' 설정도 무시하고 정리.
+    try { localStorage.removeItem(I18N_KEY); } catch (_) {}
 
     // PDF (browser print → save as PDF) — 인쇄 전 모든 아코디언 펼침, 끝나면 원복
     function exportPDF() {

@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import config
-from .routers import catalog, chat, detail, jobs, reports, research
+from .routers import catalog, chat, detail, jobs, reports, research, ruleset
 
 config.configure_logging()
 _log = config.get_logger("main")
@@ -36,6 +36,7 @@ app.include_router(reports.router)
 app.include_router(jobs.router)
 app.include_router(research.router)
 app.include_router(chat.router)
+app.include_router(ruleset.router)
 
 
 @app.get("/health", tags=["meta"])

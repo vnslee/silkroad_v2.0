@@ -741,10 +741,23 @@ class CountryReportEngine:
         }
 
         # Calculate subscription
+        # 구독제 솔루션(NetSol)만 구독료를 별도 산정한다. 그 외 솔루션의 비용은
+        # 운영비(operational_cost_10y)에 이미 녹아 있으므로 구독료를 0으로 둔다.
+        is_subscription = bool(base_info.get("subscription", False))
         expected = self.calculate_expected_contracts(self.country_data or {})
         expected_volume = expected.get("value", 0) if isinstance(expected, dict) else int(expected or 0)
-        subscription = self.calculate_subscription_fee(expected_volume)
-        annual_subscription = subscription["annual_fee"]
+        if is_subscription:
+            subscription = self.calculate_subscription_fee(expected_volume)
+            annual_subscription = subscription["annual_fee"]
+        else:
+            subscription = {
+                "applicable": False,
+                "new_volume": expected_volume,
+                "annual_fee": 0,
+                "currency": "EUR",
+                "note": "비구독 솔루션 — 구독료는 운영비에 포함",
+            }
+            annual_subscription = 0
 
         # Maintenance
         maintenance_annual = self.internal_data.get("maintenance_cost_annual", {}).get("amount", 500)

@@ -117,10 +117,10 @@ export default function DetailView({ domain, code, mode }: Props) {
     label: c.nameKo ? `${c.nameKo} (${c.name})` : c.name,
     sub: c.code,
   }))
-  // 버전 옵션(최신 + 스냅샷들)
+  // 버전 옵션(최신 + 렌더본 ID들). value/label 모두 렌더 ID(DTL_<ID>_NNN).
   const versionOptions: SelectOption[] = [
     { value: '', label: '최신 (latest)', sub: '기본' },
-    ...versions.map((v) => ({ value: v, label: v, sub: '스냅샷' })),
+    ...versions.map((v) => ({ value: v, label: v, sub: '렌더본' })),
   ]
 
   const goTarget = (newCode: string) => {

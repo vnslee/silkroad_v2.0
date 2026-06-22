@@ -125,3 +125,33 @@ export interface ResearchTriggerRequest {
   member_codes?: string[]
   segment?: string
 }
+
+// 룰셋 설정(FR-6) — 보고서 엔진이 실제 쓰는 가중치/계수. schemas.py RulesetPayload와 1:1.
+// quick_win_rules·maintenance_rate는 엔진 산식 미사용이라 제외.
+export interface RulesetPayload {
+  version?: string | null
+  updated_at?: string | null
+  biz_attractiveness: Record<string, number>
+  it_readiness: Record<string, number>
+  report_blend: Record<string, number>
+  similarity_item_weights: Record<string, number>
+  similarity_item_axes: Record<string, string>
+  tier_weights: Record<string, number>
+  decision_thresholds: Record<string, number>
+}
+
+// PUT /api/ruleset 응답 — 저장된 룰셋 + 생성된 버전 스냅샷 메타. schemas.py RulesetSaveResult와 1:1.
+export interface RulesetSaveResult {
+  ruleset: RulesetPayload
+  version: string
+  snapshot_file: string
+  updated_at: string
+}
+
+// 버전 스냅샷 목록 항목(드롭다운용). schemas.py RulesetVersionInfo와 1:1.
+export interface RulesetVersionInfo {
+  version: string
+  date: string
+  file: string
+  is_latest: boolean
+}

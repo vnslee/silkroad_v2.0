@@ -125,6 +125,37 @@ class RegionReportEngine:
         """{item_name: item_dict} for a single country."""
         return {it.get("item", ""): it for it in country.get("items", [])}
 
+    def _country_ko(self, code: Optional[str]) -> str:
+        """국가 코드 → 한글 국가명 (AI 인사이트 표기용). 없으면 영문명, 그것도 없으면 코드.
+        주의: 'IT유사도' 등 정보기술 약어는 국가 코드가 아니므로 호출하지 않는다."""
+        if not code:
+            return ""
+        for c in (self.region_data or {}).get("countries", []):
+            if c.get("code") == code:
+                return c.get("country_ko") or c.get("country") or code
+        return code
+
+    @staticmethod
+    def _josa_eun(word: str) -> str:
+        """단어 받침 유무로 보조사 '은/는' 선택. 한글 마지막 글자에 종성이 있으면 '은'.
+        한글이 아니거나 판별 불가 시 '은(는)'으로 안전 폴백."""
+        if not word:
+            return "은(는)"
+        last = word[-1]
+        if "가" <= last <= "힣":
+            return "은" if (ord(last) - 0xAC00) % 28 else "는"
+        return "은(는)"
+
+    @staticmethod
+    def _josa_i(word: str) -> str:
+        """단어 받침 유무로 주격조사 '이/가' 선택. 폴백 '이(가)'."""
+        if not word:
+            return "이(가)"
+        last = word[-1]
+        if "가" <= last <= "힣":
+            return "이" if (ord(last) - 0xAC00) % 28 else "가"
+        return "이(가)"
+
     def _coerce_numeric(self, value: Any) -> Optional[float]:
         if isinstance(value, (int, float)):
             return float(value)
@@ -653,8 +684,11 @@ class RegionReportEngine:
                 "axes": axes,
             })
 
+        # 기준국(B국)은 자기 자신과 비교해 유사도 100(자명값)이므로 유사도 랭킹에서 제외 —
+        # 비교 잣대일 뿐 후보가 아니다. per_country 행은 남겨(quickwin 등이 raw 참조) rank만 None.
         ranked = sorted(
-            [c for c in per_country if c["it_similarity_band"] is not None],
+            [c for c in per_country
+             if c["it_similarity_band"] is not None and not c["is_baseline"]],
             key=lambda c: (c["it_similarity_band"] or 0, c["it_similarity_raw"] or 0),
             reverse=True,
         )
@@ -831,7 +865,7 @@ class RegionReportEngine:
             top1 = top3[0]
             why_top1 = {
                 "ko": (
-                    f"{top1['country_name']}({top1['country']}) — "
+                    f"{self._country_ko(top1['country'])} — "
                     f"매력도 {top1['attractiveness']}, IT유사도 {top1['it_similarity_band']} 구간, "
                     f"퀵윈 {top1['quickwin_score_band']} 구간"
                 ),
@@ -853,7 +887,7 @@ class RegionReportEngine:
             if top_attr != top_it:
                 ai_insights.append({
                     "ko": (
-                        f"후보국 중 매력도 1위({top_attr})와 IT유사도 1위({top_it})가 일치하지 않음 — "
+                        f"후보국 중 매력도 1위({self._country_ko(top_attr)})와 IT유사도 1위({self._country_ko(top_it)})가 일치하지 않음 — "
                         f"단기 확산(IT 유사)과 시장 잠재력(매력도) 사이 트레이드오프 존재."
                     ),
                     "en": (
@@ -864,7 +898,7 @@ class RegionReportEngine:
                 })
             else:
                 ai_insights.append({
-                    "ko": f"{top_attr}이 후보국 매력도·IT유사도 모두 1위 — 권역 진출의 명백한 1순위.",
+                    "ko": f"{self._country_ko(top_attr)}{self._josa_i(self._country_ko(top_attr))} 후보국 매력도·IT유사도 모두 1위 — 권역 진출의 명백한 1순위.",
                     "en": (
                         f"{top_attr} ranks #1 in both attractiveness and IT similarity — "
                         f"the clear top entry candidate for the region."
@@ -872,7 +906,7 @@ class RegionReportEngine:
                 })
         if baseline:
             ai_insights.append({
-                "ko": f"기준국 {baseline}은 이미 시스템 보유국 → 순위에서 제외(B국 시스템 확산의 비교 기준).",
+                "ko": f"기준국 {self._country_ko(baseline)}{self._josa_eun(self._country_ko(baseline))} 이미 시스템 보유국 → 순위에서 제외(B국 시스템 확산의 비교 기준).",
                 "en": (
                     f"Baseline {baseline} already operates a deployed system — "
                     f"excluded from the ranking (used as the reference for system expansion)."
@@ -880,9 +914,10 @@ class RegionReportEngine:
             })
         if killswitch.get("failed"):
             failed_str = ", ".join(killswitch["failed"])
+            failed_str_ko = ", ".join(self._country_ko(c) for c in killswitch["failed"])
             ai_insights.append({
                 "ko": (
-                    f"킬스위치 탈락국: {failed_str} — "
+                    f"킬스위치 탈락국: {failed_str_ko} — "
                     f"규제·신용등급 게이트로 사전 차단(스코어링 제외)."
                 ),
                 "en": (

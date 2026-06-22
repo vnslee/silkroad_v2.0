@@ -82,9 +82,9 @@ def render_report_html(domain: str, report_json_path: str) -> str:
 def render_detail_html(domain: str, target_id: str, version: Optional[str] = None) -> str:
     """detail 렌더러 함수형 render() 호출 → 출력 HTML 절대경로 반환(self-locate)."""
     if domain == "country":
-        import country_detail_renderer as cdr  # type: ignore
+        import country_detail_rendering_engine as cdr  # type: ignore
 
         return str(cdr.render(target_id, version))
-    import region_detail_renderer as rdr  # type: ignore
+    import region_detail_rendering_engine as rdr  # type: ignore
 
     return str(rdr.render(target_id, version))

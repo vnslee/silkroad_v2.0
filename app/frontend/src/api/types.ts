@@ -1,0 +1,127 @@
+// 백엔드 api/schemas.py 와 1:1 대응하는 TS 타입(domain-entities-3).
+// 필드/리터럴은 schemas.py 실측 기준.
+
+export type Domain = 'country' | 'region'
+export type JobState = 'queued' | 'running' | 'succeeded' | 'failed'
+export type JobStep =
+  | 'queued'
+  | 'generating'
+  | 'rendering'
+  | 'calling_bedrock'
+  | 'saving'
+  | 'done'
+
+// 프론트 잡 종류(3종). 백엔드 create_job(kind=...) 값과 정합.
+export type JobKind = 'research' | 'detail' | 'report'
+
+export interface CountrySummary {
+  code: string
+  name: string
+  name_ko?: string | null
+  region?: string | null
+  is_baseline: boolean
+  has_detail: boolean
+  has_report: boolean
+}
+
+export interface RegionSummary {
+  code: string
+  name: string
+  name_ko?: string | null
+  baseline_country?: string | null
+  has_detail: boolean
+  has_report: boolean
+}
+
+export interface ExistenceInfo {
+  domain: Domain
+  target_id: string
+  exists: boolean
+  has_detail: boolean
+  has_report: boolean
+  can_research: boolean
+  latest_report_id?: string | null
+}
+
+export interface ReportRef {
+  report_id: string
+  report_type?: string | null
+  title?: string | null
+  generated_at?: string | null
+  json_url: string
+  html_url: string
+  pdf_url: string
+}
+
+export interface ReportListResponse {
+  domain: Domain
+  target_id: string
+  reports: ReportRef[]
+}
+
+export interface JobResult {
+  domain: Domain
+  target_id: string
+  report_id: string
+  json_url: string
+  html_url: string
+  pdf_url?: string | null
+}
+
+export interface ResearchJobResult {
+  domain: Domain
+  target_id: string
+  latest_url?: string | null
+  schema_version?: string | null
+}
+
+export interface DetailJobResult {
+  domain: Domain
+  target_id: string
+  html_url?: string | null
+}
+
+export type JobResultUnion = JobResult | ResearchJobResult | DetailJobResult
+
+export interface JobCreatedResponse {
+  job_id: string
+  status: JobState
+  status_url: string
+}
+
+export interface JobStatus {
+  job_id: string
+  kind: string
+  status: JobState
+  step: JobStep
+  percent: number
+  message?: string | null
+  result?: JobResultUnion | null
+  error?: string | null
+  params: Record<string, string>
+}
+
+export interface ChatTurn {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface ChatRequest {
+  domain: Domain
+  target_id: string
+  message: string
+  history?: ChatTurn[]
+  member_codes?: string[]
+}
+
+export interface ChatResponse {
+  answer?: string | null
+  needs_research: boolean
+  research_suggestion?: string | null
+  missing_codes: string[]
+}
+
+export interface ResearchTriggerRequest {
+  member_codes?: string[]
+  segment?: string
+}

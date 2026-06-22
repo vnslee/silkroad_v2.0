@@ -39,7 +39,8 @@ class CountryReportEngine:
         },
         "1-4": {
             "name": "Market & Competition Background",
-            "required_fields": ["금융사 순위(Top 5)", "금융사 점유율(Top 5)", "경쟁사 금리 범위",
+            "required_fields": ["GDP 성장률", "오토금융 성장률(CAGR)",
+                              "금융사 순위(Top 5)", "금융사 점유율(Top 5)", "경쟁사 금리 범위",
                               "OEM 순위(Top 5)", "EV 보급률", "EV·ICE 잔존가치 리스크"],
             "data_characteristics": ["ranking", "timeseries", "qualitative"]
         }
@@ -343,10 +344,27 @@ class CountryReportEngine:
 
         return region_baselines.get(region, "GB")
 
-    def _score_item_from_dimensions(self, item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def _baseline_dim_scores(self, base_country: str, item_name: str) -> Dict[str, Any]:
+        """Per-dimension base scores for an item from internal.baseline_scoring.
+
+        baseline_scoring is the single source of truth for base_score (운영자 관리).
+        신규국 country JSON에는 target_score만 두고, 비교 시 여기서 base를 매칭한다.
+        Returns {} when the baseline/item is not defined (caller falls back to
+        the data's own base_score for backward compatibility).
+        """
+        base = self.normalize_country_code(base_country)
+        bscoring = (self.internal_data or {}).get("baseline_scoring", {}) or {}
+        item_blk = (bscoring.get(base, {}) or {}).get("items", {}).get(item_name, {})
+        return item_blk.get("dimensions", {}) or {}
+
+    def _score_item_from_dimensions(self, item: Dict[str, Any],
+                                    base_country: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """Compute an item-level similarity score from per-dimension target/base scores.
 
-        Each dimension carries target_score and base_score on a 1~5 scale. The gap
+        Each dimension carries target_score (from country JSON) and base_score on a
+        1~5 scale. The base_score is resolved from internal.baseline_scoring for
+        base_country (single source of truth); when absent it falls back to the
+        dimension's own base_score for backward compatibility. The gap
         (|target - base|) determines closeness: 0 gap → 100, 4 gap → 0.
         Returns None when the item has no score_dimensions block.
         """
@@ -354,10 +372,15 @@ class CountryReportEngine:
         if not dims:
             return None
 
+        baseline_dims = self._baseline_dim_scores(base_country, item.get("item")) if base_country else {}
+
         dim_results = []
         for dim_name, dim in dims.items():
             t = dim.get("target_score")
-            b = dim.get("base_score")
+            # base는 baseline_scoring 우선, 없으면 데이터의 base_score로 fallback
+            b = baseline_dims.get(dim_name, {}).get("score")
+            if b is None:
+                b = dim.get("base_score")
             if t is None or b is None:
                 continue
             gap = abs(float(t) - float(b))
@@ -369,6 +392,7 @@ class CountryReportEngine:
                 "gap": gap,
                 "similarity": similarity,
                 "note": dim.get("note", ""),
+                "note_en": dim.get("note_en", ""),
             })
 
         if not dim_results:
@@ -411,7 +435,7 @@ class CountryReportEngine:
         items = (self.country_data or {}).get("items", []) or []
         scored_items = []
         for it in items:
-            scored = self._score_item_from_dimensions(it)
+            scored = self._score_item_from_dimensions(it, base_country)
             if scored:
                 scored_items.append(scored)
 
@@ -474,18 +498,29 @@ class CountryReportEngine:
 
         # Stage 1 — does the region already have a deployed system?
         if not region_system_exists:
-            # No region system → straight into external-solution review (then HQ fallback)
             decision = "external_solution"
-            recommendation = "권역 내 확산 가능 시스템 없음 → 외부솔루션 검토 (미달 시 본사 자체구축)"
+            recommendation = {
+                "ko": "권역 내 확산 가능 시스템 없음 → 외부솔루션 검토 (미달 시 본사 자체구축)",
+                "en": "No deployable regional system → review external solutions (HQ build as fallback).",
+            }
         elif similarity_score >= expansion_min:
             decision = "baseline_system_expansion"
-            recommendation = f"권역 내 확산: {base_country} 시스템({base_solution}) 현지화"
+            recommendation = {
+                "ko": f"권역 내 확산: {base_country} 시스템({base_solution}) 현지화",
+                "en": f"Regional expansion: localize {base_country} system ({base_solution}).",
+            }
         elif similarity_score >= hq_build_min:
             decision = "hq_build"
-            recommendation = "본사 자체구축 추천 (유사도 중간 구간)"
+            recommendation = {
+                "ko": "본사 자체구축 추천 (유사도 중간 구간)",
+                "en": "HQ-built system recommended (similarity in mid range).",
+            }
         else:
             decision = "external_solution"
-            recommendation = "현지 외부솔루션 2~3종 추천"
+            recommendation = {
+                "ko": "현지 외부솔루션 2~3종 추천",
+                "en": "Recommend 2-3 local external solutions.",
+            }
 
         return {
             "decision": decision,
@@ -757,9 +792,11 @@ class CountryReportEngine:
             if item.get("item") == item_name:
                 return {
                     "item": item.get("item"),
+                    "item_en": item.get("item_en"),
                     "category": item.get("category"),
                     "role": item.get("role"),
                     "value": item.get("value"),
+                    "value_en": item.get("value_en"),
                     "unit": item.get("unit"),
                     "direction": item.get("direction"),
                     "axis": item.get("axis"),
@@ -770,7 +807,9 @@ class CountryReportEngine:
                     "timeseries": item.get("timeseries"),
                     "tier": item.get("tier"),
                     "source": item.get("source"),
+                    "source_en": item.get("source_en"),
                     "insight": item.get("insight"),
+                    "insight_en": item.get("insight_en"),
                     "insight_ai_generated": item.get("insight_ai_generated"),
                 }
         return None
@@ -834,10 +873,16 @@ class CountryReportEngine:
             decision = {
                 "is_baseline": True,
                 "decision": "baseline_already_deployed",
-                "recommendation": (
-                    f"{target_country}는 권역 기준국 — 시스템({base_solution})이 이미 운영 중입니다. "
-                    f"신규 진출 결정 트리는 적용되지 않습니다."
-                ),
+                "recommendation": {
+                    "ko": (
+                        f"{target_country}는 권역 기준국 — 시스템({base_solution})이 이미 운영 중입니다. "
+                        f"신규 진출 결정 트리는 적용되지 않습니다."
+                    ),
+                    "en": (
+                        f"{target_country} is the regional baseline — system ({base_solution}) "
+                        f"is already operational. The new-entry decision tree does not apply."
+                    ),
+                },
                 "similarity_score": similarity.get("overall_score"),
                 "base_country": base_country,
                 "base_system": base_solution,
@@ -852,10 +897,16 @@ class CountryReportEngine:
         if is_baseline_self:
             tco = {
                 "is_baseline": True,
-                "message": (
-                    f"{target_country}는 권역 기준국 — 신규 구축 비용·기간이 적용되지 않습니다. "
-                    f"운영 현황(기존 누적 계약·운영비)은 별도 관리 보고서를 참조하세요."
-                ),
+                "message": {
+                    "ko": (
+                        f"{target_country}는 권역 기준국 — 신규 구축 비용·기간이 적용되지 않습니다. "
+                        f"운영 현황(기존 누적 계약·운영비)은 별도 관리 보고서를 참조하세요."
+                    ),
+                    "en": (
+                        f"{target_country} is the regional baseline — new build cost/duration do not apply. "
+                        f"For operational figures (existing volume, opex), see the separate management report."
+                    ),
+                },
                 "currency": (self.country_data.get("currency") or "EUR"),
                 "items": self._collect_tab_items("1-3"),
             }
@@ -888,6 +939,7 @@ class CountryReportEngine:
             "schema_version": self.country_data.get("schema_version", "N/A"),
 
             "overall_insight": self.country_data.get("overall_insight"),
+            "overall_insight_en": self.country_data.get("overall_insight_en"),
             "country_meta": {
                 "country": self.country_data.get("country"),
                 "country_ko": self.country_data.get("country_ko"),
@@ -1006,7 +1058,10 @@ def main():
         else:
             print(f"\n10Y TCO: {tco_tab.get('total_tco_10y', 0):,.0f} EUR")
         print(f"Similarity Score: {type1_report['tabs']['tab_1_1_similarity']['overall_score']:.1f}")
-        print(f"Decision: {type1_report['tabs']['tab_1_2_decision']['recommendation']}")
+        rec = type1_report['tabs']['tab_1_2_decision'].get('recommendation')
+        if isinstance(rec, dict):
+            rec = rec.get('ko') or rec.get('en')
+        print(f"Decision: {rec}")
 
         # 자동으로 렌더러까지 호출해서 HTML 생성
         try:

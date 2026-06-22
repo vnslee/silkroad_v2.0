@@ -220,6 +220,28 @@ def latest_detail_html(domain: str, target_id: str) -> Optional[Path]:
     return cands[-1] if cands else None
 
 
+def detail_versions(domain: str, target_id: str) -> list:
+    """상세화면 버전 목록 = 렌더된 detail HTML 파일 ID(`DTL_<ID>_NNN`), 최신순.
+    리서치 타임스탬프가 아닌 렌더 결과물 ID를 버전 선택값으로 노출한다(P1/P2)."""
+    d = config.DETAIL_DIR / domain / target_id / "html"
+    if not d.is_dir():
+        return []
+    ids = [p.stem for p in d.glob("*.html") if p.stem]
+    return sorted(ids, reverse=True)
+
+
+def detail_html_by_id(domain: str, target_id: str, version_id: str) -> Optional[Path]:
+    """버전 ID(`DTL_<ID>_NNN`)에 해당하는 캐시 detail HTML 경로. 없으면 None.
+    파일명 검증으로 경로 탈출(../) 방지 — stem 매칭만 허용."""
+    d = config.DETAIL_DIR / domain / target_id / "html"
+    if not d.is_dir():
+        return None
+    for p in d.glob("*.html"):
+        if p.stem == version_id:
+            return p
+    return None
+
+
 # ── URL 변환 (L4, Q7=A 상대 URL) ────────────────────────────────
 def to_url(
     kind: str,

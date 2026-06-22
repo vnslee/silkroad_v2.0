@@ -137,3 +137,43 @@ class ChatResponse(BaseModel):
     needs_research: bool = False
     research_suggestion: Optional[str] = None
     missing_codes: List[str] = Field(default_factory=list)
+
+
+# ── 룰셋 설정 (FR-6) ────────────────────────────────────────────
+class RulesetPayload(BaseModel):
+    """internal_latest.json에서 보고서 엔진이 실제로 쓰는 가중치/계수만 노출.
+
+    GET 응답이자 PUT 요청 본문(같은 형태). 비어 있는 dict는 PUT에서 미변경으로 본다.
+    similarity_item_axes는 읽기 전용 메타(weight 저장 시 axis 보존용).
+    ※ quick_win_rules·maintenance_rate는 엔진 산식 미사용이라 노출하지 않는다(router 주석 참조).
+    """
+
+    version: Optional[str] = None
+    updated_at: Optional[str] = None
+    # values.* (각 합=1.0 권장 — 프론트에서 검증·정규화)
+    biz_attractiveness: Dict[str, float] = Field(default_factory=dict)
+    it_readiness: Dict[str, float] = Field(default_factory=dict)
+    report_blend: Dict[str, float] = Field(default_factory=dict)
+    # similarity_item_weights: 항목명 → weight (axis는 메타로 분리 보존)
+    similarity_item_weights: Dict[str, float] = Field(default_factory=dict)
+    similarity_item_axes: Dict[str, str] = Field(default_factory=dict)
+    tier_weights: Dict[str, float] = Field(default_factory=dict)
+    decision_thresholds: Dict[str, float] = Field(default_factory=dict)
+
+
+class RulesetSaveResult(BaseModel):
+    """PUT /api/ruleset 응답 — 저장된 룰셋 + 생성된 버전 스냅샷 메타."""
+
+    ruleset: RulesetPayload
+    version: str
+    snapshot_file: str  # 새로 생성된 internal_v<ver>_<날짜>.json 파일명
+    updated_at: str
+
+
+class RulesetVersionInfo(BaseModel):
+    """버전 스냅샷 목록 항목 — 드롭다운 표시·선택용."""
+
+    version: str
+    date: str  # 스냅샷 파일명의 YYYY-MM-DD
+    file: str
+    is_latest: bool = False

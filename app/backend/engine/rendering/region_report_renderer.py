@@ -44,7 +44,8 @@ COUNTRY_NAMES_KO = {
     "DE": "독일", "FR": "프랑스", "CZ": "체코", "HU": "헝가리",
     "US": "미국", "CA": "캐나다", "MX": "멕시코",
     "AU": "호주", "NZ": "뉴질랜드", "JP": "일본", "KR": "한국", "SG": "싱가포르",
-    "BR": "브라질",
+    "CN": "중국", "IN": "인도", "ID": "인도네시아",
+    "BR": "브라질", "AR": "아르헨티나", "CL": "칠레", "PR": "푸에르토리코",
 }
 
 COUNTRY_NAMES_EN = {
@@ -54,7 +55,8 @@ COUNTRY_NAMES_EN = {
     "DE": "Germany", "FR": "France", "CZ": "Czech Republic", "HU": "Hungary",
     "US": "United States", "CA": "Canada", "MX": "Mexico",
     "AU": "Australia", "NZ": "New Zealand", "JP": "Japan", "KR": "South Korea",
-    "SG": "Singapore", "BR": "Brazil",
+    "SG": "Singapore", "CN": "China", "IN": "India", "ID": "Indonesia",
+    "BR": "Brazil", "AR": "Argentina", "CL": "Chile", "PR": "Puerto Rico",
 }
 
 REGION_NAMES = {

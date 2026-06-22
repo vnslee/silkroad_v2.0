@@ -12,6 +12,9 @@ import type {
   RegionSummary,
   ReportListResponse,
   ResearchTriggerRequest,
+  RulesetPayload,
+  RulesetSaveResult,
+  RulesetVersionInfo,
 } from './types'
 
 export class ApiError extends Error {
@@ -81,4 +84,12 @@ export const api = {
   // 챗봇(동기)
   chat: (req: ChatRequest) =>
     request<ChatResponse>(paths.chat(), { method: 'POST', body: JSON.stringify(req) }),
+
+  // 룰셋 설정(FR-6) — 편집 가능한 가중치/계수 조회·저장
+  getRuleset: () => request<RulesetPayload>(paths.ruleset()),
+  saveRuleset: (body: RulesetPayload) =>
+    request<RulesetSaveResult>(paths.ruleset(), { method: 'PUT', body: JSON.stringify(body) }),
+  getRulesetVersions: () => request<RulesetVersionInfo[]>(paths.rulesetVersions()),
+  getRulesetVersion: (version: string) =>
+    request<RulesetPayload>(paths.rulesetVersion(version)),
 }

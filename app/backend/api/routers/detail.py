@@ -21,11 +21,20 @@ router = APIRouter(prefix="/api", tags=["detail"])
 
 
 def _detail_html(domain: str, target_id: str, version: Optional[str] = None) -> str:
-    # version 지정 시 캐시 무시하고 해당 스냅샷으로 렌더(버전 선택, P1/P2).
+    # version 미지정 → 최신 캐시본 반환.
     if version is None:
         cached = storage_resolver.latest_detail_html(domain, target_id)
         if cached is not None:
             return cached.read_text(encoding="utf-8")
+    else:
+        # version = 렌더 ID(DTL_<ID>_NNN). 해당 캐시 HTML을 그대로 반환(재렌더 아님).
+        snap = storage_resolver.detail_html_by_id(domain, target_id, version)
+        if snap is not None:
+            return snap.read_text(encoding="utf-8")
+        raise HTTPException(
+            status_code=404,
+            detail=f"{domain} '{target_id}' 상세화면 버전 '{version}' 없음",
+        )
     if not storage_resolver.research_exists(domain, target_id):
         raise HTTPException(
             status_code=409,
@@ -42,12 +51,12 @@ def _detail_html(domain: str, target_id: str, version: Optional[str] = None) -> 
 
 @router.get("/countries/{code}/detail/versions", response_model=List[str])
 def list_country_detail_versions(code: str = Path(..., pattern=TARGET_ID_PATTERN)) -> List[str]:
-    return storage_resolver.research_versions("country", code.upper())
+    return storage_resolver.detail_versions("country", code.upper())
 
 
 @router.get("/regions/{region}/detail/versions", response_model=List[str])
 def list_region_detail_versions(region: str = Path(..., pattern=TARGET_ID_PATTERN)) -> List[str]:
-    return storage_resolver.research_versions("region", region.upper())
+    return storage_resolver.detail_versions("region", region.upper())
 
 
 @router.get("/countries/{code}/detail")

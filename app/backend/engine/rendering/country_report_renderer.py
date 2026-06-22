@@ -1191,7 +1191,11 @@ class CountryReportRenderer:
         total = tco.get("total_tco_10y", 0) or 0
         steps = [
             {"label": "구축비", "en": "Build", "value": build_cost},
-            {"label": "구독료(10Y)", "en": "Subscr.(10Y)", "value": annual_sub * 10},
+        ]
+        # 구독료는 구독제 솔루션(NetSol)일 때만 단계로 표시. 비구독이면 운영비에 포함되어 0.
+        if annual_sub > 0:
+            steps.append({"label": "구독료(10Y)", "en": "Subscr.(10Y)", "value": annual_sub * 10})
+        steps += [
             {"label": "유지보수(10Y)", "en": "Maint.(10Y)", "value": annual_mnt * 10},
             {"label": "운영비(10Y)", "en": "Ops(10Y)", "value": ops_10y},
             {"label": "10년 TCO", "en": "10Y TCO", "value": total, "is_total": True},
@@ -1981,6 +1985,9 @@ class CountryReportRenderer:
 
         existing_volume = tco_tab.get("existing_total_volume", 0)
         sub_details = tco_tab.get("subscription_details", {}) or {}
+        # 비구독 솔루션(구독료 운영비 포함)은 구독료 구간표를 노출하지 않는다.
+        if sub_details.get("applicable", True) is False or (tco_tab.get("annual_subscription", 0) or 0) <= 0:
+            return ""
         active_total = sub_details.get("total_volume", 0)
         active_unit_price = sub_details.get("unit_price")
 
@@ -2183,13 +2190,32 @@ class CountryReportRenderer:
             operations_10y=operations_10y, years=10, currency=currency,
         )
 
-        # Step chart for subscription tiers
-        tiers = tco.get("subscription_tiers", []) or []
-        active_total = subscription_details.get("total_volume", 0)
-        step_html = self.render_step_chart(
-            "구독료 구간 (전체 소급)", "stairs",
-            tiers=tiers, current_volume=active_total, currency=currency,
-        )
+        # Step chart for subscription tiers — 구독제 솔루션(NetSol)일 때만 노출.
+        # 비구독 솔루션은 구독료가 운영비에 포함되므로 구간표 대신 안내 카드로 대체.
+        is_subscription = annual_subscription > 0 or subscription_details.get("applicable", True) is not False
+        if is_subscription:
+            tiers = tco.get("subscription_tiers", []) or []
+            active_total = subscription_details.get("total_volume", 0)
+            step_html = self.render_step_chart(
+                "구독료 구간 (전체 소급)", "stairs",
+                tiers=tiers, current_volume=active_total, currency=currency,
+            )
+        else:
+            base_solution_disp = (tco.get("build_breakdown", {}).get("inputs", {}) or {}).get("베이스라인 솔루션", "")
+            step_html = f'''
+            <section class="bg-surface-container-lowest border border-surface-border rounded-xl p-lg card-shadow">
+                <div class="flex items-center gap-sm mb-md pb-sm border-b border-surface-border">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stairs</span>
+                    <h2 class="font-headline-md text-headline-md text-primary" data-i18n="sub_na_title" data-en="Subscription Fee N/A">구독료 비해당</h2>
+                </div>
+                <div class="bg-surface-container p-md rounded-lg border-l-4 border-primary font-body-sm text-body-sm text-on-surface-variant" data-i18n="sub_na_note" data-en="The baseline solution{0} is not subscription-based; its cost is already included in 10-year operations cost. No separate subscription fee applies.">
+                    베이스라인 솔루션{1}은 구독제가 아니며, 관련 비용은 10년 운영비에 이미 포함됩니다. 별도 구독료가 부과되지 않습니다.
+                </div>
+            </section>
+            '''.format(
+                f" ({html.escape(base_solution_disp)})" if base_solution_disp else "",
+                f"({html.escape(base_solution_disp)})" if base_solution_disp else "",
+            )
 
         # Similarity multiplier reference table
         similarity_score_val = tco.get("similarity_score", 0)
@@ -3071,42 +3097,6 @@ class CountryReportRenderer:
 </head>
 <body class="bg-surface min-h-screen font-body-md text-text-primary antialiased">
 <div class="w-full flex flex-col relative bg-surface">
-    <header class="border-b border-surface-border px-margin-desktop py-lg shrink-0">
-        <div class="max-w-7xl mx-auto flex justify-between items-start gap-gutter">
-            <div class="flex gap-md items-start">
-                <div class="w-12 h-12 rounded-lg overflow-hidden border border-surface-border shrink-0 bg-surface-container flex items-center justify-center">
-                    <img alt="{country_name} Flag" class="w-full h-full object-cover" src="{flag_url}"/>
-                </div>
-                <div>
-                    <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight m-0">{report_title}</h1>
-                    <div class="flex items-center gap-sm mt-xs flex-wrap">
-                        <span class="font-label-sm text-label-sm uppercase tracking-wider text-text-secondary">Report ID: {report_id}</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary">Generated: {formatted_date}</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary"><span data-i18n="header_data_year" data-en="Data year">데이터 기준연도</span> {data_year}</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="inline-flex items-center gap-xs px-2 py-[2px] rounded-full border font-label-sm text-label-sm uppercase tracking-wide {status_style}">
-                            <span class="material-symbols-outlined text-[12px]">{status_icon}</span>
-                            {entry_status_label}
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-sm shrink-0 no-print">
-                <button id="lang-toggle" onclick="toggleLang()" class="flex items-center gap-xs px-md py-sm border border-surface-border text-text-secondary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">language</span>
-                    <span id="lang-label">EN</span>
-                </button>
-                <button id="btn-pdf" class="flex items-center gap-xs px-md py-sm border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>PDF
-                </button>
-                <button id="btn-share" class="flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">share</span>Share
-                </button>
-            </div>
-        </div>
-    </header>
     <main class="flex-1 p-margin-desktop">
         <div class="max-w-7xl mx-auto">
             {tabs_nav}
@@ -3618,10 +3608,8 @@ class CountryReportRenderer:
         const current = (document.documentElement.lang || 'ko').toLowerCase().startsWith('en') ? 'en' : 'ko';
         applyLang(current === 'en' ? 'ko' : 'en');
     }}
-    try {{
-        const saved = localStorage.getItem(I18N_KEY);
-        if (saved === 'en') applyLang('en');
-    }} catch (_) {{}}
+    // 언어 토글 UI 제거됨 — 항상 기본값(한글)로 표시. 과거 저장된 'en' 설정도 무시하고 정리.
+    try {{ localStorage.removeItem(I18N_KEY); }} catch (_) {{}}
 
     // PDF (browser print → save as PDF) — 인쇄 전 모든 아코디언 펼침, 끝나면 원복
     function exportPDF() {{

@@ -47,8 +47,8 @@ def entry_status(code):
         label = f"기진출 · {sol}" if sol else "기진출"
         badge = (
             '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-label-sm '
-            'bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]">'
-            '<span class="w-1.5 h-1.5 rounded-full bg-[#2e7d32] mr-1.5"></span>'
+            'bg-[#E9F3EE] text-[#4F8A6D] border border-[#D6E8DF]">'
+            '<span class="w-1.5 h-1.5 rounded-full bg-[#4F8A6D] mr-1.5"></span>'
             f'{rre.esc(label)}</span>')
     else:
         badge = (
@@ -183,6 +183,62 @@ def baseline_panel(data):
         f'{body}</div></div>')
 
 
+def entry_panel(data):
+    """진출 정보 — 해당 국가의 사내 운영 자산(진출 형태·솔루션·진출년도).
+
+    country_assets[code]에 있으면 기진출로 보고 진출 형태(단독법인/조인트벤처/지점 등)·
+    솔루션·진출년도를 한 패널로 표시. 없으면 미진출로 표시.
+    """
+    code = data.get("code", "")
+    path = os.path.join(DATA, "internal", "internal_latest.json")
+    assets, statuses = {}, {}
+    try:
+        with open(path, encoding="utf-8") as f:
+            internal = json.load(f)
+        assets = internal.get("country_assets", {})
+        statuses = internal.get("country_status", {})
+    except Exception:
+        pass
+
+    # 진출 단계 배지 — 준비중이면 패널 제목 옆에 표시(운영중은 별도 배지 없이 진출년도로 드러남).
+    status = statuses.get(code, "")
+    status_badge = ""
+    if status == "준비중":
+        status_badge = (
+            '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-label-sm '
+            'bg-[#FFF4E5] text-[#B26A00] border border-[#FFE0B2]">'
+            '<span class="w-1.5 h-1.5 rounded-full bg-[#B26A00] mr-1.5"></span>준비중</span>')
+
+    def cell(label, value_html):
+        # baseline_panel과 동일한 셀 스타일(라벨 위 / 값 아래, 좁으면 세로 스택).
+        return (
+            '<div class="flex-1 min-w-0 py-sm px-md border-b lg:border-b-0 lg:border-r border-surface-border last:border-0">'
+            f'<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-xs">{rre.esc(label)}</div>'
+            f'<div class="font-body-md text-body-md text-on-surface break-words">{value_html}</div></div>')
+
+    asset = assets.get(code)
+    if asset:
+        entry_form = asset.get("entry_form") or "—"
+        solution = asset.get("solution") or "—"
+        since = asset.get("since")
+        since_str = f"{since}년" if since else "—"
+        body = (
+            cell("진출 형태", rre.esc(entry_form))
+            + cell("운영 솔루션", rre.esc(solution))
+            + cell("진출년도", rre.esc(since_str)))
+    else:
+        # 미진출국 — 진단 대상. 단일 셀로 안내.
+        body = cell("진출 형태", '<span class="text-on-surface-variant">미진출 · 진단 대상</span>')
+
+    return (
+        '<div>'
+        '<h3 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-sm">'
+        '<span class="material-symbols-outlined text-secondary">flag</span>진출 정보'
+        f'{status_badge}</h3>'
+        '<div class="border border-surface-border rounded-lg bg-surface overflow-hidden flex flex-col lg:flex-row">'
+        f'{body}</div></div>')
+
+
 def _first_sentences(text, n=3):
     """산문에서 앞 n개 문장만 추출(리스트) — 마침표 뒤 공백 기준 분리(소수점·약어 영향 최소)."""
     import re
@@ -247,7 +303,7 @@ def render_html(data):
             .replace("{{PAGE_TITLE}}", rre.esc(title))
             .replace("{{CHARTS}}", charts(data))
             .replace("{{COMPETITORS}}", competitors_table(data))
-            .replace("{{INSIGHT_PANEL}}", insight_panel(data) + baseline_panel(data)))
+            .replace("{{INSIGHT_PANEL}}", insight_panel(data) + entry_panel(data) + baseline_panel(data)))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

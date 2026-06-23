@@ -15,9 +15,14 @@ Tab order (per render spec §3, Type 2):
 import html
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+# 같은 rendering/ 폴더의 공유 디자인 토큰·헬퍼 모듈(AISea 토큰 단일 소스)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import render_helpers as rre
 
 
 # ---------------------------------------------------------------------------
@@ -25,11 +30,11 @@ from typing import Any, Dict, List, Optional
 # ---------------------------------------------------------------------------
 
 SOURCE_BADGES = {
-    "EXT":  {"label": "외부조사",   "bg": "#EEEEEE", "fg": "#434751"},
-    "INT":  {"label": "내부자료",   "bg": "#E8F0FE", "fg": "#1967D2"},
-    "CALC": {"label": "계산값",     "bg": "#E6F4EA", "fg": "#137333"},
-    "AI":   {"label": "AI 인사이트", "bg": "#F3E8FD", "fg": "#6B21A8"},
-    "NEWS": {"label": "외부이슈",   "bg": "#FEF3C7", "fg": "#B45309"},
+    "EXT":  {"label": "외부조사",   "bg": "#EEF0F2", "fg": "#3B3F46"},
+    "INT":  {"label": "내부자료",   "bg": "#EAF0F8", "fg": "#3F6CB4"},
+    "CALC": {"label": "계산값",     "bg": "#E9F3EE", "fg": "#4F8A6D"},
+    "AI":   {"label": "AI 인사이트", "bg": "#EAF0F8", "fg": "#3F6CB4"},
+    "NEWS": {"label": "외부이슈",   "bg": "#FBF3E2", "fg": "#C08A2E"},
 }
 
 # 배지 flag 라벨 영문 (KO/EN 토글용)
@@ -388,14 +393,14 @@ class RegionReportRenderer:
     @staticmethod
     def score_color(score: Optional[float]) -> str:
         if score is None:
-            return "#9CA3AF"
+            return "#9AA0A8"
         if score >= 80:
-            return "#137333"
+            return "#4F8A6D"
         if score >= 60:
-            return "#1967D2"
+            return "#3F6CB4"
         if score >= 40:
-            return "#B06000"
-        return "#C5221F"
+            return "#C08A2E"
+        return "#C0533F"
 
     # ------------------------- Tab 요약 -------------------------------
 
@@ -420,9 +425,9 @@ class RegionReportRenderer:
             if is_region:
                 scope_pill = (
                     '<span class="font-label-sm text-label-sm font-semibold px-2 py-[2px] rounded-full" '
-                    f'style="background:#FEF3C7;color:#B45309">{self.t_span("summary_news_region")}</span>'
+                    f'style="background:#FBF3E2;color:#C08A2E">{self.t_span("summary_news_region")}</span>'
                 )
-                card_style = 'border-2 border-[#F6AE2D]/40 bg-[#FEF7E6]'
+                card_style = 'border-2 border-[#C08A2E]/40 bg-[#FBF3E2]'
                 cat_label = n.get("news_category")
                 cat_pill = (
                     f'<span class="text-[10px] uppercase tracking-wider text-text-secondary ml-xs">{self.esc(cat_label)}</span>'
@@ -516,7 +521,7 @@ class RegionReportRenderer:
                 </p>''' if ai_top else ""
 
         summary_panel = f'''
-        <section class="bg-primary border border-primary rounded-xl p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+        <section class="bg-primary border border-primary rounded-xl p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
             <div class="flex items-center gap-sm mb-md pb-sm border-b border-white/20">
                 <span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
                 <h2 class="font-headline-md text-[24px] leading-[32px] font-semibold text-on-primary" data-i18n="panel_summary" data-en="Summary">요약</h2>
@@ -543,7 +548,7 @@ class RegionReportRenderer:
                     {self._render_scatter_card()}
                 </div>
                 <div class="lg:col-span-5">
-                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)] h-full">
+                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)] h-full">
                         <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                             <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="summary_overall_rank" data-en="Full Ranking">전체 순위</h2>
                             {self.badge("CALC", "ranking")}
@@ -553,7 +558,7 @@ class RegionReportRenderer:
                 </div>
             </div>
 
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
                 <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                     <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="summary_news_title" data-en="External News Scan">외부 이슈 스캔</h2>
                     {self.badge("NEWS")}
@@ -578,20 +583,20 @@ class RegionReportRenderer:
             if r.get("is_baseline"):
                 # 기준국: 흰 채움 + 진한 보라 테두리 + 별 마커 → 후보국과 명확히 구분
                 point_svg = (
-                    f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="9" fill="#FFFFFF" stroke="#6B21A8" stroke-width="2.5"/>'
-                    f'<text x="{cx:.1f}" y="{cy+4:.1f}" text-anchor="middle" font-size="13" fill="#6B21A8" font-weight="bold">★</text>'
+                    f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="9" fill="#FFFFFF" stroke="#3F6CB4" stroke-width="2.5"/>'
+                    f'<text x="{cx:.1f}" y="{cy+4:.1f}" text-anchor="middle" font-size="13" fill="#3F6CB4" font-weight="bold">★</text>'
                 )
-                label_color = "#6B21A8"
+                label_color = "#3F6CB4"
                 # SVG <text>는 JS i18n 토글이 닿지 않으므로 언어중립 "(B)" 접미사 사용
                 label_text = self.esc(r.get("country", "")) + " (B)"
             elif r.get("excluded"):
-                point_svg = f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6" fill="#9CA3AF" opacity="0.6"/>'
+                point_svg = f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6" fill="#9AA0A8" opacity="0.6"/>'
                 label_color = "#6B7280"
                 label_text = self.esc(r.get("country", ""))
             else:
                 # 후보국: 채도 높은 오렌지로 변경 (배경 녹색 사분면과도 변별)
-                point_svg = f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="7" fill="#E63946" stroke="#FFFFFF" stroke-width="1.5"/>'
-                label_color = "#1b1c1c"
+                point_svg = f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="7" fill="#C0533F" stroke="#FFFFFF" stroke-width="1.5"/>'
+                label_color = "#14171C"
                 label_text = self.esc(r.get("country", ""))
             scatter_points.append(f'''
                 {point_svg}
@@ -599,22 +604,22 @@ class RegionReportRenderer:
         # Grid lines + quadrant labels + highlight (위로 20px 이동)
         scatter_svg = f'''
         <svg viewBox="0 0 420 300" class="w-full">
-            <rect x="40" y="20" width="360" height="240" fill="#fbf9f9" stroke="#DCDCDC"/>
-            <rect x="220" y="20" width="180" height="120" fill="#E6F4EA" opacity="0.4"/>
-            <line x1="220" y1="20" x2="220" y2="260" stroke="#DCDCDC" stroke-dasharray="3,3"/>
-            <line x1="40" y1="140" x2="400" y2="140" stroke="#DCDCDC" stroke-dasharray="3,3"/>
+            <rect x="40" y="20" width="360" height="240" fill="#F7F8FA" stroke="#E6E9EC"/>
+            <rect x="220" y="20" width="180" height="120" fill="#E9F3EE" opacity="0.4"/>
+            <line x1="220" y1="20" x2="220" y2="260" stroke="#E6E9EC" stroke-dasharray="3,3"/>
+            <line x1="40" y1="140" x2="400" y2="140" stroke="#E6E9EC" stroke-dasharray="3,3"/>
             <!-- Quadrant labels (희미하게, 데이터 위가 아닌 배경) -->
-            <text x="130" y="40" text-anchor="middle" font-size="10" fill="#9CA3AF" font-weight="600" data-i18n="it_quad_short" data-en="② {self.esc(LABELS["it_quad_short"]["en"])}">② {self.esc(LABELS["it_quad_short"]["ko"])}</text>
-            <text x="130" y="54" text-anchor="middle" font-size="9" fill="#9CA3AF" data-i18n="quad_hint_q2" data-en="IT↑ · {self.esc(LABELS["summary_attr_label"]["en"])}↓">IT↑ · {self.esc(LABELS["summary_attr_label"]["ko"])}↓</text>
-            <text x="310" y="40" text-anchor="middle" font-size="10" fill="#137333" font-weight="700" data-i18n="it_quad_optimal" data-en="① {self.esc(LABELS["it_quad_optimal"]["en"])}">① {self.esc(LABELS["it_quad_optimal"]["ko"])}</text>
-            <text x="310" y="54" text-anchor="middle" font-size="9" fill="#137333" data-i18n="quad_hint_q1" data-en="IT↑ · {self.esc(LABELS["summary_attr_label"]["en"])}↑">IT↑ · {self.esc(LABELS["summary_attr_label"]["ko"])}↑</text>
-            <text x="130" y="245" text-anchor="middle" font-size="10" fill="#9CA3AF" font-weight="600" data-i18n="it_quad_low" data-en="④ {self.esc(LABELS["it_quad_low"]["en"])}">④ {self.esc(LABELS["it_quad_low"]["ko"])}</text>
-            <text x="130" y="258" text-anchor="middle" font-size="9" fill="#9CA3AF" data-i18n="quad_hint_q4" data-en="IT↓ · {self.esc(LABELS["summary_attr_label"]["en"])}↓">IT↓ · {self.esc(LABELS["summary_attr_label"]["ko"])}↓</text>
-            <text x="310" y="245" text-anchor="middle" font-size="10" fill="#9CA3AF" font-weight="600" data-i18n="it_quad_midterm" data-en="③ {self.esc(LABELS["it_quad_midterm"]["en"])}">③ {self.esc(LABELS["it_quad_midterm"]["ko"])}</text>
-            <text x="310" y="258" text-anchor="middle" font-size="9" fill="#9CA3AF" data-i18n="quad_hint_q3" data-en="IT↓ · {self.esc(LABELS["summary_attr_label"]["en"])}↑">IT↓ · {self.esc(LABELS["summary_attr_label"]["ko"])}↑</text>
+            <text x="130" y="40" text-anchor="middle" font-size="10" fill="#9AA0A8" font-weight="600" data-i18n="it_quad_short" data-en="② {self.esc(LABELS["it_quad_short"]["en"])}">② {self.esc(LABELS["it_quad_short"]["ko"])}</text>
+            <text x="130" y="54" text-anchor="middle" font-size="9" fill="#9AA0A8" data-i18n="quad_hint_q2" data-en="IT↑ · {self.esc(LABELS["summary_attr_label"]["en"])}↓">IT↑ · {self.esc(LABELS["summary_attr_label"]["ko"])}↓</text>
+            <text x="310" y="40" text-anchor="middle" font-size="10" fill="#4F8A6D" font-weight="700" data-i18n="it_quad_optimal" data-en="① {self.esc(LABELS["it_quad_optimal"]["en"])}">① {self.esc(LABELS["it_quad_optimal"]["ko"])}</text>
+            <text x="310" y="54" text-anchor="middle" font-size="9" fill="#4F8A6D" data-i18n="quad_hint_q1" data-en="IT↑ · {self.esc(LABELS["summary_attr_label"]["en"])}↑">IT↑ · {self.esc(LABELS["summary_attr_label"]["ko"])}↑</text>
+            <text x="130" y="245" text-anchor="middle" font-size="10" fill="#9AA0A8" font-weight="600" data-i18n="it_quad_low" data-en="④ {self.esc(LABELS["it_quad_low"]["en"])}">④ {self.esc(LABELS["it_quad_low"]["ko"])}</text>
+            <text x="130" y="258" text-anchor="middle" font-size="9" fill="#9AA0A8" data-i18n="quad_hint_q4" data-en="IT↓ · {self.esc(LABELS["summary_attr_label"]["en"])}↓">IT↓ · {self.esc(LABELS["summary_attr_label"]["ko"])}↓</text>
+            <text x="310" y="245" text-anchor="middle" font-size="10" fill="#9AA0A8" font-weight="600" data-i18n="it_quad_midterm" data-en="③ {self.esc(LABELS["it_quad_midterm"]["en"])}">③ {self.esc(LABELS["it_quad_midterm"]["ko"])}</text>
+            <text x="310" y="258" text-anchor="middle" font-size="9" fill="#9AA0A8" data-i18n="quad_hint_q3" data-en="IT↓ · {self.esc(LABELS["summary_attr_label"]["en"])}↑">IT↓ · {self.esc(LABELS["summary_attr_label"]["ko"])}↑</text>
             <!-- Axis labels -->
-            <text x="220" y="285" text-anchor="middle" font-size="11" fill="#555555" data-i18n="it_scatter_axis_x" data-en="{self.esc(LABELS["it_scatter_axis_x"]["en"])}">{self.esc(LABELS["it_scatter_axis_x"]["ko"])}</text>
-            <text x="20" y="140" text-anchor="middle" font-size="11" fill="#555555" transform="rotate(-90 20 140)" data-i18n="it_scatter_axis_y" data-en="{self.esc(LABELS["it_scatter_axis_y"]["en"])}">{self.esc(LABELS["it_scatter_axis_y"]["ko"])}</text>
+            <text x="220" y="285" text-anchor="middle" font-size="11" fill="#6B7280" data-i18n="it_scatter_axis_x" data-en="{self.esc(LABELS["it_scatter_axis_x"]["en"])}">{self.esc(LABELS["it_scatter_axis_x"]["ko"])}</text>
+            <text x="20" y="140" text-anchor="middle" font-size="11" fill="#6B7280" transform="rotate(-90 20 140)" data-i18n="it_scatter_axis_y" data-en="{self.esc(LABELS["it_scatter_axis_y"]["en"])}">{self.esc(LABELS["it_scatter_axis_y"]["ko"])}</text>
             {"".join(scatter_points)}
         </svg>'''
 
@@ -623,7 +628,7 @@ class RegionReportRenderer:
         <div class="mt-md p-sm bg-surface-light border border-surface-border rounded-md">
             <div class="grid grid-cols-2 gap-xs text-label-sm">
                 <div class="flex items-start gap-xs">
-                    <span class="font-bold" style="color:#137333">①</span>
+                    <span class="font-bold" style="color:#4F8A6D">①</span>
                     {self.t_span("it_quad_q1_label")}
                 </div>
                 <div class="flex items-start gap-xs">
@@ -640,9 +645,9 @@ class RegionReportRenderer:
                 </div>
             </div>
             <div class="mt-sm pt-xs border-t border-surface-border flex items-center gap-md text-label-sm text-text-secondary flex-wrap">
-                <span class="flex items-center gap-xs"><span class="inline-block w-3 h-3 rounded-full border border-white" style="background:#E63946"></span>{self.t_span("it_legend_candidate")}</span>
-                <span class="flex items-center gap-xs"><span class="inline-block w-3 h-3 rounded-full bg-white border-2" style="border-color:#6B21A8;font-size:8px;line-height:8px;text-align:center;color:#6B21A8">★</span>{self.t_span("it_legend_baseline")}</span>
-                <span class="flex items-center gap-xs"><span class="inline-block w-2 h-2 rounded-full opacity-60" style="background:#9CA3AF"></span>{self.t_span("it_legend_ks_excluded")}</span>
+                <span class="flex items-center gap-xs"><span class="inline-block w-3 h-3 rounded-full border border-white" style="background:#C0533F"></span>{self.t_span("it_legend_candidate")}</span>
+                <span class="flex items-center gap-xs"><span class="inline-block w-3 h-3 rounded-full bg-white border-2" style="border-color:#3F6CB4;font-size:8px;line-height:8px;text-align:center;color:#3F6CB4">★</span>{self.t_span("it_legend_baseline")}</span>
+                <span class="flex items-center gap-xs"><span class="inline-block w-2 h-2 rounded-full opacity-60" style="background:#9AA0A8"></span>{self.t_span("it_legend_ks_excluded")}</span>
             </div>
         </div>'''
         return scatter_svg, scatter_legend
@@ -651,7 +656,7 @@ class RegionReportRenderer:
         """매력도 × IT 유사도 산점도를 표준 카드로 감싼다 (요약 탭에서 사용)."""
         scatter_svg, scatter_legend = self._build_scatter()
         return f'''
-        <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)] h-full">
+        <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)] h-full">
             <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                 <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="it_scatter_title" data-en="Attractiveness × IT Similarity">매력도 × IT 유사도</h2>
                 {self.badge("CALC", {"ko": "2축", "en": "2-axis"})}
@@ -677,16 +682,16 @@ class RegionReportRenderer:
         layout = [2, 1, 3]
 
         # 단(段) 스타일 — 높이·강조 차등은 Kinetic 블루 팔레트 농담으로만 표현
-        #   1위: primary(#00204e) 최고단·강조 테두리, 2/3위: secondary~연한 톤 하강
+        #   1위: primary(#3F6CB4) 최고단·강조 테두리, 2/3위: secondary~연한 톤 하강
         STEP = {
             1: {"pedestal_h": "h-20", "pad": "pt-0",
-                "pedestal": "#00204e", "border": "border-primary",
+                "pedestal": "#3F6CB4", "border": "border-primary",
                 "ring": "ring-1 ring-primary/30"},
             2: {"pedestal_h": "h-12", "pad": "pt-lg",
-                "pedestal": "#005db7", "border": "border-surface-border",
+                "pedestal": "#3F6CB4", "border": "border-surface-border",
                 "ring": ""},
             3: {"pedestal_h": "h-8", "pad": "pt-lg",
-                "pedestal": "#599bfe", "border": "border-surface-border",
+                "pedestal": "#6E97D6", "border": "border-surface-border",
                 "ring": ""},
         }
 
@@ -709,7 +714,7 @@ class RegionReportRenderer:
             color = self.score_color(band)
             cols.append(f'''
             <div class="flex flex-col items-center justify-end {st["pad"]}">
-                <div class="w-full bg-surface-container-lowest border {st["border"]} {st["ring"]} rounded-lg p-md shadow-[0_4px_8px_rgba(0,32,78,0.04)] flex flex-col items-center text-center">
+                <div class="w-full bg-surface-container-lowest border {st["border"]} {st["ring"]} rounded-lg p-md shadow-[0_4px_8px_rgba(20,23,28,0.04)] flex flex-col items-center text-center">
                     <div class="flex items-center gap-xs mb-xs">
                         <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-primary">Rank #{self.esc(entry.get("rank"))}</span>
                         {self.badge("CALC")}
@@ -804,17 +809,17 @@ class RegionReportRenderer:
                 gate = (c.get("gates") or {}).get(g, {})
                 status = (gate.get("status") or "UNKNOWN").upper()
                 if status == "PASS":
-                    pill = '<span class="px-2 py-[2px] bg-[#E6F4EA] text-[#137333] rounded-md font-label-sm text-label-sm">○ PASS</span>'
+                    pill = '<span class="px-2 py-[2px] bg-[#E9F3EE] text-[#4F8A6D] rounded-md font-label-sm text-label-sm">○ PASS</span>'
                 elif status == "FAIL":
-                    pill = '<span class="px-2 py-[2px] bg-[#FCE8E6] text-[#C5221F] rounded-md font-label-sm text-label-sm">✕ FAIL</span>'
+                    pill = '<span class="px-2 py-[2px] bg-[#F6E7E3] text-[#C0533F] rounded-md font-label-sm text-label-sm">✕ FAIL</span>'
                 else:
                     pill = '<span class="px-2 py-[2px] bg-surface-container text-text-secondary rounded-md font-label-sm text-label-sm">— UNK</span>'
                 tip = self.esc(gate.get("value") or "")
                 cells.append(f'<td class="py-sm px-sm" title="{tip}">{pill}</td>')
             country_pill = (
-                f'<span class="px-2 py-[2px] bg-[#E6F4EA] text-[#137333] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#E9F3EE] text-[#4F8A6D] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
                 if passed else
-                f'<span class="px-2 py-[2px] bg-[#FCE8E6] text-[#C5221F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#F6E7E3] text-[#C0533F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
             )
             rows_html.append(f'''
                 <tr class="border-b border-surface-border {row_class}">
@@ -838,19 +843,19 @@ class RegionReportRenderer:
             code = c.get("country")
             country_passed = c.get("pass")
             badge_pill = (
-                f'<span class="px-2 py-[2px] bg-[#E6F4EA] text-[#137333] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#E9F3EE] text-[#4F8A6D] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
                 if country_passed else
-                f'<span class="px-2 py-[2px] bg-[#FCE8E6] text-[#C5221F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#F6E7E3] text-[#C0533F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
             )
             gate_rows = []
             for g in gates:
                 gate = (c.get("gates") or {}).get(g, {})
                 status = (gate.get("status") or "UNKNOWN").upper()
-                status_color = {"PASS": "#137333", "FAIL": "#C5221F"}.get(status, "#9CA3AF")
+                status_color = {"PASS": "#4F8A6D", "FAIL": "#C0533F"}.get(status, "#9AA0A8")
                 icon = {"PASS": "○", "FAIL": "✕"}.get(status, "—")
                 source = self.esc(gate.get("source") or "—")
                 tier = gate.get("tier")
-                tier_pill = f'<span class="ml-xs px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEEEEE;color:#434751">Tier {tier}</span>' if tier else ""
+                tier_pill = f'<span class="ml-xs px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEF0F2;color:#3B3F46">Tier {tier}</span>' if tier else ""
                 scope = self.esc(gate.get("gate_scope") or "")
                 gate_rows.append(f'''
                 <div class="border-b border-surface-border last:border-b-0 py-sm">
@@ -876,7 +881,7 @@ class RegionReportRenderer:
                 self.t_span("ks_failed_msg", extra_class="text-label-sm text-text-secondary ml-xs flex-1")
             )
             explain_cards.append(f'''
-            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(0,32,78,0.04)] group">
+            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(20,23,28,0.04)] group">
                 <summary class="cursor-pointer list-none px-md py-sm flex items-center gap-sm hover:bg-surface-light rounded-lg">
                     <span class="material-symbols-outlined text-[20px] text-text-secondary transition-transform group-open:rotate-90">chevron_right</span>
                     <img src="{self.country_flag_url(code)}" class="w-5 h-4 object-cover rounded-sm" alt="">
@@ -903,7 +908,7 @@ class RegionReportRenderer:
                     "en": f'{len(passed)} passed · {len(failed)} failed. Failed countries ({", ".join(failed) or "none"}) are excluded from subsequent scoring.',
                 })}
             </p>
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(0,32,78,0.04)] overflow-x-auto">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(20,23,28,0.04)] overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b-2 border-surface-border">
@@ -955,7 +960,7 @@ class RegionReportRenderer:
 
         # Stacked bar — contributions per country
         contrib_keys = list(weights.keys())
-        palette = ["#00204e", "#005db7", "#599bfe", "#aec6ff", "#1967D2", "#B45309"]
+        palette = ["#3F6CB4", "#3F6CB4", "#6E97D6", "#8FA0BD", "#3F6CB4", "#C08A2E"]
         # Color map for contribution legend
         legend_html = "".join(f'''
             <div class="flex items-center gap-xs">
@@ -1019,14 +1024,14 @@ class RegionReportRenderer:
                 src_item = info.get("source_item")
                 reverse = info.get("reverse")
                 dir_pill = (
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#FCE8E6;color:#C5221F">{self.t_span("attr_dir_negative")}</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#F6E7E3;color:#C0533F">{self.t_span("attr_dir_negative")}</span>'
                     if reverse else
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#E6F4EA;color:#137333">{self.t_span("attr_dir_positive")}</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#E9F3EE;color:#4F8A6D">{self.t_span("attr_dir_positive")}</span>'
                 )
                 tier_pill = (
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEEEEE;color:#434751">Tier {tier} ×{tier_mult}</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEF0F2;color:#3B3F46">Tier {tier} ×{tier_mult}</span>'
                     if tier is not None else
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#FCE8E6;color:#C5221F">{self.t_span("attr_tier_unknown")} ×1.0</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#F6E7E3;color:#C0533F">{self.t_span("attr_tier_unknown")} ×1.0</span>'
                 )
                 norm_bar = ""
                 if norm is not None:
@@ -1075,7 +1080,7 @@ class RegionReportRenderer:
             axes_block = "".join(axis_rows) or f'<div class="text-text-secondary text-body-sm py-sm">{self.t_span("no_contrib_data")}</div>'
 
             explain_cards.append(f'''
-            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(0,32,78,0.04)] group">
+            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(20,23,28,0.04)] group">
                 <summary class="cursor-pointer list-none px-md py-sm flex items-center gap-sm hover:bg-surface-light rounded-lg">
                     <span class="material-symbols-outlined text-[20px] text-text-secondary transition-transform group-open:rotate-90">chevron_right</span>
                     <img src="{self.country_flag_url(code)}" class="w-5 h-4 object-cover rounded-sm" alt="">
@@ -1093,7 +1098,7 @@ class RegionReportRenderer:
 
         return f'''
         <section class="flex flex-col gap-xl">
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
                 <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                     <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="attr_ranking_title" data-en="Business Attractiveness Ranking">비즈니스 매력도 순위</h2>
                     {self.badge("CALC", "ranking · 0~100")}
@@ -1101,7 +1106,7 @@ class RegionReportRenderer:
                 <div class="flex flex-col gap-sm">{bars_html}</div>
             </div>
 
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
                 <div class="flex items-center justify-between mb-md border-b border-surface-border pb-sm">
                     <div class="flex items-center gap-sm">
                         <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="attr_contrib_title" data-en="Item Contributions">항목 기여분</h2>
@@ -1155,20 +1160,20 @@ class RegionReportRenderer:
         def cell_style(band: Optional[float]) -> tuple:
             """Return (bg, fg) — opacity-scaled mono palette for cleaner look."""
             if band is None:
-                return ("#F3F4F6", "#9CA3AF")
+                return ("#EEF0F2", "#9AA0A8")
             if band >= 90:
-                return ("#0F4C2E", "#FFFFFF")
+                return ("#2F5C46", "#FFFFFF")
             if band >= 80:
-                return ("#137333", "#FFFFFF")
+                return ("#4F8A6D", "#FFFFFF")
             if band >= 70:
-                return ("#34A853", "#FFFFFF")
+                return ("#6FA98C", "#FFFFFF")
             if band >= 60:
-                return ("#A8DAB5", "#1B4332")
+                return ("#C7E2D3", "#2F5C46")
             if band >= 50:
-                return ("#FCE8B2", "#7B5E00")
+                return ("#FBF3E2", "#8A6A1E")
             if band >= 40:
-                return ("#F6AE2D", "#FFFFFF")
-            return ("#C5221F", "#FFFFFF")
+                return ("#C08A2E", "#FFFFFF")
+            return ("#C0533F", "#FFFFFF")
 
         # Column header — axes
         col_count = len(axes_order)
@@ -1199,7 +1204,7 @@ class RegionReportRenderer:
                 f'<img src="{self.country_flag_url(code)}" class="w-5 h-4 object-cover rounded-sm shrink-0" alt="">'
                 f'<span class="font-label-md text-label-md text-primary truncate">{self.esc(self.country_ko(code))}</span>'
                 f'<span class="text-label-sm text-text-secondary truncate">{self.esc(self.country_en(code))}</span>'
-                + (f'<span class="text-[10px] font-semibold ml-xs px-[6px] py-[1px] rounded-full" style="background:#E8F0FE;color:#1967D2">{self.t_span("it_baseline_pill")}</span>' if is_base else '')
+                + (f'<span class="text-[10px] font-semibold ml-xs px-[6px] py-[1px] rounded-full" style="background:#EAF0F8;color:#3F6CB4">{self.t_span("it_baseline_pill")}</span>' if is_base else '')
                 + '</div>'
             )
             cells = [country_cell]
@@ -1231,13 +1236,13 @@ class RegionReportRenderer:
 
         # Legend — gradient bar
         legend_steps = [
-            ("≥90", "#0F4C2E", "#FFFFFF"),
-            ("80", "#137333", "#FFFFFF"),
-            ("70", "#34A853", "#FFFFFF"),
-            ("60", "#A8DAB5", "#1B4332"),
-            ("50", "#FCE8B2", "#7B5E00"),
-            ("40", "#F6AE2D", "#FFFFFF"),
-            ("<40", "#C5221F", "#FFFFFF"),
+            ("≥90", "#2F5C46", "#FFFFFF"),
+            ("80", "#4F8A6D", "#FFFFFF"),
+            ("70", "#6FA98C", "#FFFFFF"),
+            ("60", "#C7E2D3", "#2F5C46"),
+            ("50", "#FBF3E2", "#8A6A1E"),
+            ("40", "#C08A2E", "#FFFFFF"),
+            ("<40", "#C0533F", "#FFFFFF"),
         ]
         legend_html = (
             '<div class="flex items-center gap-xs flex-wrap">'
@@ -1286,9 +1291,9 @@ class RegionReportRenderer:
             news = card.get("top_news") or {}
             ks_pass = card.get("killswitch_pass")
             ks_pill = (
-                f'<span class="px-2 py-[2px] bg-[#E6F4EA] text-[#137333] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#E9F3EE] text-[#4F8A6D] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_pass")}</span>'
                 if ks_pass else
-                f'<span class="px-2 py-[2px] bg-[#FCE8E6] text-[#C5221F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
+                f'<span class="px-2 py-[2px] bg-[#F6E7E3] text-[#C0533F] rounded-md font-label-sm text-label-sm">{self.t_span("ks_status_fail")}</span>'
             )
 
             def line(label_html: str, val: Any, flag: str) -> str:
@@ -1380,9 +1385,9 @@ class RegionReportRenderer:
             ai_block = ""
             if ai_comment:
                 ai_block = (
-                    f'<div class="mt-sm bg-[#F3E8FD]/40 border border-[#E9D5FF] rounded-md p-sm">'
+                    f'<div class="mt-sm bg-[#EAF0F8]/40 border border-[#EAF0F8] rounded-md p-sm">'
                     f'<div class="flex items-center gap-xs mb-xs">'
-                    f'<span class="material-symbols-outlined text-[16px]" style="color:#6B21A8">psychology</span>'
+                    f'<span class="material-symbols-outlined text-[16px]" style="color:#3F6CB4">psychology</span>'
                     f'{self.t_span("it_ai_comment", extra_class="font-label-sm text-label-sm uppercase tracking-wider")}'
                     f'{self.badge("AI")}'
                     f'</div>'
@@ -1391,7 +1396,7 @@ class RegionReportRenderer:
                 )
 
             cards_html_parts.append(f'''
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(0,32,78,0.04)] flex flex-col min-w-0 overflow-hidden">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(20,23,28,0.04)] flex flex-col min-w-0 overflow-hidden">
                 <div class="flex items-center justify-between mb-sm">
                     <div class="flex items-center gap-sm">
                         <span class="text-2xl font-bold text-primary">#{self.esc(card.get("rank"))}</span>
@@ -1480,9 +1485,9 @@ class RegionReportRenderer:
                         "en": f"Text-token Jaccard similarity → 30 + J×65 = {_rawtxt} (or gate same=90 / one PASS=50)",
                     }
                 tier_pill = (
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEEEEE;color:#434751">Tier {tier} ×{tier_mult}</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#EEF0F2;color:#3B3F46">Tier {tier} ×{tier_mult}</span>'
                     if tier is not None else
-                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#FCE8E6;color:#C5221F">{self.t_span("attr_tier_unknown")} ×1.0</span>'
+                    f'<span class="px-[6px] py-[1px] rounded text-[10px] font-semibold" style="background:#F6E7E3;color:#C0533F">{self.t_span("attr_tier_unknown")} ×1.0</span>'
                 )
                 axis_rows.append(f'''
                 <div class="border-b border-surface-border last:border-b-0 py-sm">
@@ -1520,7 +1525,7 @@ class RegionReportRenderer:
 
             base_label = f" {self.t_span('it_baseline_pill', extra_class='text-label-sm text-secondary')}" if is_base else ""
             it_explain_cards.append(f'''
-            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(0,32,78,0.04)] group">
+            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(20,23,28,0.04)] group">
                 <summary class="cursor-pointer list-none px-md py-sm flex items-center gap-sm hover:bg-surface-light rounded-lg">
                     <span class="material-symbols-outlined text-[20px] text-text-secondary transition-transform group-open:rotate-90">chevron_right</span>
                     <img src="{self.country_flag_url(code)}" class="w-5 h-4 object-cover rounded-sm" alt="">
@@ -1551,11 +1556,11 @@ class RegionReportRenderer:
             w_biz = (qw.get("weights") or {}).get("w_biz", 0.6)
             w_it = (qw.get("weights") or {}).get("w_it", 0.4)
             if is_baseline:
-                status_pill = f'<span class="px-2 py-[2px] bg-[#E8F0FE] text-[#1967D2] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_baseline_excluded")}</span>'
+                status_pill = f'<span class="px-2 py-[2px] bg-[#EAF0F8] text-[#3F6CB4] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_baseline_excluded")}</span>'
             elif excluded:
-                status_pill = f'<span class="px-2 py-[2px] bg-[#FCE8E6] text-[#C5221F] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_ks_excluded")}</span>'
+                status_pill = f'<span class="px-2 py-[2px] bg-[#F6E7E3] text-[#C0533F] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_ks_excluded")}</span>'
             else:
-                status_pill = f'<span class="px-2 py-[2px] bg-[#E6F4EA] text-[#137333] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_eligible")}</span>'
+                status_pill = f'<span class="px-2 py-[2px] bg-[#E9F3EE] text-[#4F8A6D] rounded-md font-label-sm text-label-sm">{self.t_span("it_qw_eligible")}</span>'
             if attr is not None and it_raw is not None:
                 _qw_calc = (
                     f"{attr} × {w_biz} + {it_raw} × {w_it} = "
@@ -1568,7 +1573,7 @@ class RegionReportRenderer:
             else:
                 derive = dict(LABELS["fx_qw_missing"])
             qw_explain_cards.append(f'''
-            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(0,32,78,0.04)] group">
+            <details class="bg-surface-container-lowest border border-surface-border rounded-lg shadow-[0_2px_4px_rgba(20,23,28,0.04)] group">
                 <summary class="cursor-pointer list-none px-md py-sm flex items-center gap-sm hover:bg-surface-light rounded-lg">
                     <span class="material-symbols-outlined text-[20px] text-text-secondary transition-transform group-open:rotate-90">chevron_right</span>
                     <img src="{self.country_flag_url(code)}" class="w-5 h-4 object-cover rounded-sm" alt="">
@@ -1603,7 +1608,7 @@ class RegionReportRenderer:
 
         return f'''
         <section class="flex flex-col gap-xl">
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
                 <div class="flex items-center justify-between gap-sm mb-md border-b border-surface-border pb-sm flex-wrap">
                     <div class="flex items-center gap-sm">
                         <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="it_heatmap_title" data-en="IT Similarity Heatmap">IT 유사도 히트맵</h2>
@@ -1618,7 +1623,7 @@ class RegionReportRenderer:
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
                 <div class="lg:col-span-7">
-                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)] h-full">
+                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)] h-full">
                         <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                             <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="it_quickwin_title" data-en="Quickwin Final Ranking">퀵윈 종합 순위</h2>
                             {self.badge("CALC")}
@@ -1637,7 +1642,7 @@ class RegionReportRenderer:
                     </div>
                 </div>
                 <div class="lg:col-span-5">
-                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)] h-full">
+                    <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)] h-full">
                         <div class="flex items-center gap-sm mb-md border-b border-surface-border pb-sm">
                             <h2 class="font-headline-md text-headline-md text-primary m-0" data-i18n="it_scatter_title" data-en="Attractiveness × IT Similarity">매력도 × IT 유사도</h2>
                             {self.badge("CALC", {"ko": "2축", "en": "2-axis"})}
@@ -1692,7 +1697,7 @@ class RegionReportRenderer:
         for c in countries:
             code = c.get("country", "")
             cards.append(f'''
-            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
+            <div class="bg-surface-container-lowest border border-surface-border rounded-lg p-md shadow-[0_4px_8px_rgba(20,23,28,0.04)]">
                 <div class="flex items-center gap-sm mb-sm border-b border-surface-border pb-sm">
                     <img src="{self.country_flag_url(code)}" class="w-6 h-4 object-cover rounded-sm" alt="">
                     <h3 class="font-headline-md text-headline-md text-primary m-0">{self.esc(self.country_ko(code))}</h3>
@@ -1820,61 +1825,15 @@ class RegionReportRenderer:
     <!-- 브라우저 인쇄 시 PDF 기본 파일명에 이 title이 사용됨 -->
     <title>{self.esc(report_id)} — {self.esc(title_plain)}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script>
-        tailwind.config = {{
-            darkMode: "class",
-            theme: {{
-                extend: {{
-                    colors: {{
-                        "accent-red": "#E63946",
-                        "surface-bright": "#fbf9f9",
-                        "primary": "#00204e",
-                        "primary-container": "#003478",
-                        "on-primary-container": "#7d9fe9",
-                        "on-primary": "#ffffff",
-                        "secondary": "#005db7",
-                        "secondary-container": "#599bfe",
-                        "surface": "#fbf9f9",
-                        "surface-light": "#F8F9FA",
-                        "surface-container": "#efeded",
-                        "surface-container-low": "#f5f3f3",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-border": "#DCDCDC",
-                        "on-surface": "#1b1c1c",
-                        "on-surface-variant": "#434751",
-                        "text-primary": "#000000",
-                        "text-secondary": "#555555",
-                        "background": "#fbf9f9"
-                    }},
-                    borderRadius: {{ DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" }},
-                    spacing: {{ xs: "4px", sm: "8px", md: "16px", lg: "24px", xl: "32px",
-                                gutter: "24px", "margin-desktop": "48px", "margin-mobile": "16px", base: "4px" }},
-                    fontFamily: {{
-                        "headline-md": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"],
-                        "headline-lg": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"],
-                        "label-sm": ["Hanken Grotesk"], "body-md": ["Hanken Grotesk"]
-                    }},
-                    fontSize: {{
-                        "headline-md": ["20px", {{lineHeight: "28px", fontWeight: "600"}}],
-                        "headline-lg": ["28px", {{lineHeight: "36px", letterSpacing: "-0.01em", fontWeight: "700"}}],
-                        "label-md": ["12px", {{lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600"}}],
-                        "label-sm": ["11px", {{lineHeight: "14px", fontWeight: "500"}}],
-                        "body-sm": ["14px", {{lineHeight: "20px", fontWeight: "400"}}],
-                        "body-md": ["16px", {{lineHeight: "24px", fontWeight: "400"}}],
-                        "body-lg": ["18px", {{lineHeight: "28px", fontWeight: "400"}}]
-                    }}
-                }}
-            }}
-        }};
-    </script>
+    {rre.head_links()}
+    {rre.tailwind_config_block()}
     <style>
-        body {{ font-family: 'Hanken Grotesk', 'Noto Sans KR', sans-serif; }}
-        .card-shadow {{ box-shadow: 0 4px 8px rgba(0, 32, 78, 0.12); }}
+        body {{ font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif; }}
+        .mono, .font-mono {{ font-family: 'Space Grotesk', 'Pretendard', sans-serif; }}
+        .card-shadow {{ box-shadow: 0 4px 8px rgba(20, 23, 28, 0.12); }}
         .tab-content {{ display: none; }}
         .tab-content.active {{ display: block; }}
-        .tab-button.active {{ background-color: #00204e; color: white; }}
+        .tab-button.active {{ background-color: #101622; color: white; }}
         .material-symbols-outlined {{ font-variation-settings: 'FILL' 0, 'wght' 500; }}
 
         /* ───────── Print / PDF export ───────── */
@@ -1907,8 +1866,8 @@ class RegionReportRenderer:
                 display: block;
                 font-size: 18px;
                 font-weight: 700;
-                color: #00204e;
-                border-bottom: 2px solid #00204e;
+                color: #101622;
+                border-bottom: 2px solid #101622;
                 padding-bottom: 6px;
                 margin-bottom: 16px;
             }}

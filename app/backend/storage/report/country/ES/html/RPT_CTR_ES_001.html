@@ -5,115 +5,17 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>스페인 진출 진단 보고서</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "accent-red": "#E63946",
-                        "surface-bright": "#fbf9f9",
-                        "on-primary-fixed-variant": "#1c4489",
-                        "tertiary-fixed": "#ffdad8",
-                        "primary-fixed-dim": "#aec6ff",
-                        "inverse-surface": "#303031",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary": "#005db7",
-                        "on-tertiary": "#ffffff",
-                        "on-primary": "#ffffff",
-                        "error": "#ba1a1a",
-                        "on-tertiary-fixed-variant": "#92001c",
-                        "secondary-fixed": "#d6e3ff",
-                        "tertiary": "#4d000a",
-                        "inverse-primary": "#aec6ff",
-                        "primary-container": "#003478",
-                        "on-primary-container": "#7d9fe9",
-                        "primary-fixed": "#d8e2ff",
-                        "on-secondary-container": "#003268",
-                        "surface-dim": "#dbdad9",
-                        "surface-container-low": "#f5f3f3",
-                        "surface-border": "#DCDCDC",
-                        "on-error": "#ffffff",
-                        "surface-container-highest": "#e3e2e2",
-                        "surface-container": "#efeded",
-                        "secondary-fixed-dim": "#a9c7ff",
-                        "on-tertiary-fixed": "#410007",
-                        "surface-variant": "#e3e2e2",
-                        "on-tertiary-container": "#ff7576",
-                        "inverse-on-surface": "#f2f0f0",
-                        "outline": "#747782",
-                        "surface-light": "#F8F9FA",
-                        "text-secondary": "#555555",
-                        "on-primary-fixed": "#001a43",
-                        "surface-tint": "#395da2",
-                        "on-secondary-fixed": "#001b3d",
-                        "on-surface-variant": "#434751",
-                        "on-secondary-fixed-variant": "#00468c",
-                        "on-error-container": "#93000a",
-                        "outline-variant": "#c4c6d2",
-                        "text-disabled": "#BEBEBE",
-                        "secondary-container": "#599bfe",
-                        "tertiary-fixed-dim": "#ffb3b1",
-                        "on-secondary": "#ffffff",
-                        "background": "#fbf9f9",
-                        "error-container": "#ffdad6",
-                        "surface": "#fbf9f9",
-                        "on-background": "#1b1c1c",
-                        "text-primary": "#000000",
-                        "surface-container-high": "#e9e8e7",
-                        "primary": "#00204e",
-                        "tertiary-container": "#750015",
-                        "on-surface": "#1b1c1c"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "sm": "8px",
-                        "margin-desktop": "48px",
-                        "gutter": "24px",
-                        "base": "4px",
-                        "margin-mobile": "16px",
-                        "xl": "32px",
-                        "lg": "24px",
-                        "xs": "4px",
-                        "md": "16px"
-                    },
-                    "fontFamily": {
-                        "headline-md": ["Hanken Grotesk"],
-                        "label-md": ["Hanken Grotesk"],
-                        "headline-lg": ["Hanken Grotesk"],
-                        "body-sm": ["Hanken Grotesk"],
-                        "display-lg": ["Hanken Grotesk"],
-                        "label-sm": ["Hanken Grotesk"],
-                        "body-lg": ["Hanken Grotesk"],
-                        "headline-lg-mobile": ["Hanken Grotesk"],
-                        "body-md": ["Hanken Grotesk"]
-                    },
-                    "fontSize": {
-                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
-                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
-                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
-                    }
-                }
-            }
-        }
+        tailwind.config = {"darkMode": "class", "theme": {"extend": {"colors": {"accent-red": "#C0533F", "surface-bright": "#F7F8FA", "on-primary-fixed-variant": "#2C4C86", "tertiary-fixed": "#F6E7E3", "primary-fixed-dim": "#6E97D6", "inverse-surface": "#1F2D45", "surface-container-lowest": "#ffffff", "secondary": "#3F6CB4", "on-tertiary": "#ffffff", "on-primary": "#ffffff", "error": "#C0533F", "on-tertiary-fixed-variant": "#C0533F", "secondary-fixed": "#EAF0F8", "tertiary": "#C0533F", "inverse-primary": "#6E97D6", "primary-container": "#2C4C86", "on-primary-container": "#8FA0BD", "primary-fixed": "#EAF0F8", "on-secondary-container": "#2C4C86", "surface-dim": "#dbdad9", "surface-container-low": "#F7F8FA", "surface-border": "#E6E9EC", "on-error": "#ffffff", "surface-container-highest": "#EEF0F2", "surface-container": "#EEF0F2", "secondary-fixed-dim": "#6E97D6", "on-tertiary-fixed": "#C0533F", "surface-variant": "#EEF0F2", "on-tertiary-container": "#E89380", "inverse-on-surface": "#F7F8FA", "outline": "#9AA0A8", "surface-light": "#F7F8FA", "text-secondary": "#3B3F46", "on-primary-fixed": "#101622", "surface-tint": "#3F6CB4", "on-secondary-fixed": "#101622", "on-surface-variant": "#3B3F46", "on-secondary-fixed-variant": "#2C4C86", "on-error-container": "#C0533F", "outline-variant": "#E6E9EC", "text-disabled": "#9AA0A8", "secondary-container": "#6E97D6", "tertiary-fixed-dim": "#E89380", "on-secondary": "#ffffff", "background": "#F7F8FA", "error-container": "#F6E7E3", "surface": "#F7F8FA", "on-background": "#14171C", "text-primary": "#14171C", "surface-container-high": "#EEF0F2", "primary": "#101622", "tertiary-container": "#F6E7E3", "on-surface": "#14171C"}, "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"}, "spacing": {"sm": "8px", "margin-desktop": "48px", "gutter": "24px", "base": "4px", "margin-mobile": "16px", "xl": "32px", "lg": "24px", "xs": "4px", "md": "16px"}, "fontFamily": {"headline-md": ["Pretendard"], "label-md": ["Pretendard"], "headline-lg": ["Pretendard"], "body-sm": ["Pretendard"], "display-lg": ["Pretendard"], "label-sm": ["Pretendard"], "body-lg": ["Pretendard"], "headline-lg-mobile": ["Pretendard"], "body-md": ["Pretendard"], "mono": ["Space Grotesk", "Pretendard", "sans-serif"]}, "fontSize": {"headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}], "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}], "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}], "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}], "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}], "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}], "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}], "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]}}}};
     </script>
     <style>
-        body { font-family: 'Hanken Grotesk', 'Noto Sans KR', sans-serif; }
+        body { font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif; }
+        .mono, .font-mono { font-family: 'Space Grotesk', 'Pretendard', sans-serif; }
         .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .card-shadow { box-shadow: 0 4px 8px rgba(0, 32, 78, 0.04); }
+        .card-shadow { box-shadow: 0 4px 8px rgba(20, 23, 28, 0.04); }
         details > summary::-webkit-details-marker { display: none; }
         details > summary { list-style: none; }
         @media print {
@@ -136,7 +38,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .tab-button.active {
-            background-color: #00204e;
+            background-color: #101622;
             color: white;
         }
     </style>
@@ -221,9 +123,9 @@
             </div>
             <div class="flex-1 flex items-center justify-center">
                 <svg viewBox="0 0 160 160" class="w-full max-w-[220px] h-auto" preserveAspectRatio="xMidYMid meet">
-                    <circle cx="80" cy="80" r="53.0" fill="none" stroke="#c4c6d2" stroke-width="22"/>
-                    <path d="M 80.00 27.00 A 53.0 53.0 0 1 1 27.01 78.96" fill="none" stroke="#00204e" stroke-width="22" stroke-linecap="round"/>
-                    <text x="80" y="91" text-anchor="middle" font-size="38" font-weight="800" fill="#00204e">75.3</text>
+                    <circle cx="80" cy="80" r="53.0" fill="none" stroke="#E6E9EC" stroke-width="22"/>
+                    <path d="M 80.00 27.00 A 53.0 53.0 0 1 1 27.01 78.96" fill="none" stroke="#3F6CB4" stroke-width="22" stroke-linecap="round"/>
+                    <text x="80" y="91" text-anchor="middle" font-size="38" font-weight="800" fill="#3F6CB4">75.3</text>
                 </svg>
             </div>
         </div>
@@ -235,8 +137,8 @@
             </div>
             <div class="flex-1 flex items-center">
                 <svg class="w-full" viewBox="0 0 360 240" preserveAspectRatio="xMidYMid meet">
-                    <line x1="24" y1="216" x2="344" y2="216" stroke="#c4c6d2" stroke-width="1"/>
-                    <rect x="24.0" y="209.29925526008464" width="42.24" height="6.700744739915365" fill="#c4c6d2" rx="3"/><text x="45.120000000000005" y="203.29925526008464" font-size="10" fill="#747782" font-weight="700" text-anchor="middle">+€3,500</text><text x="45.120000000000005" y="230" font-size="9.5" fill="#434751" text-anchor="middle" data-i18n="wf_label" data-en="Build">구축비</text><rect x="88.0" y="121.29741734152739" width="42.24" height="88.00183791855724" fill="#c4c6d2" rx="3"/><text x="109.12" y="115.29741734152739" font-size="10" fill="#747782" font-weight="700" text-anchor="middle">+€45,966</text><text x="109.12" y="230" font-size="9.5" fill="#434751" text-anchor="middle" data-i18n="wf_label" data-en="Subscr.(10Y)">구독료(10Y)</text><rect x="152.0" y="111.724924855934" width="42.24" height="9.572492485593386" fill="#c4c6d2" rx="3"/><text x="173.12" y="105.724924855934" font-size="10" fill="#747782" font-weight="700" text-anchor="middle">+€5,000</text><text x="173.12" y="230" font-size="9.5" fill="#434751" text-anchor="middle" data-i18n="wf_label" data-en="Maint.(10Y)">유지보수(10Y)</text><rect x="216.0" y="16.0" width="42.24" height="95.724924855934" fill="#c4c6d2" rx="3"/><text x="237.12" y="10.0" font-size="10" fill="#747782" font-weight="700" text-anchor="middle">+€50,000</text><text x="237.12" y="230" font-size="9.5" fill="#434751" text-anchor="middle" data-i18n="wf_label" data-en="Ops(10Y)">운영비(10Y)</text><rect x="280.0" y="16.0" width="42.24" height="200.0" fill="#00204e" rx="3"/><text x="301.12" y="10.0" font-size="11" fill="#00204e" font-weight="700" text-anchor="middle">€104,466</text><text x="301.12" y="230" font-size="9.5" fill="#434751" text-anchor="middle" data-i18n="wf_label" data-en="10Y TCO">10년 TCO</text>
+                    <line x1="24" y1="216" x2="344" y2="216" stroke="#E6E9EC" stroke-width="1"/>
+                    <rect x="24.0" y="209.29925526008464" width="42.24" height="6.700744739915365" fill="#E6E9EC" rx="3"/><text x="45.120000000000005" y="203.29925526008464" font-size="10" fill="#9AA0A8" font-weight="700" text-anchor="middle">+€3,500</text><text x="45.120000000000005" y="230" font-size="9.5" fill="#3B3F46" text-anchor="middle" data-i18n="wf_label" data-en="Build">구축비</text><rect x="88.0" y="121.29741734152739" width="42.24" height="88.00183791855724" fill="#E6E9EC" rx="3"/><text x="109.12" y="115.29741734152739" font-size="10" fill="#9AA0A8" font-weight="700" text-anchor="middle">+€45,966</text><text x="109.12" y="230" font-size="9.5" fill="#3B3F46" text-anchor="middle" data-i18n="wf_label" data-en="Subscr.(10Y)">구독료(10Y)</text><rect x="152.0" y="111.724924855934" width="42.24" height="9.572492485593386" fill="#E6E9EC" rx="3"/><text x="173.12" y="105.724924855934" font-size="10" fill="#9AA0A8" font-weight="700" text-anchor="middle">+€5,000</text><text x="173.12" y="230" font-size="9.5" fill="#3B3F46" text-anchor="middle" data-i18n="wf_label" data-en="Maint.(10Y)">유지보수(10Y)</text><rect x="216.0" y="16.0" width="42.24" height="95.724924855934" fill="#E6E9EC" rx="3"/><text x="237.12" y="10.0" font-size="10" fill="#9AA0A8" font-weight="700" text-anchor="middle">+€50,000</text><text x="237.12" y="230" font-size="9.5" fill="#3B3F46" text-anchor="middle" data-i18n="wf_label" data-en="Ops(10Y)">운영비(10Y)</text><rect x="280.0" y="16.0" width="42.24" height="200.0" fill="#3F6CB4" rx="3"/><text x="301.12" y="10.0" font-size="11" fill="#3F6CB4" font-weight="700" text-anchor="middle">€104,466</text><text x="301.12" y="230" font-size="9.5" fill="#3B3F46" text-anchor="middle" data-i18n="wf_label" data-en="10Y TCO">10년 TCO</text>
                 </svg>
             </div>
         </div>
@@ -248,7 +150,7 @@
             </div>
             <div class="flex-1 flex items-center">
                 <svg class="w-full" viewBox="0 0 360 168" preserveAspectRatio="xMidYMid meet">
-                    <text x="0" y="19" font-size="15" fill="#434751" font-weight="700"><tspan data-i18n="country_name" data-en="Spain">스페인</tspan></text><rect x="0" y="30" width="316" height="30" rx="5" fill="#eceef4"/><rect x="0" y="30" width="221.2" height="30" rx="5" fill="#00204e"/><text x="229.2" y="49.0" font-size="13" fill="#00204e" font-weight="700">12.6M</text><text x="0" y="99" font-size="15" fill="#434751" font-weight="700"><tspan data-i18n="country_name" data-en="United Kingdom">영국</tspan></text><rect x="0" y="110" width="316" height="30" rx="5" fill="#eceef4"/><rect x="0" y="110" width="316.0" height="30" rx="5" fill="#c4c6d2"/><text x="324.0" y="129.0" font-size="13" fill="#747782" font-weight="700">18.0M</text>
+                    <text x="0" y="19" font-size="15" fill="#3B3F46" font-weight="700"><tspan data-i18n="country_name" data-en="Spain">스페인</tspan></text><rect x="0" y="30" width="316" height="30" rx="5" fill="#EEF0F2"/><rect x="0" y="30" width="221.2" height="30" rx="5" fill="#3F6CB4"/><text x="229.2" y="49.0" font-size="13" fill="#3F6CB4" font-weight="700">12.6M</text><text x="0" y="99" font-size="15" fill="#3B3F46" font-weight="700"><tspan data-i18n="country_name" data-en="United Kingdom">영국</tspan></text><rect x="0" y="110" width="316" height="30" rx="5" fill="#EEF0F2"/><rect x="0" y="110" width="316.0" height="30" rx="5" fill="#E6E9EC"/><text x="324.0" y="129.0" font-size="13" fill="#9AA0A8" font-weight="700">18.0M</text>
                 </svg>
             </div>
             <p class="font-label-sm text-label-sm text-text-secondary mt-sm"><span data-i18n="build_vs_baseline" data-en="vs baseline: ">베이스라인 대비 </span><strong class="text-primary">5.4M (30%) <span data-i18n="build_shorter" data-en="shorter">단축</span></strong></p>
@@ -266,9 +168,9 @@
             
             <style>
                 @keyframes dt-pulse {
-                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0.25); }
-                    70% { transform: scale(1.04); box-shadow: 0 0 0 16px rgba(0,32,78,0); }
-                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0); }
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0.25); }
+                    70% { transform: scale(1.04); box-shadow: 0 0 0 16px rgba(63,108,180,0); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0); }
                 }
                 @keyframes dt-pop {
                     0% { transform: scale(0.85); opacity: 0; }
@@ -287,20 +189,20 @@
                     to { stroke-dashoffset: 0; }
                 }
                 @keyframes dt-glow {
-                    0%, 100% { filter: drop-shadow(0 0 6px rgba(0,32,78,0.45)); }
-                    50% { filter: drop-shadow(0 0 14px rgba(0,32,78,0.9)); }
+                    0%, 100% { filter: drop-shadow(0 0 6px rgba(63,108,180,0.45)); }
+                    50% { filter: drop-shadow(0 0 14px rgba(63,108,180,0.9)); }
                 }
                 .dt-node-start { animation: dt-pulse 2.4s ease-in-out infinite; }
                 .dt-diamond { animation: dt-pop 0.6s ease-out 0.3s both; transform-origin: center; }
                 .dt-flow-line {
-                    stroke: #94a3b8;
+                    stroke: #9AA0A8;
                     stroke-width: 2;
                     stroke-dasharray: 6 6;
                     animation: dt-flow 1.2s linear infinite;
                     fill: none;
                 }
                 .dt-active-path {
-                    stroke: #00204e;
+                    stroke: #3F6CB4;
                     stroke-width: 4;
                     stroke-linecap: round;
                     fill: none;
@@ -320,58 +222,58 @@
                 <svg class="w-full max-w-4xl block" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet" style="margin-bottom: -8px;">
                     <defs>
                         <marker id="arrow-soft" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9AA0A8" />
                         </marker>
                     </defs>
 
                     <!-- (a) 권역 내 시스템 존재 다이아몬드 (top) -->
                     <g class="dt-diamond">
-                        <polygon points="450,20 520,80 450,140 380,80" fill="#fbf9f9" stroke="#00204e" stroke-width="2"/>
-                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">권역 내 구축</text>
-                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">시스템 존재?</text>
+                        <polygon points="450,20 520,80 450,140 380,80" fill="#F7F8FA" stroke="#3F6CB4" stroke-width="2"/>
+                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">권역 내 구축</text>
+                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">시스템 존재?</text>
                     </g>
 
                     <!-- (a) YES → 점수 다이아몬드 -->
                     <path d="M450 140 L450 200" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="#00204e" data-i18n="yes_with_country" data-en="YES (United Kingdom)">YES (영국)</text>
+                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="#3F6CB4" data-i18n="yes_with_country" data-en="YES (United Kingdom)">YES (영국)</text>
 
                     <!-- (a) NO → 외부솔루션 기준점 다이아몬드 -->
                     <path d="M520 80 L820 80 L820 480 L520 480" class="dt-flow-line" opacity="0.25" />
-                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">NO → 외부솔루션</text>
+                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">NO → 외부솔루션</text>
 
                     <!-- (b) 점수 분기 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 0.6s;">
-                        <polygon points="450,200 525,260 450,320 375,260" fill="#fbf9f9" stroke="#00204e" stroke-width="2"/>
-                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="#00204e" font-weight="700">유사도</text>
-                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="#00204e" font-weight="800">75.3</text>
+                        <polygon points="450,200 525,260 450,320 375,260" fill="#F7F8FA" stroke="#3F6CB4" stroke-width="2"/>
+                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="#3F6CB4" font-weight="700">유사도</text>
+                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="#3F6CB4" font-weight="800">75.3</text>
                     </g>
 
                     <!-- (b) Score branch 1: ≥70 → B leaf -->
                     <path d="M450 320 L450 360 L150 360 L150 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">≥ 70 → 권역 내 확산</text>
+                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">≥ 70 → 권역 내 확산</text>
 
                     <!-- (b) Score branch 2: 50~70 → HQ leaf -->
                     <path d="M450 320 L450 360 L750 360 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">50~70 → 본사 자체구축</text>
+                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">50~70 → 본사 자체구축</text>
 
                     <!-- (b) Score branch 3: <50 → secondary gate (with longer gap) -->
                     <path d="M450 320 L450 420" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="#94a3b8">&lt; 50</text>
+                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="#9AA0A8">&lt; 50</text>
 
                     <!-- (c) 외부솔루션 기준점 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 1.0s;">
-                        <polygon points="450,420 520,480 450,540 380,480" fill="#fbf9f9" stroke="#94a3b8" stroke-width="2"/>
-                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="#94a3b8" font-weight="700">외부솔루션</text>
-                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="#94a3b8" font-weight="700">기준점 통과?</text>
+                        <polygon points="450,420 520,480 450,540 380,480" fill="#F7F8FA" stroke="#9AA0A8" stroke-width="2"/>
+                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="#9AA0A8" font-weight="700">외부솔루션</text>
+                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="#9AA0A8" font-weight="700">기준점 통과?</text>
                     </g>
 
                     <!-- (c) Gate → EXT leaf -->
                     <path d="M450 540 L450 615" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="#94a3b8">YES → 외부솔루션</text>
+                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="#9AA0A8">YES → 외부솔루션</text>
 
                     <!-- (c) Gate → HQ leaf (fallback) -->
                     <path d="M520 480 L750 480 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">NO (Fallback)</text>
+                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">NO (Fallback)</text>
 
                     <!-- Active path: region NOT exists → gate YES → EXT -->
                     
@@ -392,7 +294,7 @@
                     
 
                     <!-- Final bullet at leaf -->
-                    <circle class="dt-active-bullet" cx="150" cy="560" r="7" fill="#00204e" />
+                    <circle class="dt-active-bullet" cx="150" cy="560" r="7" fill="#3F6CB4" />
                 </svg>
 
                 <!-- 처리 액션 (3 branches) -->
@@ -502,17 +404,17 @@
                     <div class="relative flex flex-col items-center">
                         <div class="w-full aspect-square relative flex items-center justify-center mb-md max-w-md mx-auto">
                             <svg class="w-full h-full overflow-visible" viewBox="0 0 200 200">
-                                <polygon fill="none" points="100,20 180,100 100,180 20,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,40 160,100 100,160 40,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,60 140,100 100,140 60,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,80 120,100 100,120 80,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <line stroke="#DCDCDC" stroke-width="1" x1="100" y1="20" x2="100" y2="180"/>
-                                <line stroke="#DCDCDC" stroke-width="1" x1="20" y1="100" x2="180" y2="100"/>
-                                <polygon fill="rgba(0, 32, 78, 0.15)" points="100,35.0 165.0,100 100,158.57142857142858 60.0,100" stroke="#00204e" stroke-width="2"/>
-                                <circle cx="100" cy="35.0" fill="#00204e" r="3"/>
-                                <circle cx="165.0" cy="100" fill="#00204e" r="3"/>
-                                <circle cx="100" cy="158.57142857142858" fill="#00204e" r="3"/>
-                                <circle cx="60.0" cy="100" fill="#00204e" r="3"/>
+                                <polygon fill="none" points="100,20 180,100 100,180 20,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,40 160,100 100,160 40,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,60 140,100 100,140 60,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,80 120,100 100,120 80,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <line stroke="#E6E9EC" stroke-width="1" x1="100" y1="20" x2="100" y2="180"/>
+                                <line stroke="#E6E9EC" stroke-width="1" x1="20" y1="100" x2="180" y2="100"/>
+                                <polygon fill="rgba(63,108,180,0.15)" points="100,35.0 165.0,100 100,158.57142857142858 60.0,100" stroke="#3F6CB4" stroke-width="2"/>
+                                <circle cx="100" cy="35.0" fill="#3F6CB4" r="3"/>
+                                <circle cx="165.0" cy="100" fill="#3F6CB4" r="3"/>
+                                <circle cx="100" cy="158.57142857142858" fill="#3F6CB4" r="3"/>
+                                <circle cx="60.0" cy="100" fill="#3F6CB4" r="3"/>
                             </svg>
                             <span class="absolute top-0 left-1/2 -translate-x-1/2 font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">시스템</span>
 <span class="absolute right-0 top-1/2 -translate-y-1/2 font-label-sm text-label-sm text-text-secondary uppercase tracking-wider">상품</span>
@@ -1625,9 +1527,9 @@
             
             <style>
                 @keyframes dt-pulse {
-                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0.25); }
-                    70% { transform: scale(1.04); box-shadow: 0 0 0 16px rgba(0,32,78,0); }
-                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0); }
+                    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0.25); }
+                    70% { transform: scale(1.04); box-shadow: 0 0 0 16px rgba(63,108,180,0); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0); }
                 }
                 @keyframes dt-pop {
                     0% { transform: scale(0.85); opacity: 0; }
@@ -1646,20 +1548,20 @@
                     to { stroke-dashoffset: 0; }
                 }
                 @keyframes dt-glow {
-                    0%, 100% { filter: drop-shadow(0 0 6px rgba(0,32,78,0.45)); }
-                    50% { filter: drop-shadow(0 0 14px rgba(0,32,78,0.9)); }
+                    0%, 100% { filter: drop-shadow(0 0 6px rgba(63,108,180,0.45)); }
+                    50% { filter: drop-shadow(0 0 14px rgba(63,108,180,0.9)); }
                 }
                 .dt-node-start { animation: dt-pulse 2.4s ease-in-out infinite; }
                 .dt-diamond { animation: dt-pop 0.6s ease-out 0.3s both; transform-origin: center; }
                 .dt-flow-line {
-                    stroke: #94a3b8;
+                    stroke: #9AA0A8;
                     stroke-width: 2;
                     stroke-dasharray: 6 6;
                     animation: dt-flow 1.2s linear infinite;
                     fill: none;
                 }
                 .dt-active-path {
-                    stroke: #00204e;
+                    stroke: #3F6CB4;
                     stroke-width: 4;
                     stroke-linecap: round;
                     fill: none;
@@ -1679,58 +1581,58 @@
                 <svg class="w-full max-w-4xl block" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet" style="margin-bottom: -8px;">
                     <defs>
                         <marker id="arrow-soft" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9AA0A8" />
                         </marker>
                     </defs>
 
                     <!-- (a) 권역 내 시스템 존재 다이아몬드 (top) -->
                     <g class="dt-diamond">
-                        <polygon points="450,20 520,80 450,140 380,80" fill="#fbf9f9" stroke="#00204e" stroke-width="2"/>
-                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">권역 내 구축</text>
-                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">시스템 존재?</text>
+                        <polygon points="450,20 520,80 450,140 380,80" fill="#F7F8FA" stroke="#3F6CB4" stroke-width="2"/>
+                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">권역 내 구축</text>
+                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">시스템 존재?</text>
                     </g>
 
                     <!-- (a) YES → 점수 다이아몬드 -->
                     <path d="M450 140 L450 200" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="#00204e" data-i18n="yes_with_country" data-en="YES (United Kingdom)">YES (영국)</text>
+                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="#3F6CB4" data-i18n="yes_with_country" data-en="YES (United Kingdom)">YES (영국)</text>
 
                     <!-- (a) NO → 외부솔루션 기준점 다이아몬드 -->
                     <path d="M520 80 L820 80 L820 480 L520 480" class="dt-flow-line" opacity="0.25" />
-                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">NO → 외부솔루션</text>
+                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">NO → 외부솔루션</text>
 
                     <!-- (b) 점수 분기 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 0.6s;">
-                        <polygon points="450,200 525,260 450,320 375,260" fill="#fbf9f9" stroke="#00204e" stroke-width="2"/>
-                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="#00204e" font-weight="700">유사도</text>
-                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="#00204e" font-weight="800">75.3</text>
+                        <polygon points="450,200 525,260 450,320 375,260" fill="#F7F8FA" stroke="#3F6CB4" stroke-width="2"/>
+                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="#3F6CB4" font-weight="700">유사도</text>
+                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="#3F6CB4" font-weight="800">75.3</text>
                     </g>
 
                     <!-- (b) Score branch 1: ≥70 → B leaf -->
                     <path d="M450 320 L450 360 L150 360 L150 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">≥ 70 → 권역 내 확산</text>
+                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">≥ 70 → 권역 내 확산</text>
 
                     <!-- (b) Score branch 2: 50~70 → HQ leaf -->
                     <path d="M450 320 L450 360 L750 360 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">50~70 → 본사 자체구축</text>
+                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">50~70 → 본사 자체구축</text>
 
                     <!-- (b) Score branch 3: <50 → secondary gate (with longer gap) -->
                     <path d="M450 320 L450 420" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="#94a3b8">&lt; 50</text>
+                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="#9AA0A8">&lt; 50</text>
 
                     <!-- (c) 외부솔루션 기준점 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 1.0s;">
-                        <polygon points="450,420 520,480 450,540 380,480" fill="#fbf9f9" stroke="#94a3b8" stroke-width="2"/>
-                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="#94a3b8" font-weight="700">외부솔루션</text>
-                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="#94a3b8" font-weight="700">기준점 통과?</text>
+                        <polygon points="450,420 520,480 450,540 380,480" fill="#F7F8FA" stroke="#9AA0A8" stroke-width="2"/>
+                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="#9AA0A8" font-weight="700">외부솔루션</text>
+                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="#9AA0A8" font-weight="700">기준점 통과?</text>
                     </g>
 
                     <!-- (c) Gate → EXT leaf -->
                     <path d="M450 540 L450 615" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="#94a3b8">YES → 외부솔루션</text>
+                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="#9AA0A8">YES → 외부솔루션</text>
 
                     <!-- (c) Gate → HQ leaf (fallback) -->
                     <path d="M520 480 L750 480 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="#94a3b8">NO (Fallback)</text>
+                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="#9AA0A8">NO (Fallback)</text>
 
                     <!-- Active path: region NOT exists → gate YES → EXT -->
                     
@@ -1751,7 +1653,7 @@
                     
 
                     <!-- Final bullet at leaf -->
-                    <circle class="dt-active-bullet" cx="150" cy="560" r="7" fill="#00204e" />
+                    <circle class="dt-active-bullet" cx="150" cy="560" r="7" fill="#3F6CB4" />
                 </svg>
 
                 <!-- 처리 액션 (3 branches) -->
@@ -1964,8 +1866,8 @@
                 <h2 class="font-headline-md text-headline-md text-primary">10년 TCO 구성 분해 (워터폴)</h2>
             </div>
             <svg class="w-full" viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet">
-                <line x1="40" y1="280" x2="740" y2="280" stroke="#c4c6d2" stroke-width="1"/>
-                <rect x="40.0" y="271.28903183811" width="98.0" height="8.71096816188998" fill="#10b981" opacity="0.85" rx="3"/><text x="89.0" y="265.28903183811" font-size="11" fill="#10b981" font-weight="700" text-anchor="middle">+€3,500</text><text x="89.0" y="296" font-size="11" fill="#434751" text-anchor="middle">구축비</text><rect x="180.0" y="144.4424023127142" width="98.0" height="126.84662952539583" fill="#10b981" opacity="0.85" rx="3"/><text x="229.0" y="138.4424023127142" font-size="11" fill="#10b981" font-weight="700" text-anchor="middle">+€50,966</text><text x="229.0" y="296" font-size="11" fill="#434751" text-anchor="middle">유지비(10Y)</text><rect x="320.0" y="144.4424023127142" width="98.0" height="135.5575976872858" fill="#00204e" rx="3"/><text x="369.0" y="138.4424023127142" font-size="11" fill="#00204e" font-weight="700" text-anchor="middle">€54,466</text><text x="369.0" y="296" font-size="11" fill="#434751" text-anchor="middle">시스템 소계</text><rect x="460.0" y="20.0" width="98.0" height="124.4424023127142" fill="#10b981" opacity="0.85" rx="3"/><text x="509.0" y="14.0" font-size="11" fill="#10b981" font-weight="700" text-anchor="middle">+€50,000</text><text x="509.0" y="296" font-size="11" fill="#434751" text-anchor="middle">운영비(10Y)</text><rect x="600.0" y="20.0" width="98.0" height="260.0" fill="#00204e" rx="3"/><text x="649.0" y="14.0" font-size="11" fill="#00204e" font-weight="700" text-anchor="middle">€104,466</text><text x="649.0" y="296" font-size="11" fill="#434751" text-anchor="middle">총 TCO</text>
+                <line x1="40" y1="280" x2="740" y2="280" stroke="#E6E9EC" stroke-width="1"/>
+                <rect x="40.0" y="271.28903183811" width="98.0" height="8.71096816188998" fill="#4F8A6D" opacity="0.85" rx="3"/><text x="89.0" y="265.28903183811" font-size="11" fill="#4F8A6D" font-weight="700" text-anchor="middle">+€3,500</text><text x="89.0" y="296" font-size="11" fill="#3B3F46" text-anchor="middle">구축비</text><rect x="180.0" y="144.4424023127142" width="98.0" height="126.84662952539583" fill="#4F8A6D" opacity="0.85" rx="3"/><text x="229.0" y="138.4424023127142" font-size="11" fill="#4F8A6D" font-weight="700" text-anchor="middle">+€50,966</text><text x="229.0" y="296" font-size="11" fill="#3B3F46" text-anchor="middle">유지비(10Y)</text><rect x="320.0" y="144.4424023127142" width="98.0" height="135.5575976872858" fill="#3F6CB4" rx="3"/><text x="369.0" y="138.4424023127142" font-size="11" fill="#3F6CB4" font-weight="700" text-anchor="middle">€54,466</text><text x="369.0" y="296" font-size="11" fill="#3B3F46" text-anchor="middle">시스템 소계</text><rect x="460.0" y="20.0" width="98.0" height="124.4424023127142" fill="#4F8A6D" opacity="0.85" rx="3"/><text x="509.0" y="14.0" font-size="11" fill="#4F8A6D" font-weight="700" text-anchor="middle">+€50,000</text><text x="509.0" y="296" font-size="11" fill="#3B3F46" text-anchor="middle">운영비(10Y)</text><rect x="600.0" y="20.0" width="98.0" height="260.0" fill="#3F6CB4" rx="3"/><text x="649.0" y="14.0" font-size="11" fill="#3F6CB4" font-weight="700" text-anchor="middle">€104,466</text><text x="649.0" y="296" font-size="11" fill="#3B3F46" text-anchor="middle">총 TCO</text>
             </svg>
         </section>
         </div>
@@ -1977,18 +1879,18 @@
                     <h2 class="font-headline-md text-headline-md text-primary">10년 누적 비용 추이</h2>
                 </div>
                 <div class="flex items-center gap-md">
-                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">Y0 구축비</span></div>
-                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#005db7"></span><span class="font-label-sm text-label-sm text-text-secondary">누적 총비용</span></div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">Y0 구축비</span></div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">누적 총비용</span></div>
                 </div>
             </div>
             <svg class="w-full" viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet">
-                <line x1="70" y1="30.0" x2="740" y2="30.0" stroke="#e3e2e2"/><text x="64" y="34.0" font-size="10" fill="#747782" text-anchor="end">€104,466</text><line x1="70" y1="92.5" x2="740" y2="92.5" stroke="#e3e2e2"/><text x="64" y="96.5" font-size="10" fill="#747782" text-anchor="end">€78,349</text><line x1="70" y1="155.0" x2="740" y2="155.0" stroke="#e3e2e2"/><text x="64" y="159.0" font-size="10" fill="#747782" text-anchor="end">€52,233</text><line x1="70" y1="217.5" x2="740" y2="217.5" stroke="#e3e2e2"/><text x="64" y="221.5" font-size="10" fill="#747782" text-anchor="end">€26,116</text><line x1="70" y1="280.0" x2="740" y2="280.0" stroke="#e3e2e2"/><text x="64" y="284.0" font-size="10" fill="#747782" text-anchor="end">€0</text>
-                <path d="M 70.0 280.0 L 70.0 271.62406907510575 L 137.0 247.4616621675952 L 204.0 223.2992552600846 L 271.0 199.13684835257405 L 338.0 174.97444144506346 L 405.0 150.81203453755288 L 472.0 126.64962763004232 L 539.0 102.48722072253176 L 606.0 78.32481381502114 L 673.0 54.16240690751056 L 740.0 30.0 L 740.0 280.0 Z" fill="#005db7" opacity="0.12"/>
-                <path d="M 70.0 271.62406907510575 L 137.0 247.4616621675952 L 204.0 223.2992552600846 L 271.0 199.13684835257405 L 338.0 174.97444144506346 L 405.0 150.81203453755288 L 472.0 126.64962763004232 L 539.0 102.48722072253176 L 606.0 78.32481381502114 L 673.0 54.16240690751056 L 740.0 30.0" fill="none" stroke="#005db7" stroke-width="2.5"/>
-                <circle cx="70.0" cy="271.62406907510575" r="3.5" fill="#005db7"/><circle cx="137.0" cy="247.4616621675952" r="3.5" fill="#005db7"/><circle cx="204.0" cy="223.2992552600846" r="3.5" fill="#005db7"/><circle cx="271.0" cy="199.13684835257405" r="3.5" fill="#005db7"/><circle cx="338.0" cy="174.97444144506346" r="3.5" fill="#005db7"/><circle cx="405.0" cy="150.81203453755288" r="3.5" fill="#005db7"/><circle cx="472.0" cy="126.64962763004232" r="3.5" fill="#005db7"/><circle cx="539.0" cy="102.48722072253176" r="3.5" fill="#005db7"/><circle cx="606.0" cy="78.32481381502114" r="3.5" fill="#005db7"/><circle cx="673.0" cy="54.16240690751056" r="3.5" fill="#005db7"/><circle cx="740.0" cy="30.0" r="3.5" fill="#005db7"/>
-                <rect x="63.0" y="271.62406907510575" width="14" height="8.375930924894249" rx="3" fill="#00204e"/><text x="70.0" y="263.62406907510575" font-size="11" fill="#00204e" font-weight="700" text-anchor="middle">구축 €3,500</text>
-                <text x="734.0" y="20.0" font-size="12" fill="#005db7" font-weight="700" text-anchor="end">Y10 누적 €104,466</text>
-                <text x="70.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y0</text><text x="137.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y1</text><text x="204.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y2</text><text x="271.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y3</text><text x="338.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y4</text><text x="405.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y5</text><text x="472.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y6</text><text x="539.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y7</text><text x="606.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y8</text><text x="673.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y9</text><text x="740.0" y="298" font-size="10" fill="#747782" text-anchor="middle">Y10</text>
+                <line x1="70" y1="30.0" x2="740" y2="30.0" stroke="#E6E9EC"/><text x="64" y="34.0" font-size="10" fill="#9AA0A8" text-anchor="end">€104,466</text><line x1="70" y1="92.5" x2="740" y2="92.5" stroke="#E6E9EC"/><text x="64" y="96.5" font-size="10" fill="#9AA0A8" text-anchor="end">€78,349</text><line x1="70" y1="155.0" x2="740" y2="155.0" stroke="#E6E9EC"/><text x="64" y="159.0" font-size="10" fill="#9AA0A8" text-anchor="end">€52,233</text><line x1="70" y1="217.5" x2="740" y2="217.5" stroke="#E6E9EC"/><text x="64" y="221.5" font-size="10" fill="#9AA0A8" text-anchor="end">€26,116</text><line x1="70" y1="280.0" x2="740" y2="280.0" stroke="#E6E9EC"/><text x="64" y="284.0" font-size="10" fill="#9AA0A8" text-anchor="end">€0</text>
+                <path d="M 70.0 280.0 L 70.0 271.62406907510575 L 137.0 247.4616621675952 L 204.0 223.2992552600846 L 271.0 199.13684835257405 L 338.0 174.97444144506346 L 405.0 150.81203453755288 L 472.0 126.64962763004232 L 539.0 102.48722072253176 L 606.0 78.32481381502114 L 673.0 54.16240690751056 L 740.0 30.0 L 740.0 280.0 Z" fill="#3F6CB4" opacity="0.12"/>
+                <path d="M 70.0 271.62406907510575 L 137.0 247.4616621675952 L 204.0 223.2992552600846 L 271.0 199.13684835257405 L 338.0 174.97444144506346 L 405.0 150.81203453755288 L 472.0 126.64962763004232 L 539.0 102.48722072253176 L 606.0 78.32481381502114 L 673.0 54.16240690751056 L 740.0 30.0" fill="none" stroke="#3F6CB4" stroke-width="2.5"/>
+                <circle cx="70.0" cy="271.62406907510575" r="3.5" fill="#3F6CB4"/><circle cx="137.0" cy="247.4616621675952" r="3.5" fill="#3F6CB4"/><circle cx="204.0" cy="223.2992552600846" r="3.5" fill="#3F6CB4"/><circle cx="271.0" cy="199.13684835257405" r="3.5" fill="#3F6CB4"/><circle cx="338.0" cy="174.97444144506346" r="3.5" fill="#3F6CB4"/><circle cx="405.0" cy="150.81203453755288" r="3.5" fill="#3F6CB4"/><circle cx="472.0" cy="126.64962763004232" r="3.5" fill="#3F6CB4"/><circle cx="539.0" cy="102.48722072253176" r="3.5" fill="#3F6CB4"/><circle cx="606.0" cy="78.32481381502114" r="3.5" fill="#3F6CB4"/><circle cx="673.0" cy="54.16240690751056" r="3.5" fill="#3F6CB4"/><circle cx="740.0" cy="30.0" r="3.5" fill="#3F6CB4"/>
+                <rect x="63.0" y="271.62406907510575" width="14" height="8.375930924894249" rx="3" fill="#3F6CB4"/><text x="70.0" y="263.62406907510575" font-size="11" fill="#3F6CB4" font-weight="700" text-anchor="middle">구축 €3,500</text>
+                <text x="734.0" y="20.0" font-size="12" fill="#3F6CB4" font-weight="700" text-anchor="end">Y10 누적 €104,466</text>
+                <text x="70.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y0</text><text x="137.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y1</text><text x="204.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y2</text><text x="271.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y3</text><text x="338.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y4</text><text x="405.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y5</text><text x="472.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y6</text><text x="539.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y7</text><text x="606.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y8</text><text x="673.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y9</text><text x="740.0" y="298" font-size="10" fill="#9AA0A8" text-anchor="middle">Y10</text>
             </svg>
             <div class="mt-md bg-surface-container/60 p-md rounded-lg border-l-4 border-primary">
                 <div class="flex items-center gap-xs mb-xs">
@@ -2010,13 +1912,13 @@
                 <h2 class="font-headline-md text-headline-md text-primary">구독료 구간 (전체 소급)</h2>
             </div>
             <svg class="w-full" viewBox="0 0 760 260" preserveAspectRatio="xMidYMid meet">
-                <line x1="60" y1="20.0" x2="740" y2="20.0" stroke="#e3e2e2"/><text x="54" y="24.0" font-size="10" fill="#747782" text-anchor="end">€1.15</text><line x1="60" y1="70.0" x2="740" y2="70.0" stroke="#e3e2e2"/><text x="54" y="74.0" font-size="10" fill="#747782" text-anchor="end">€0.86</text><line x1="60" y1="120.0" x2="740" y2="120.0" stroke="#e3e2e2"/><text x="54" y="124.0" font-size="10" fill="#747782" text-anchor="end">€0.57</text><line x1="60" y1="170.0" x2="740" y2="170.0" stroke="#e3e2e2"/><text x="54" y="174.0" font-size="10" fill="#747782" text-anchor="end">€0.29</text><line x1="60" y1="220.0" x2="740" y2="220.0" stroke="#e3e2e2"/><text x="54" y="224.0" font-size="10" fill="#747782" text-anchor="end">€0</text>
-                <text x="60.0" y="236" font-size="10" fill="#747782" text-anchor="middle">0</text><text x="67.47073924204847" y="236" font-size="10" fill="#747782" text-anchor="middle">101</text><text x="74.86751076882913" y="236" font-size="10" fill="#747782" text-anchor="middle">201</text><text x="97.05782534917114" y="236" font-size="10" fill="#747782" text-anchor="middle">501</text><text x="134.04168298307445" y="236" font-size="10" fill="#747782" text-anchor="middle">1,001</text>
-                <line x1="60.0" y1="46.086956521739125" x2="67.39677152678067" y2="46.086956521739125" stroke="#00204e" stroke-width="3" stroke-linecap="round"/><line x1="67.47073924204847" y1="63.47826086956522" x2="74.79354305356134" y2="63.47826086956522" stroke="#00204e" stroke-width="3" stroke-linecap="round"/><line x1="74.86751076882913" y1="80.86956521739128" x2="96.98385763390333" y2="80.86956521739128" stroke="#00204e" stroke-width="3" stroke-linecap="round"/><line x1="97.05782534917114" y1="98.26086956521738" x2="133.96771526780665" y2="98.26086956521738" stroke="#00204e" stroke-width="3" stroke-linecap="round"/><line x1="134.04168298307445" y1="115.65217391304348" x2="740.0" y2="115.65217391304348" stroke="#00204e" stroke-width="3" stroke-linecap="round"/>
+                <line x1="60" y1="20.0" x2="740" y2="20.0" stroke="#E6E9EC"/><text x="54" y="24.0" font-size="10" fill="#9AA0A8" text-anchor="end">€1.15</text><line x1="60" y1="70.0" x2="740" y2="70.0" stroke="#E6E9EC"/><text x="54" y="74.0" font-size="10" fill="#9AA0A8" text-anchor="end">€0.86</text><line x1="60" y1="120.0" x2="740" y2="120.0" stroke="#E6E9EC"/><text x="54" y="124.0" font-size="10" fill="#9AA0A8" text-anchor="end">€0.57</text><line x1="60" y1="170.0" x2="740" y2="170.0" stroke="#E6E9EC"/><text x="54" y="174.0" font-size="10" fill="#9AA0A8" text-anchor="end">€0.29</text><line x1="60" y1="220.0" x2="740" y2="220.0" stroke="#E6E9EC"/><text x="54" y="224.0" font-size="10" fill="#9AA0A8" text-anchor="end">€0</text>
+                <text x="60.0" y="236" font-size="10" fill="#9AA0A8" text-anchor="middle">0</text><text x="67.47073924204847" y="236" font-size="10" fill="#9AA0A8" text-anchor="middle">101</text><text x="74.86751076882913" y="236" font-size="10" fill="#9AA0A8" text-anchor="middle">201</text><text x="97.05782534917114" y="236" font-size="10" fill="#9AA0A8" text-anchor="middle">501</text><text x="134.04168298307445" y="236" font-size="10" fill="#9AA0A8" text-anchor="middle">1,001</text>
+                <line x1="60.0" y1="46.086956521739125" x2="67.39677152678067" y2="46.086956521739125" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/><line x1="67.47073924204847" y1="63.47826086956522" x2="74.79354305356134" y2="63.47826086956522" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/><line x1="74.86751076882913" y1="80.86956521739128" x2="96.98385763390333" y2="80.86956521739128" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/><line x1="97.05782534917114" y1="98.26086956521738" x2="133.96771526780665" y2="98.26086956521738" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/><line x1="134.04168298307445" y1="115.65217391304348" x2="740.0" y2="115.65217391304348" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/>
                 
-                <line x1="626.6666666666667" y1="20" x2="626.6666666666667" y2="220" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4"/>
-                <circle cx="626.6666666666667" cy="115.65217391304348" r="6" fill="#10b981"/>
-                <text x="636.6666666666667" y="119.65217391304348" font-size="12" fill="#065f46" font-weight="700">현재 7,661건 → €0.60</text>
+                <line x1="626.6666666666667" y1="20" x2="626.6666666666667" y2="220" stroke="#4F8A6D" stroke-width="1.5" stroke-dasharray="4 4"/>
+                <circle cx="626.6666666666667" cy="115.65217391304348" r="6" fill="#4F8A6D"/>
+                <text x="636.6666666666667" y="119.65217391304348" font-size="12" fill="#4F8A6D" font-weight="700">현재 7,661건 → €0.60</text>
             
             </svg>
             <p class="font-label-sm text-label-sm text-text-secondary mt-xs" data-i18n="step_chart_subtitle" data-en="X = cumulative contracts, Y = per-unit price · auto-discounted as volume grows (retroactive to all volume)">X=누적 계약건수, Y=건당 단가 · 누적 증가 시 자동 하향 (전 물량 소급)</p>
@@ -2100,22 +2002,22 @@
                 <div class="bg-surface-container-low rounded-md p-sm flex flex-col gap-xs">
                     
         <svg class="w-full" viewBox="0 0 360 90" preserveAspectRatio="xMidYMid meet" style="max-height: 100px;">
-            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#e3e2e2"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#e3e2e2"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#e3e2e2"/>
-            <text x="32" y="14" font-size="9" fill="#747782" text-anchor="end">1,330,000</text><text x="32" y="71" font-size="9" fill="#747782" text-anchor="end">813,000</text>
-            <text x="36.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2030</text>
-            <path d="M 36.0 60.2350840648713 L 70.66666666666666 64.61538461538461 L 105.33333333333333 51.66493081386699 L 140.0 45.18970391310817 L 174.66666666666666 32.65347418538908" fill="none" stroke="#00204e" stroke-width="2"/>
-            <path d="M 174.66666666666666 32.65347418538908 L 209.33333333333334 27.763725636066063 L 244.0 23.9547686356197 L 278.66666666666663 21.098050885284927 L 313.3333333333333 18.241333134950153 L 348.0 15.384615384615387" fill="none" stroke="#005db7" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
-            <circle cx="36.0" cy="60.2350840648713" r="2.5" fill="#00204e"/><circle cx="70.66666666666666" cy="64.61538461538461" r="2.5" fill="#00204e"/><circle cx="105.33333333333333" cy="51.66493081386699" r="2.5" fill="#00204e"/><circle cx="140.0" cy="45.18970391310817" r="2.5" fill="#00204e"/><circle cx="174.66666666666666" cy="32.65347418538908" r="2.5" fill="#00204e"/><circle cx="209.33333333333334" cy="27.763725636066063" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="244.0" cy="23.9547686356197" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="278.66666666666663" cy="21.098050885284927" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="313.3333333333333" cy="18.241333134950153" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="348.0" cy="15.384615384615387" r="2.5" fill="#005db7" opacity="0.7"/>
+            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#E6E9EC"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#E6E9EC"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#E6E9EC"/>
+            <text x="32" y="14" font-size="9" fill="#9AA0A8" text-anchor="end">1,330,000</text><text x="32" y="71" font-size="9" fill="#9AA0A8" text-anchor="end">813,000</text>
+            <text x="36.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2030</text>
+            <path d="M 36.0 60.2350840648713 L 70.66666666666666 64.61538461538461 L 105.33333333333333 51.66493081386699 L 140.0 45.18970391310817 L 174.66666666666666 32.65347418538908" fill="none" stroke="#3F6CB4" stroke-width="2"/>
+            <path d="M 174.66666666666666 32.65347418538908 L 209.33333333333334 27.763725636066063 L 244.0 23.9547686356197 L 278.66666666666663 21.098050885284927 L 313.3333333333333 18.241333134950153 L 348.0 15.384615384615387" fill="none" stroke="#3F6CB4" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
+            <circle cx="36.0" cy="60.2350840648713" r="2.5" fill="#3F6CB4"/><circle cx="70.66666666666666" cy="64.61538461538461" r="2.5" fill="#3F6CB4"/><circle cx="105.33333333333333" cy="51.66493081386699" r="2.5" fill="#3F6CB4"/><circle cx="140.0" cy="45.18970391310817" r="2.5" fill="#3F6CB4"/><circle cx="174.66666666666666" cy="32.65347418538908" r="2.5" fill="#3F6CB4"/><circle cx="209.33333333333334" cy="27.763725636066063" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="244.0" cy="23.9547686356197" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="278.66666666666663" cy="21.098050885284927" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="313.3333333333333" cy="18.241333134950153" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="348.0" cy="15.384615384615387" r="2.5" fill="#3F6CB4" opacity="0.7"/>
         </svg>
         
                     
                 <div class="flex gap-md font-label-sm text-label-sm text-text-secondary">
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#00204e"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4"></span>
                         <span data-i18n="cagr_hist" data-en="CAGR (history):">CAGR(과거):</span> <span class="font-semibold text-text-primary">7.5%</span>
                     </span>
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#005db7;opacity:0.7"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4;opacity:0.7"></span>
                         <span data-i18n="cagr_forecast" data-en="CAGR (forecast):">CAGR(전망):</span> <span class="font-semibold text-text-primary">3.0%</span>
                     </span>
                 </div>
@@ -2204,11 +2106,11 @@
             
         <div class="flex items-center gap-md bg-surface-container-low rounded-md p-sm">
             <svg viewBox="0 0 120 120" style="width: 100px; height: 100px;" preserveAspectRatio="xMidYMid meet">
-                <path d="M 60.00 10.00 A 50 50 0 1 1 30.61 100.45 L 42.37 84.27 A 30 30 0 1 0 60.00 30.00 Z" fill="#00204e"/><path d="M 30.61 100.45 A 50 50 0 0 1 60.00 10.00 L 60.00 30.00 A 30 30 0 0 0 42.37 84.27 Z" fill="#c4c6d2"/>
-                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">60%</text>
+                <path d="M 60.00 10.00 A 50 50 0 1 1 30.61 100.45 L 42.37 84.27 A 30 30 0 1 0 60.00 30.00 Z" fill="#3F6CB4"/><path d="M 30.61 100.45 A 50 50 0 0 1 60.00 10.00 L 60.00 30.00 A 30 30 0 0 0 42.37 84.27 Z" fill="#E6E9EC"/>
+                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">60%</text>
             </svg>
             <div class="flex flex-col gap-xs flex-1">
-                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">금융 이용</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">60%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#c4c6d2"></span><span class="font-label-sm text-label-sm text-text-secondary">현금</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">40%</span></div>
+                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">금융 이용</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">60%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#E6E9EC"></span><span class="font-label-sm text-label-sm text-text-secondary">현금</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">40%</span></div>
             </div>
         </div>
         
@@ -2216,22 +2118,22 @@
                 <div class="bg-surface-container-low rounded-md p-sm flex flex-col gap-xs">
                     
         <svg class="w-full" viewBox="0 0 360 90" preserveAspectRatio="xMidYMid meet" style="max-height: 100px;">
-            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#e3e2e2"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#e3e2e2"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#e3e2e2"/>
-            <text x="32" y="14" font-size="9" fill="#747782" text-anchor="end">65</text><text x="32" y="71" font-size="9" fill="#747782" text-anchor="end">55</text>
-            <text x="36.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2030</text>
-            <path d="M 36.0 64.61538461538461 L 70.66666666666666 59.69230769230769 L 105.33333333333333 54.769230769230774 L 140.0 49.84615384615385 L 174.66666666666666 40.0" fill="none" stroke="#00204e" stroke-width="2"/>
-            <path d="M 174.66666666666666 40.0 L 209.33333333333334 35.07692307692308 L 244.0 30.153846153846153 L 278.66666666666663 25.230769230769234 L 313.3333333333333 20.307692307692307 L 348.0 15.384615384615387" fill="none" stroke="#005db7" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
-            <circle cx="36.0" cy="64.61538461538461" r="2.5" fill="#00204e"/><circle cx="70.66666666666666" cy="59.69230769230769" r="2.5" fill="#00204e"/><circle cx="105.33333333333333" cy="54.769230769230774" r="2.5" fill="#00204e"/><circle cx="140.0" cy="49.84615384615385" r="2.5" fill="#00204e"/><circle cx="174.66666666666666" cy="40.0" r="2.5" fill="#00204e"/><circle cx="209.33333333333334" cy="35.07692307692308" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="244.0" cy="30.153846153846153" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="278.66666666666663" cy="25.230769230769234" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="313.3333333333333" cy="20.307692307692307" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="348.0" cy="15.384615384615387" r="2.5" fill="#005db7" opacity="0.7"/>
+            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#E6E9EC"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#E6E9EC"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#E6E9EC"/>
+            <text x="32" y="14" font-size="9" fill="#9AA0A8" text-anchor="end">65</text><text x="32" y="71" font-size="9" fill="#9AA0A8" text-anchor="end">55</text>
+            <text x="36.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2030</text>
+            <path d="M 36.0 64.61538461538461 L 70.66666666666666 59.69230769230769 L 105.33333333333333 54.769230769230774 L 140.0 49.84615384615385 L 174.66666666666666 40.0" fill="none" stroke="#3F6CB4" stroke-width="2"/>
+            <path d="M 174.66666666666666 40.0 L 209.33333333333334 35.07692307692308 L 244.0 30.153846153846153 L 278.66666666666663 25.230769230769234 L 313.3333333333333 20.307692307692307 L 348.0 15.384615384615387" fill="none" stroke="#3F6CB4" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
+            <circle cx="36.0" cy="64.61538461538461" r="2.5" fill="#3F6CB4"/><circle cx="70.66666666666666" cy="59.69230769230769" r="2.5" fill="#3F6CB4"/><circle cx="105.33333333333333" cy="54.769230769230774" r="2.5" fill="#3F6CB4"/><circle cx="140.0" cy="49.84615384615385" r="2.5" fill="#3F6CB4"/><circle cx="174.66666666666666" cy="40.0" r="2.5" fill="#3F6CB4"/><circle cx="209.33333333333334" cy="35.07692307692308" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="244.0" cy="30.153846153846153" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="278.66666666666663" cy="25.230769230769234" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="313.3333333333333" cy="20.307692307692307" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="348.0" cy="15.384615384615387" r="2.5" fill="#3F6CB4" opacity="0.7"/>
         </svg>
         
                     
                 <div class="flex gap-md font-label-sm text-label-sm text-text-secondary">
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#00204e"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4"></span>
                         <span data-i18n="cagr_hist" data-en="CAGR (history):">CAGR(과거):</span> <span class="font-semibold text-text-primary">2.2%</span>
                     </span>
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#005db7;opacity:0.7"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4;opacity:0.7"></span>
                         <span data-i18n="cagr_forecast" data-en="CAGR (forecast):">CAGR(전망):</span> <span class="font-semibold text-text-primary">1.6%</span>
                     </span>
                 </div>
@@ -2282,11 +2184,11 @@
             
         <div class="flex items-center gap-md bg-surface-container-low rounded-md p-sm">
             <svg viewBox="0 0 120 120" style="width: 100px; height: 100px;" preserveAspectRatio="xMidYMid meet">
-                <path d="M 60.00 10.00 A 50 50 0 1 1 44.55 107.55 L 50.73 88.53 A 30 30 0 1 0 60.00 30.00 Z" fill="#00204e"/><path d="M 44.55 107.55 A 50 50 0 0 1 60.00 10.00 L 60.00 30.00 A 30 30 0 0 0 50.73 88.53 Z" fill="#c4c6d2"/>
-                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">55%</text>
+                <path d="M 60.00 10.00 A 50 50 0 1 1 44.55 107.55 L 50.73 88.53 A 30 30 0 1 0 60.00 30.00 Z" fill="#3F6CB4"/><path d="M 44.55 107.55 A 50 50 0 0 1 60.00 10.00 L 60.00 30.00 A 30 30 0 0 0 50.73 88.53 Z" fill="#E6E9EC"/>
+                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">55%</text>
             </svg>
             <div class="flex flex-col gap-xs flex-1">
-                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">할부·리스</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">55%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#c4c6d2"></span><span class="font-label-sm text-label-sm text-text-secondary">현금·기타</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">45%</span></div>
+                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">할부·리스</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">55%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#E6E9EC"></span><span class="font-label-sm text-label-sm text-text-secondary">현금·기타</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">45%</span></div>
             </div>
         </div>
         
@@ -2332,11 +2234,11 @@
             
         <div class="flex items-center gap-md bg-surface-container-low rounded-md p-sm">
             <svg viewBox="0 0 120 120" style="width: 100px; height: 100px;" preserveAspectRatio="xMidYMid meet">
-                <path d="M 60.00 10.00 A 50 50 0 0 1 89.39 100.45 L 77.63 84.27 A 30 30 0 0 0 60.00 30.00 Z" fill="#00204e"/><path d="M 89.39 100.45 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 77.63 84.27 Z" fill="#c4c6d2"/>
-                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">40%</text>
+                <path d="M 60.00 10.00 A 50 50 0 0 1 89.39 100.45 L 77.63 84.27 A 30 30 0 0 0 60.00 30.00 Z" fill="#3F6CB4"/><path d="M 89.39 100.45 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 77.63 84.27 Z" fill="#E6E9EC"/>
+                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">40%</text>
             </svg>
             <div class="flex flex-col gap-xs flex-1">
-                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">캡티브 금융사</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">40%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#c4c6d2"></span><span class="font-label-sm text-label-sm text-text-secondary">그 외</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">60%</span></div>
+                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">캡티브 금융사</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">40%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#E6E9EC"></span><span class="font-label-sm text-label-sm text-text-secondary">그 외</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">60%</span></div>
             </div>
         </div>
         
@@ -2660,12 +2562,12 @@
                     <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">battery_charging_full</span>
                     <h2 class="font-headline-md text-headline-md text-primary">EV 보급률 · EV/ICE 잔존가치 추이</h2>
                 </div>
-                <div class="flex items-center gap-md"><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#005db7"></span><span class="font-label-sm text-label-sm text-text-secondary">EV 보급률</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#E63946"></span><span class="font-label-sm text-label-sm text-text-secondary">EV/ICE 잔존가치(3년)</span></div></div>
+                <div class="flex items-center gap-md"><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">EV 보급률</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#C0533F"></span><span class="font-label-sm text-label-sm text-text-secondary">EV/ICE 잔존가치(3년)</span></div></div>
             </div>
             <svg class="w-full" viewBox="0 0 760 280" preserveAspectRatio="xMidYMid meet">
-                <line x1="50" y1="20.0" x2="740" y2="20.0" stroke="#e3e2e2" stroke-width="1"/><text x="44" y="24.0" font-size="10" fill="#747782" text-anchor="end">68</text><line x1="50" y1="76.0" x2="740" y2="76.0" stroke="#e3e2e2" stroke-width="1"/><text x="44" y="80.0" font-size="10" fill="#747782" text-anchor="end">50</text><line x1="50" y1="132.0" x2="740" y2="132.0" stroke="#e3e2e2" stroke-width="1"/><text x="44" y="136.0" font-size="10" fill="#747782" text-anchor="end">33</text><line x1="50" y1="188.0" x2="740" y2="188.0" stroke="#e3e2e2" stroke-width="1"/><text x="44" y="192.0" font-size="10" fill="#747782" text-anchor="end">15</text><line x1="50" y1="244.0" x2="740" y2="244.0" stroke="#e3e2e2" stroke-width="1"/><text x="44" y="248.0" font-size="10" fill="#747782" text-anchor="end">-2</text>
-                <text x="50.0" y="260" font-size="10" fill="#747782" text-anchor="middle">2021</text><text x="126.66666666666666" y="260" font-size="10" fill="#747782" text-anchor="middle">2022</text><text x="203.33333333333331" y="260" font-size="10" fill="#747782" text-anchor="middle">2023</text><text x="280.0" y="260" font-size="10" fill="#747782" text-anchor="middle">2024</text><text x="356.66666666666663" y="260" font-size="10" fill="#747782" text-anchor="middle">2025</text><text x="433.33333333333337" y="260" font-size="10" fill="#747782" text-anchor="middle">2026</text><text x="510.0" y="260" font-size="10" fill="#747782" text-anchor="middle">2027</text><text x="586.6666666666666" y="260" font-size="10" fill="#747782" text-anchor="middle">2028</text><text x="663.3333333333333" y="260" font-size="10" fill="#747782" text-anchor="middle">2029</text><text x="740.0" y="260" font-size="10" fill="#747782" text-anchor="middle">2030</text>
-                <path d="M 50.0 225.33333333333331 L 126.66666666666666 223.0882016036655 L 203.33333333333331 220.2016036655212 L 280.0 219.56013745704468 L 356.66666666666663 199.0332187857961" fill="none" stroke="#005db7" stroke-width="2.5"/><circle cx="50.0" cy="225.33333333333331" r="3" fill="#005db7"/><circle cx="126.66666666666666" cy="223.0882016036655" r="3" fill="#005db7"/><circle cx="203.33333333333331" cy="220.2016036655212" r="3" fill="#005db7"/><circle cx="280.0" cy="219.56013745704468" r="3" fill="#005db7"/><circle cx="356.66666666666663" cy="199.0332187857961" r="3" fill="#005db7"/><path d="M 356.66666666666663 199.0332187857961 L 433.33333333333337 186.20389461626576 L 510.0 173.3745704467354 L 586.6666666666666 157.33791523482245 L 663.3333333333333 141.3012600229095 L 740.0 122.05727376861394" fill="none" stroke="#005db7" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="433.33333333333337" cy="186.20389461626576" r="3" fill="#005db7" opacity="0.6"/><circle cx="510.0" cy="173.3745704467354" r="3" fill="#005db7" opacity="0.6"/><circle cx="586.6666666666666" cy="157.33791523482245" r="3" fill="#005db7" opacity="0.6"/><circle cx="663.3333333333333" cy="141.3012600229095" r="3" fill="#005db7" opacity="0.6"/><circle cx="740.0" cy="122.05727376861394" r="3" fill="#005db7" opacity="0.6"/><path d="M 50.0 38.66666666666666 L 126.66666666666666 45.08132875143181 L 203.33333333333331 51.495990836196995 L 280.0 57.91065292096215 L 356.66666666666663 61.11798396334473" fill="none" stroke="#E63946" stroke-width="2.5"/><circle cx="50.0" cy="38.66666666666666" r="3" fill="#E63946"/><circle cx="126.66666666666666" cy="45.08132875143181" r="3" fill="#E63946"/><circle cx="203.33333333333331" cy="51.495990836196995" r="3" fill="#E63946"/><circle cx="280.0" cy="57.91065292096215" r="3" fill="#E63946"/><circle cx="356.66666666666663" cy="61.11798396334473" r="3" fill="#E63946"/><path d="M 356.66666666666663 61.11798396334473 L 433.33333333333337 67.53264604810991 L 510.0 70.73997709049252 L 586.6666666666666 77.1546391752577 L 663.3333333333333 80.36197021764028 L 740.0 83.56930126002288" fill="none" stroke="#E63946" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="433.33333333333337" cy="67.53264604810991" r="3" fill="#E63946" opacity="0.6"/><circle cx="510.0" cy="70.73997709049252" r="3" fill="#E63946" opacity="0.6"/><circle cx="586.6666666666666" cy="77.1546391752577" r="3" fill="#E63946" opacity="0.6"/><circle cx="663.3333333333333" cy="80.36197021764028" r="3" fill="#E63946" opacity="0.6"/><circle cx="740.0" cy="83.56930126002288" r="3" fill="#E63946" opacity="0.6"/>
+                <line x1="50" y1="20.0" x2="740" y2="20.0" stroke="#E6E9EC" stroke-width="1"/><text x="44" y="24.0" font-size="10" fill="#9AA0A8" text-anchor="end">68</text><line x1="50" y1="76.0" x2="740" y2="76.0" stroke="#E6E9EC" stroke-width="1"/><text x="44" y="80.0" font-size="10" fill="#9AA0A8" text-anchor="end">50</text><line x1="50" y1="132.0" x2="740" y2="132.0" stroke="#E6E9EC" stroke-width="1"/><text x="44" y="136.0" font-size="10" fill="#9AA0A8" text-anchor="end">33</text><line x1="50" y1="188.0" x2="740" y2="188.0" stroke="#E6E9EC" stroke-width="1"/><text x="44" y="192.0" font-size="10" fill="#9AA0A8" text-anchor="end">15</text><line x1="50" y1="244.0" x2="740" y2="244.0" stroke="#E6E9EC" stroke-width="1"/><text x="44" y="248.0" font-size="10" fill="#9AA0A8" text-anchor="end">-2</text>
+                <text x="50.0" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2021</text><text x="126.66666666666666" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2022</text><text x="203.33333333333331" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2023</text><text x="280.0" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2024</text><text x="356.66666666666663" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2025</text><text x="433.33333333333337" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2026</text><text x="510.0" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2027</text><text x="586.6666666666666" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2028</text><text x="663.3333333333333" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2029</text><text x="740.0" y="260" font-size="10" fill="#9AA0A8" text-anchor="middle">2030</text>
+                <path d="M 50.0 225.33333333333331 L 126.66666666666666 223.0882016036655 L 203.33333333333331 220.2016036655212 L 280.0 219.56013745704468 L 356.66666666666663 199.0332187857961" fill="none" stroke="#3F6CB4" stroke-width="2.5"/><circle cx="50.0" cy="225.33333333333331" r="3" fill="#3F6CB4"/><circle cx="126.66666666666666" cy="223.0882016036655" r="3" fill="#3F6CB4"/><circle cx="203.33333333333331" cy="220.2016036655212" r="3" fill="#3F6CB4"/><circle cx="280.0" cy="219.56013745704468" r="3" fill="#3F6CB4"/><circle cx="356.66666666666663" cy="199.0332187857961" r="3" fill="#3F6CB4"/><path d="M 356.66666666666663 199.0332187857961 L 433.33333333333337 186.20389461626576 L 510.0 173.3745704467354 L 586.6666666666666 157.33791523482245 L 663.3333333333333 141.3012600229095 L 740.0 122.05727376861394" fill="none" stroke="#3F6CB4" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="433.33333333333337" cy="186.20389461626576" r="3" fill="#3F6CB4" opacity="0.6"/><circle cx="510.0" cy="173.3745704467354" r="3" fill="#3F6CB4" opacity="0.6"/><circle cx="586.6666666666666" cy="157.33791523482245" r="3" fill="#3F6CB4" opacity="0.6"/><circle cx="663.3333333333333" cy="141.3012600229095" r="3" fill="#3F6CB4" opacity="0.6"/><circle cx="740.0" cy="122.05727376861394" r="3" fill="#3F6CB4" opacity="0.6"/><path d="M 50.0 38.66666666666666 L 126.66666666666666 45.08132875143181 L 203.33333333333331 51.495990836196995 L 280.0 57.91065292096215 L 356.66666666666663 61.11798396334473" fill="none" stroke="#C0533F" stroke-width="2.5"/><circle cx="50.0" cy="38.66666666666666" r="3" fill="#C0533F"/><circle cx="126.66666666666666" cy="45.08132875143181" r="3" fill="#C0533F"/><circle cx="203.33333333333331" cy="51.495990836196995" r="3" fill="#C0533F"/><circle cx="280.0" cy="57.91065292096215" r="3" fill="#C0533F"/><circle cx="356.66666666666663" cy="61.11798396334473" r="3" fill="#C0533F"/><path d="M 356.66666666666663 61.11798396334473 L 433.33333333333337 67.53264604810991 L 510.0 70.73997709049252 L 586.6666666666666 77.1546391752577 L 663.3333333333333 80.36197021764028 L 740.0 83.56930126002288" fill="none" stroke="#C0533F" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="433.33333333333337" cy="67.53264604810991" r="3" fill="#C0533F" opacity="0.6"/><circle cx="510.0" cy="70.73997709049252" r="3" fill="#C0533F" opacity="0.6"/><circle cx="586.6666666666666" cy="77.1546391752577" r="3" fill="#C0533F" opacity="0.6"/><circle cx="663.3333333333333" cy="80.36197021764028" r="3" fill="#C0533F" opacity="0.6"/><circle cx="740.0" cy="83.56930126002288" r="3" fill="#C0533F" opacity="0.6"/>
             </svg>
             <p class="font-label-sm text-label-sm text-text-secondary mt-xs"><span data-i18n="line_legend" data-en="Solid = history, dashed = forecast · unit:">실선=과거, 점선=전망 · 단위:</span> %</p>
         </section>
@@ -2680,30 +2582,30 @@
             <svg class="w-full" viewBox="0 0 760 160" preserveAspectRatio="xMidYMid meet">
                 
             <g>
-                <text x="0" y="36.0" font-size="13" fill="#1b1c1c" font-weight="600">신차 자동차대출</text>
-                <line x1="484.0" y1="32.0" x2="700.0" y2="32.0" stroke="#00204e" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="484.0" cy="32.0" r="5" fill="#00204e"/>
-                <circle cx="700.0" cy="32.0" r="5" fill="#00204e"/>
-                <text x="478.0" y="36.0" font-size="11" fill="#434751" font-weight="600" text-anchor="end">6.0%</text>
-                <text x="708.0" y="36.0" font-size="11" fill="#434751" font-weight="600">10.0%</text>
+                <text x="0" y="36.0" font-size="13" fill="#14171C" font-weight="600">신차 자동차대출</text>
+                <line x1="484.0" y1="32.0" x2="700.0" y2="32.0" stroke="#3F6CB4" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="484.0" cy="32.0" r="5" fill="#3F6CB4"/>
+                <circle cx="700.0" cy="32.0" r="5" fill="#3F6CB4"/>
+                <text x="478.0" y="36.0" font-size="11" fill="#3B3F46" font-weight="600" text-anchor="end">6.0%</text>
+                <text x="708.0" y="36.0" font-size="11" fill="#3B3F46" font-weight="600">10.0%</text>
             </g>
             
             <g>
-                <text x="0" y="76.0" font-size="13" fill="#1b1c1c" font-weight="600">캡티브 프로모</text>
-                <line x1="160.0" y1="72.0" x2="322.0" y2="72.0" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="160.0" cy="72.0" r="5" fill="#10b981"/>
-                <circle cx="322.0" cy="72.0" r="5" fill="#10b981"/>
-                <text x="154.0" y="76.0" font-size="11" fill="#434751" font-weight="600" text-anchor="end">0.0%</text>
-                <text x="330.0" y="76.0" font-size="11" fill="#434751" font-weight="600">3.0%</text>
+                <text x="0" y="76.0" font-size="13" fill="#14171C" font-weight="600">캡티브 프로모</text>
+                <line x1="160.0" y1="72.0" x2="322.0" y2="72.0" stroke="#4F8A6D" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="160.0" cy="72.0" r="5" fill="#4F8A6D"/>
+                <circle cx="322.0" cy="72.0" r="5" fill="#4F8A6D"/>
+                <text x="154.0" y="76.0" font-size="11" fill="#3B3F46" font-weight="600" text-anchor="end">0.0%</text>
+                <text x="330.0" y="76.0" font-size="11" fill="#3B3F46" font-weight="600">3.0%</text>
             </g>
             
             <g>
-                <text x="0" y="116.0" font-size="13" fill="#1b1c1c" font-weight="600">소비자신용 평균</text>
-                <line x1="538.0" y1="112.0" x2="538.0" y2="112.0" stroke="#E63946" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="538.0" cy="112.0" r="5" fill="#E63946"/>
-                <circle cx="538.0" cy="112.0" r="5" fill="#E63946"/>
-                <text x="532.0" y="116.0" font-size="11" fill="#434751" font-weight="600" text-anchor="end">7.0%</text>
-                <text x="546.0" y="116.0" font-size="11" fill="#434751" font-weight="600">7.0%</text>
+                <text x="0" y="116.0" font-size="13" fill="#14171C" font-weight="600">소비자신용 평균</text>
+                <line x1="538.0" y1="112.0" x2="538.0" y2="112.0" stroke="#C0533F" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="538.0" cy="112.0" r="5" fill="#C0533F"/>
+                <circle cx="538.0" cy="112.0" r="5" fill="#C0533F"/>
+                <text x="532.0" y="116.0" font-size="11" fill="#3B3F46" font-weight="600" text-anchor="end">7.0%</text>
+                <text x="546.0" y="116.0" font-size="11" fill="#3B3F46" font-weight="600">7.0%</text>
             </g>
             
             </svg>
@@ -3063,11 +2965,11 @@
             
         <div class="flex items-center gap-md bg-surface-container-low rounded-md p-sm">
             <svg viewBox="0 0 120 120" style="width: 100px; height: 100px;" preserveAspectRatio="xMidYMid meet">
-                <path d="M 60.00 10.00 A 50 50 0 0 1 107.55 44.55 L 88.53 50.73 A 30 30 0 0 0 60.00 30.00 Z" fill="#00204e"/><path d="M 107.55 44.55 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 88.53 50.73 Z" fill="#c4c6d2"/>
-                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">20%</text>
+                <path d="M 60.00 10.00 A 50 50 0 0 1 107.55 44.55 L 88.53 50.73 A 30 30 0 0 0 60.00 30.00 Z" fill="#3F6CB4"/><path d="M 107.55 44.55 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 88.53 50.73 Z" fill="#E6E9EC"/>
+                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">20%</text>
             </svg>
             <div class="flex flex-col gap-xs flex-1">
-                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">Top 5</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">20%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#c4c6d2"></span><span class="font-label-sm text-label-sm text-text-secondary">기타</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">80%</span></div>
+                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">Top 5</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">20%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#E6E9EC"></span><span class="font-label-sm text-label-sm text-text-secondary">기타</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">80%</span></div>
             </div>
         </div>
         
@@ -3243,11 +3145,11 @@
             
         <div class="flex items-center gap-md bg-surface-container-low rounded-md p-sm">
             <svg viewBox="0 0 120 120" style="width: 100px; height: 100px;" preserveAspectRatio="xMidYMid meet">
-                <path d="M 60.00 10.00 A 50 50 0 0 1 94.23 23.55 L 80.54 38.13 A 30 30 0 0 0 60.00 30.00 Z" fill="#00204e"/><path d="M 94.23 23.55 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 80.54 38.13 Z" fill="#c4c6d2"/>
-                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">12%</text>
+                <path d="M 60.00 10.00 A 50 50 0 0 1 94.23 23.55 L 80.54 38.13 A 30 30 0 0 0 60.00 30.00 Z" fill="#3F6CB4"/><path d="M 94.23 23.55 A 50 50 0 1 1 60.00 10.00 L 60.00 30.00 A 30 30 0 1 0 80.54 38.13 Z" fill="#E6E9EC"/>
+                <text x="60" y="61" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">12%</text>
             </svg>
             <div class="flex flex-col gap-xs flex-1">
-                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">EV</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">12%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#c4c6d2"></span><span class="font-label-sm text-label-sm text-text-secondary">ICE 외</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">88%</span></div>
+                <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">EV</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">12%</span></div><div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#E6E9EC"></span><span class="font-label-sm text-label-sm text-text-secondary">ICE 외</span><span class="font-label-sm text-label-sm text-text-primary font-semibold">88%</span></div>
             </div>
         </div>
         
@@ -3255,22 +3157,22 @@
                 <div class="bg-surface-container-low rounded-md p-sm flex flex-col gap-xs">
                     
         <svg class="w-full" viewBox="0 0 360 90" preserveAspectRatio="xMidYMid meet" style="max-height: 100px;">
-            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#e3e2e2"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#e3e2e2"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#e3e2e2"/>
-            <text x="32" y="14" font-size="9" fill="#747782" text-anchor="end">36</text><text x="32" y="71" font-size="9" fill="#747782" text-anchor="end">4</text>
-            <text x="36.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2030</text>
-            <path d="M 36.0 64.61538461538461 L 70.66666666666666 63.54515050167224 L 105.33333333333333 62.16913521261347 L 140.0 61.86335403726708 L 174.66666666666666 52.07835642618251" fill="none" stroke="#00204e" stroke-width="2"/>
-            <path d="M 174.66666666666666 52.07835642618251 L 209.33333333333334 45.962732919254655 L 244.0 39.8471094123268 L 278.66666666666663 32.202580028666986 L 313.3333333333333 24.558050645007164 L 348.0 15.38461538461538" fill="none" stroke="#005db7" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
-            <circle cx="36.0" cy="64.61538461538461" r="2.5" fill="#00204e"/><circle cx="70.66666666666666" cy="63.54515050167224" r="2.5" fill="#00204e"/><circle cx="105.33333333333333" cy="62.16913521261347" r="2.5" fill="#00204e"/><circle cx="140.0" cy="61.86335403726708" r="2.5" fill="#00204e"/><circle cx="174.66666666666666" cy="52.07835642618251" r="2.5" fill="#00204e"/><circle cx="209.33333333333334" cy="45.962732919254655" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="244.0" cy="39.8471094123268" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="278.66666666666663" cy="32.202580028666986" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="313.3333333333333" cy="24.558050645007164" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="348.0" cy="15.38461538461538" r="2.5" fill="#005db7" opacity="0.7"/>
+            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#E6E9EC"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#E6E9EC"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#E6E9EC"/>
+            <text x="32" y="14" font-size="9" fill="#9AA0A8" text-anchor="end">36</text><text x="32" y="71" font-size="9" fill="#9AA0A8" text-anchor="end">4</text>
+            <text x="36.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2030</text>
+            <path d="M 36.0 64.61538461538461 L 70.66666666666666 63.54515050167224 L 105.33333333333333 62.16913521261347 L 140.0 61.86335403726708 L 174.66666666666666 52.07835642618251" fill="none" stroke="#3F6CB4" stroke-width="2"/>
+            <path d="M 174.66666666666666 52.07835642618251 L 209.33333333333334 45.962732919254655 L 244.0 39.8471094123268 L 278.66666666666663 32.202580028666986 L 313.3333333333333 24.558050645007164 L 348.0 15.38461538461538" fill="none" stroke="#3F6CB4" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
+            <circle cx="36.0" cy="64.61538461538461" r="2.5" fill="#3F6CB4"/><circle cx="70.66666666666666" cy="63.54515050167224" r="2.5" fill="#3F6CB4"/><circle cx="105.33333333333333" cy="62.16913521261347" r="2.5" fill="#3F6CB4"/><circle cx="140.0" cy="61.86335403726708" r="2.5" fill="#3F6CB4"/><circle cx="174.66666666666666" cy="52.07835642618251" r="2.5" fill="#3F6CB4"/><circle cx="209.33333333333334" cy="45.962732919254655" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="244.0" cy="39.8471094123268" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="278.66666666666663" cy="32.202580028666986" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="313.3333333333333" cy="24.558050645007164" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="348.0" cy="15.38461538461538" r="2.5" fill="#3F6CB4" opacity="0.7"/>
         </svg>
         
                     
                 <div class="flex gap-md font-label-sm text-label-sm text-text-secondary">
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#00204e"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4"></span>
                         <span data-i18n="cagr_hist" data-en="CAGR (history):">CAGR(과거):</span> <span class="font-semibold text-text-primary">33.3%</span>
                     </span>
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#005db7;opacity:0.7"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4;opacity:0.7"></span>
                         <span data-i18n="cagr_forecast" data-en="CAGR (forecast):">CAGR(전망):</span> <span class="font-semibold text-text-primary">24.6%</span>
                     </span>
                 </div>
@@ -3320,22 +3222,22 @@
                 <div class="bg-surface-container-low rounded-md p-sm flex flex-col gap-xs">
                     
         <svg class="w-full" viewBox="0 0 360 90" preserveAspectRatio="xMidYMid meet" style="max-height: 100px;">
-            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#e3e2e2"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#e3e2e2"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#e3e2e2"/>
-            <text x="32" y="14" font-size="9" fill="#747782" text-anchor="end">62</text><text x="32" y="71" font-size="9" fill="#747782" text-anchor="end">48</text>
-            <text x="36.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#747782" text-anchor="middle">2030</text>
-            <path d="M 36.0 15.384615384615365 L 70.66666666666666 22.417582417582402 L 105.33333333333333 29.45054945054944 L 140.0 36.48351648351647 L 174.66666666666666 39.999999999999986" fill="none" stroke="#00204e" stroke-width="2"/>
-            <path d="M 174.66666666666666 39.999999999999986 L 209.33333333333334 47.03296703296702 L 244.0 50.54945054945054 L 278.66666666666663 57.58241758241758 L 313.3333333333333 61.098901098901095 L 348.0 64.61538461538461" fill="none" stroke="#005db7" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
-            <circle cx="36.0" cy="15.384615384615365" r="2.5" fill="#00204e"/><circle cx="70.66666666666666" cy="22.417582417582402" r="2.5" fill="#00204e"/><circle cx="105.33333333333333" cy="29.45054945054944" r="2.5" fill="#00204e"/><circle cx="140.0" cy="36.48351648351647" r="2.5" fill="#00204e"/><circle cx="174.66666666666666" cy="39.999999999999986" r="2.5" fill="#00204e"/><circle cx="209.33333333333334" cy="47.03296703296702" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="244.0" cy="50.54945054945054" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="278.66666666666663" cy="57.58241758241758" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="313.3333333333333" cy="61.098901098901095" r="2.5" fill="#005db7" opacity="0.7"/><circle cx="348.0" cy="64.61538461538461" r="2.5" fill="#005db7" opacity="0.7"/>
+            <line x1="36" y1="8.0" x2="348" y2="8.0" stroke="#E6E9EC"/><line x1="36" y1="40.0" x2="348" y2="40.0" stroke="#E6E9EC"/><line x1="36" y1="72.0" x2="348" y2="72.0" stroke="#E6E9EC"/>
+            <text x="32" y="14" font-size="9" fill="#9AA0A8" text-anchor="end">62</text><text x="32" y="71" font-size="9" fill="#9AA0A8" text-anchor="end">48</text>
+            <text x="36.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2021</text><text x="348.0" y="84" font-size="9" fill="#9AA0A8" text-anchor="middle">2030</text>
+            <path d="M 36.0 15.384615384615365 L 70.66666666666666 22.417582417582402 L 105.33333333333333 29.45054945054944 L 140.0 36.48351648351647 L 174.66666666666666 39.999999999999986" fill="none" stroke="#3F6CB4" stroke-width="2"/>
+            <path d="M 174.66666666666666 39.999999999999986 L 209.33333333333334 47.03296703296702 L 244.0 50.54945054945054 L 278.66666666666663 57.58241758241758 L 313.3333333333333 61.098901098901095 L 348.0 64.61538461538461" fill="none" stroke="#3F6CB4" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>
+            <circle cx="36.0" cy="15.384615384615365" r="2.5" fill="#3F6CB4"/><circle cx="70.66666666666666" cy="22.417582417582402" r="2.5" fill="#3F6CB4"/><circle cx="105.33333333333333" cy="29.45054945054944" r="2.5" fill="#3F6CB4"/><circle cx="140.0" cy="36.48351648351647" r="2.5" fill="#3F6CB4"/><circle cx="174.66666666666666" cy="39.999999999999986" r="2.5" fill="#3F6CB4"/><circle cx="209.33333333333334" cy="47.03296703296702" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="244.0" cy="50.54945054945054" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="278.66666666666663" cy="57.58241758241758" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="313.3333333333333" cy="61.098901098901095" r="2.5" fill="#3F6CB4" opacity="0.7"/><circle cx="348.0" cy="64.61538461538461" r="2.5" fill="#3F6CB4" opacity="0.7"/>
         </svg>
         
                     
                 <div class="flex gap-md font-label-sm text-label-sm text-text-secondary">
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#00204e"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4"></span>
                         <span data-i18n="cagr_hist" data-en="CAGR (history):">CAGR(과거):</span> <span class="font-semibold text-text-primary">-2.9%</span>
                     </span>
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#005db7;opacity:0.7"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4;opacity:0.7"></span>
                         <span data-i18n="cagr_forecast" data-en="CAGR (forecast):">CAGR(전망):</span> <span class="font-semibold text-text-primary">-2.7%</span>
                     </span>
                 </div>

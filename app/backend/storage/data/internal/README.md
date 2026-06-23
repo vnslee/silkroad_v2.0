@@ -43,7 +43,7 @@
 
 | 키 | 타입 | 설명 |
 |---|---|---|
-| `country_assets` | `{ISO2: {solution, build_cost, build_months, reuse_factor}}` | **기진출국**의 시스템·구축비·기간. 유형1 TCO 산식에서 `B 구축비용·기간`으로 사용. |
+| `country_assets` | `{ISO2: {solution, since, entry_form, build_cost, build_months, reuse_factor}}` | **기진출국**의 시스템·구축비·기간. 유형1 TCO 산식에서 `B 구축비용·기간`으로 사용. `entry_form`(단독법인/조인트벤처/지점 등)·`since`는 국가 상세화면(P1) "진출 정보" 패널에 표시. |
 | `region_baselines` | `{region: ISO2}` | 권역별 기준국(B국) — `EU=GB, NA=US, APAC=AU`. 권역 보고서에서 IT 유사도 비교 기준. |
 | `country_to_region` | `{ISO2: region}` | 국가 → 권역 매핑. 신규 국가 추가 시 여기에 등록. |
 | `country_status` | `{ISO2: "운영중"\|"준비중"\|"미진출"}` | 진출 단계 표시 (UI 용). |

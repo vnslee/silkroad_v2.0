@@ -9,6 +9,169 @@ detail 엔진은 이 모듈을 `import render_helpers as rre` 로 사용한다.
 import html
 import datetime
 
+# ─────────────────────────────────────────────────────────────────────────────
+# AISea 디자인 토큰 (단일 소스)
+#   디자인 SoT: architecture/design/AISea/AISea.dc.html
+#   브랜드 블루 #3F6CB4 / 다크섹션 #101622~#1F2D45 / 신호색 그린·앰버·레드 / Pretendard + Space Grotesk
+#   4개 렌더러(country/region × report/detail)가 이 토큰을 공유한다(import render_helpers as rre).
+# ─────────────────────────────────────────────────────────────────────────────
+AISEA = {
+    # 브랜드
+    "blue":        "#3F6CB4",   # 액션·강조·데이터 시각화
+    "blue_hover":  "#4B79C2",
+    "blue_light":  "#6E97D6",
+    "blue_dim":    "#2C4C86",
+    "blue_pale":   "#8FA0BD",
+    # 딥 섹션(히어로/리포트 헤더/탭 active)
+    "ink":         "#101622",
+    "ink2":        "#1F2D45",
+    "marker_navy": "#1B3451",
+    # 신호색
+    "ok":          "#4F8A6D",   # 안정/성공
+    "ok_light":    "#7FD3A6",
+    "warn":        "#C08A2E",   # 보통/경고
+    "warn_light":  "#E8C173",
+    "bad":         "#C0533F",   # 주의/위험
+    "bad_light":   "#E89380",
+    # 중립·텍스트
+    "muted":       "#9AA0A8",   # 비활성·라벨
+    "ink_text":    "#14171C",   # 본문 텍스트
+    "text2":       "#3B3F46",   # 보조 텍스트(진한)
+    "text3":       "#6B7280",   # 보조 텍스트(연한)
+    # 보더·배경
+    "border":      "#E6E9EC",
+    "border2":     "#EEF0F2",
+    "surface":     "#F7F8FA",   # 콘텐츠 배경
+    "app":         "#EEF0F2",   # 앱셸 배경
+    "card":        "#ffffff",
+    # 배지 연한 bg
+    "ok_bg":       "#E9F3EE",
+    "info_bg":     "#EAF0F8",
+    "warn_bg":     "#FBF3E2",
+    "bad_bg":      "#F6E7E3",
+    # 그림자 base(rgba 합성용)
+    "shadow_rgb":  "20,23,28",
+}
+
+# Tailwind config `colors{}` (토큰 이름 → AISea hex).
+# 토큰 이름은 기존(M3 파생)을 유지하고 값만 AISea로 remap → 본문 유틸 클래스(bg-primary 등) 손대지 않음.
+TOKEN_CONFIG_COLORS = {
+    "accent-red": AISEA["bad"],
+    "surface-bright": AISEA["surface"],
+    "on-primary-fixed-variant": AISEA["blue_dim"],
+    "tertiary-fixed": AISEA["bad_bg"],
+    "primary-fixed-dim": AISEA["blue_light"],
+    "inverse-surface": AISEA["ink2"],
+    "surface-container-lowest": AISEA["card"],
+    "secondary": AISEA["blue"],
+    "on-tertiary": "#ffffff",
+    "on-primary": "#ffffff",
+    "error": AISEA["bad"],
+    "on-tertiary-fixed-variant": AISEA["bad"],
+    "secondary-fixed": AISEA["info_bg"],
+    "tertiary": AISEA["bad"],
+    "inverse-primary": AISEA["blue_light"],
+    "primary-container": AISEA["blue_dim"],
+    "on-primary-container": AISEA["blue_pale"],
+    "primary-fixed": AISEA["info_bg"],
+    "on-secondary-container": AISEA["blue_dim"],
+    "surface-dim": "#dbdad9",
+    "surface-container-low": AISEA["surface"],
+    "surface-border": AISEA["border"],
+    "on-error": "#ffffff",
+    "surface-container-highest": AISEA["border2"],
+    "surface-container": AISEA["border2"],
+    "secondary-fixed-dim": AISEA["blue_light"],
+    "on-tertiary-fixed": AISEA["bad"],
+    "surface-variant": AISEA["border2"],
+    "on-tertiary-container": AISEA["bad_light"],
+    "inverse-on-surface": AISEA["surface"],
+    "outline": AISEA["muted"],
+    "surface-light": AISEA["surface"],
+    "text-secondary": AISEA["text2"],
+    "on-primary-fixed": AISEA["ink"],
+    "surface-tint": AISEA["blue"],
+    "on-secondary-fixed": AISEA["ink"],
+    "on-surface-variant": AISEA["text2"],
+    "on-secondary-fixed-variant": AISEA["blue_dim"],
+    "on-error-container": AISEA["bad"],
+    "outline-variant": AISEA["border"],
+    "text-disabled": AISEA["muted"],
+    "secondary-container": AISEA["blue_light"],
+    "tertiary-fixed-dim": AISEA["bad_light"],
+    "on-secondary": "#ffffff",
+    "background": AISEA["surface"],
+    "error-container": AISEA["bad_bg"],
+    "surface": AISEA["surface"],
+    "on-background": AISEA["ink_text"],
+    "text-primary": AISEA["ink_text"],
+    "surface-container-high": AISEA["border2"],
+    "primary": AISEA["ink"],
+    "tertiary-container": AISEA["bad_bg"],
+    "on-surface": AISEA["ink_text"],
+}
+
+_FONT = "Pretendard"
+_MONO = "Space Grotesk"
+
+
+def _font_family_tokens():
+    fam = {k: [_FONT] for k in (
+        "headline-md", "label-md", "headline-lg", "body-sm", "display-lg",
+        "label-sm", "body-lg", "headline-lg-mobile", "body-md")}
+    fam["mono"] = [_MONO, _FONT, "sans-serif"]
+    return fam
+
+
+def _font_size_tokens():
+    return {
+        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+    }
+
+
+def tailwind_config_block():
+    """완성된 tailwind.config `<script>` 문자열 반환.
+
+    f-string 렌더러에서 `{rre.tailwind_config_block()}` 단일 슬롯으로 삽입한다
+    (JSON.dumps 결과라 `{{ }}` 이스케이프 불필요).
+    """
+    import json as _json
+    theme = {
+        "darkMode": "class",
+        "theme": {"extend": {
+            "colors": TOKEN_CONFIG_COLORS,
+            "borderRadius": {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            "spacing": {"sm": "8px", "margin-desktop": "48px", "gutter": "24px", "base": "4px",
+                        "margin-mobile": "16px", "xl": "32px", "lg": "24px", "xs": "4px", "md": "16px"},
+            "fontFamily": _font_family_tokens(),
+            "fontSize": _font_size_tokens(),
+        }},
+    }
+    return ('<script id="tailwind-config">\n        tailwind.config = '
+            + _json.dumps(theme, ensure_ascii=False) + ';\n    </script>')
+
+
+def head_links():
+    """폰트/Material Symbols link 묶음 — Pretendard + Space Grotesk + Material Symbols."""
+    return (
+        '<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>\n'
+        '    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>\n'
+        '    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>')
+
+
+def body_font_css():
+    return (f"body {{ font-family: '{_FONT}', system-ui, sans-serif; }}\n"
+            f"        .mono, .font-mono {{ font-family: '{_MONO}', '{_FONT}', sans-serif; }}")
+
+
 def esc(s):
     return html.escape("" if s is None else str(s))
 
@@ -65,22 +228,22 @@ def freshness_badge(fetched_at):
     except Exception:
         return ""
     if days <= 30:
-        c, t = "#137333", "🟢 최신"
+        c, t = AISEA["ok"], "🟢 최신"
     elif days <= 90:
-        c, t = "#b06000", f"🟡 {days}일 경과"
+        c, t = AISEA["warn"], f"🟡 {days}일 경과"
     else:
-        c, t = "#c5221f", "🔴 재조사 권장"
+        c, t = AISEA["bad"], "🔴 재조사 권장"
     return badge(t, c + "1a", c)
 
 
 # 사분면/신뢰도/게이트 색 토큰
 QUAD_COLOR = {
-    "즉시 진출": "#137333", "선별 진출": "#1967d2",
-    "기회 탐색": "#b06000", "JV/제휴 필요": "#c5221f",
+    "즉시 진출": AISEA["ok"], "선별 진출": AISEA["blue"],
+    "기회 탐색": AISEA["warn"], "JV/제휴 필요": AISEA["bad"],
 }
-CONF_COLOR = {"상": "#137333", "중": "#b06000", "하": "#c5221f"}
-GATE_COLOR = {"PASS": ("#e6f4ea", "#137333"), "FLAG": ("#fef7e0", "#b06000"),
-              "FAIL": ("#fce8e6", "#c5221f")}
+CONF_COLOR = {"상": AISEA["ok"], "중": AISEA["warn"], "하": AISEA["bad"]}
+GATE_COLOR = {"PASS": (AISEA["ok_bg"], AISEA["ok"]), "FLAG": (AISEA["warn_bg"], AISEA["warn"]),
+              "FAIL": (AISEA["bad_bg"], AISEA["bad"])}
 
 
 def badge(text, bg, fg):
@@ -89,7 +252,7 @@ def badge(text, bg, fg):
 
 
 def conf_badge(c):
-    fg = CONF_COLOR.get(c, "#555555")
+    fg = CONF_COLOR.get(c, AISEA["text3"])
     return badge(f"신뢰도 {c}", fg + "1a", fg)
 
 
@@ -100,10 +263,10 @@ def gate_badge(result):
 
 def score_color(v):
     """0-100 점수 → 신호색."""
-    return "#137333" if v >= 70 else "#1967d2" if v >= 50 else "#b06000" if v >= 35 else "#c5221f"
+    return AISEA["ok"] if v >= 70 else AISEA["blue"] if v >= 50 else AISEA["warn"] if v >= 35 else AISEA["bad"]
 
 
-def bar(value, vmax=100, color="#005db7"):
+def bar(value, vmax=100, color=AISEA["blue"]):
     pct = 0 if not vmax else max(0, min(100, value / vmax * 100))
     return (f'<div class="w-full h-base bg-surface-border rounded-full overflow-hidden">'
             f'<div class="h-full rounded-full" style="width:{pct:.0f}%;background:{color}"></div></div>')
@@ -130,13 +293,13 @@ def vbar_chart(series, vmax=100, height=180, unit=""):
         bars.append(
             f'<rect x="{x}" y="{y:.1f}" width="{bw}" height="{bh:.1f}" rx="4" fill="{color}"/>'
             f'<text x="{x+bw/2}" y="{y-6:.1f}" text-anchor="middle" font-size="13" '
-            f'font-weight="700" fill="#1b1c1c">{fmt_num(val)}{esc(unit)}</text>'
+            f'font-family="{_MONO}" font-weight="700" fill="{AISEA["ink_text"]}">{fmt_num(val)}{esc(unit)}</text>'
             f'<text x="{x+bw/2}" y="{base+18}" text-anchor="middle" font-size="12" '
-            f'fill="#555555">{esc(label)}</text>')
+            f'fill="{AISEA["text3"]}">{esc(label)}</text>')
     return (f'<svg viewBox="0 0 {w} {h}" class="w-full" style="max-height:{h}px" '
             f'preserveAspectRatio="xMidYMid meet">'
             f'<line x1="{pad-8}" y1="{base}" x2="{w-pad+8}" y2="{base}" '
-            f'stroke="#DCDCDC" stroke-width="1"/>{"".join(bars)}</svg>')
+            f'stroke="{AISEA["border"]}" stroke-width="1"/>{"".join(bars)}</svg>')
 
 
 def quadrant_chart(rows):
@@ -154,34 +317,34 @@ def quadrant_chart(rows):
         a, d = r["attractiveness"], r["difficulty"]
         cx, cy = sx(a), sy(d)
         rad = 9 + (r["cost"]["build"] / bmax) * 17
-        col = "#005db7" if r["quick_win"] else "#9aa0aa"
+        col = AISEA["blue"] if r["quick_win"] else AISEA["muted"]
         pts.append(
             f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{rad:.1f}" fill="{col}" '
             f'fill-opacity="0.78" stroke="#fff" stroke-width="2"/>'
             f'<text x="{cx:.1f}" y="{cy+4:.1f}" text-anchor="middle" font-size="12" '
-            f'font-weight="700" fill="#fff">{esc(r["code"])}</text>')
+            f'font-family="{_MONO}" font-weight="700" fill="#fff">{esc(r["code"])}</text>')
     # 사분면 라벨
     labels = [
         (sx(75), sy(25), "즉시 진출"), (sx(25), sy(25), "기회 탐색"),
         (sx(75), sy(78), "선별 진출"), (sx(25), sy(78), "JV/제휴 필요"),
     ]
     lab = "".join(f'<text x="{lx:.0f}" y="{ly:.0f}" text-anchor="middle" '
-                  f'font-size="11" fill="#9aa0aa" font-weight="600">{esc(t)}</text>'
+                  f'font-size="11" fill="{AISEA["muted"]}" font-weight="600">{esc(t)}</text>'
                   for lx, ly, t in labels)
     return (f'<svg viewBox="0 0 {w} {h}" class="w-full" preserveAspectRatio="xMidYMid meet">'
             f'<rect x="{x0}" y="{y0}" width="{x1-x0}" height="{y1-y0}" fill="#fff" '
-            f'stroke="#DCDCDC"/>'
-            f'<line x1="{mx:.0f}" y1="{y0}" x2="{mx:.0f}" y2="{y1}" stroke="#DCDCDC" stroke-dasharray="4 4"/>'
-            f'<line x1="{x0}" y1="{my:.0f}" x2="{x1}" y2="{my:.0f}" stroke="#DCDCDC" stroke-dasharray="4 4"/>'
+            f'stroke="{AISEA["border"]}"/>'
+            f'<line x1="{mx:.0f}" y1="{y0}" x2="{mx:.0f}" y2="{y1}" stroke="{AISEA["border"]}" stroke-dasharray="4 4"/>'
+            f'<line x1="{x0}" y1="{my:.0f}" x2="{x1}" y2="{my:.0f}" stroke="{AISEA["border"]}" stroke-dasharray="4 4"/>'
             f'{lab}{"".join(pts)}'
             f'<text x="{(x0+x1)/2:.0f}" y="{h-12}" text-anchor="middle" font-size="12" '
-            f'fill="#555555">매력도 →</text>'
+            f'fill="{AISEA["text3"]}">매력도 →</text>'
             f'<text x="14" y="{(y0+y1)/2:.0f}" text-anchor="middle" font-size="12" '
-            f'fill="#555555" transform="rotate(-90 14 {(y0+y1)/2:.0f})">← 진입난이도(낮을수록 위)</text>'
+            f'fill="{AISEA["text3"]}" transform="rotate(-90 14 {(y0+y1)/2:.0f})">← 진입난이도(낮을수록 위)</text>'
             f'</svg>')
 
 
-def line_chart(history, forecast, color="#00204e"):
+def line_chart(history, forecast, color=AISEA["blue"]):
     """시계열 라인차트(실적+전망). history/forecast=[{year,value}]."""
     pts_all = (history or []) + (forecast or [])
     if len(pts_all) < 2:
@@ -210,7 +373,8 @@ def line_chart(history, forecast, color="#00204e"):
 
 # 여러 시계열을 한 패널에 색만 다르게 겹쳐 그린다(추세 비교용).
 # 단위가 서로 다를 수 있으므로 각 시리즈를 자기 min/max로 0~1 정규화한다 — 절대값이 아니라 추세를 비교.
-MULTI_LINE_PALETTE = ["#00204e", "#1967d2", "#7cb342", "#b06000", "#8e44ad", "#00897b"]
+MULTI_LINE_PALETTE = [AISEA["blue"], AISEA["blue_dim"], AISEA["ok"], AISEA["warn"],
+                      AISEA["blue_light"], AISEA["bad"]]
 
 
 def multi_line_chart(series, height=160):
@@ -268,8 +432,9 @@ def multi_line_chart(series, height=160):
 #   막대 길이 = 해당 축 점수(0~100), 색 구간 = 항목별 가중 기여(weighted).
 #   계산은 하지 않고 리포트가 이미 박아둔 weighted를 그대로 쌓는다.
 # ─────────────────────────────────────────────────────────────────────────────
-CONTRIB_PALETTE = ["#00204e", "#005db7", "#1967d2", "#4a90d9", "#7cb342",
-                   "#00897b", "#b06000", "#8e44ad", "#c5221f", "#5f6368"]
+CONTRIB_PALETTE = [AISEA["blue"], AISEA["blue_dim"], AISEA["blue_light"], AISEA["blue_pale"],
+                   AISEA["ok"], AISEA["ok_light"], AISEA["warn"], AISEA["warn_light"],
+                   AISEA["bad"], AISEA["muted"]]
 
 
 def _contrib_color_map(names):
@@ -319,7 +484,7 @@ def contribution_breakdown(rows, kind):
             w = c.get("weighted") or 0
             if w <= 0:
                 continue
-            segs.append((c["item"], w, cmap.get(c["item"], "#9aa0aa")))
+            segs.append((c["item"], w, cmap.get(c["item"], AISEA["muted"])))
             total += w
         if not segs:
             continue
@@ -344,7 +509,7 @@ def contribution_breakdown(rows, kind):
 # ─────────────────────────────────────────────────────────────────────────────
 def card(inner, extra=""):
     return (f'<div class="bg-surface-container-lowest border border-surface-border rounded-lg '
-            f'p-lg shadow-[0_4px_8px_rgba(0,32,78,0.04)] {extra}">{inner}</div>')
+            f'p-lg shadow-[0_4px_8px_rgba(20,23,28,0.04)] {extra}">{inner}</div>')
 
 
 def section_title(t, sub=""):

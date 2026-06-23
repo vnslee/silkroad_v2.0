@@ -172,9 +172,9 @@ _MAP_COORDS = {
 }
 # 진출상태 → (노드 색, 글자색, 범례 라벨)  — Kinetic Enterprise 토큰만 사용
 _MAP_STATE = {
-    "운영중":  ("#005db7", "#ffffff", "운영중"),   # secondary
-    "준비중":  ("#599bfe", "#00204e", "준비중"),   # secondary-container
-    "_미진출": ("#e3e2e2", "#434751", "미진출/후보"),  # surface-variant / on-surface-variant
+    "운영중":  ("#3F6CB4", "#ffffff", "운영중"),   # AISea blue
+    "준비중":  ("#6E97D6", "#14171C", "준비중"),   # AISea blue-light
+    "_미진출": ("#EEF0F2", "#3B3F46", "미진출/후보"),  # surface / text2
 }
 
 
@@ -195,7 +195,7 @@ def _map_shell(region, svg):
         f'{svg}'
         '<div class="region-map-tip pointer-events-none absolute z-10 hidden px-2 py-1 rounded-md '
         'font-label-md text-label-md font-semibold text-white whitespace-nowrap" '
-        'style="background:#00204e;box-shadow:0 4px 8px -2px rgba(0,32,78,.4);transform:translate(-50%,-130%)"></div>'
+        'style="background:#101622;box-shadow:0 4px 8px -2px rgba(20,23,28,.4);transform:translate(-50%,-130%)"></div>'
         '</div>'
         f'<div class="flex flex-wrap gap-md mt-md pt-md border-t border-surface-border">{_map_legend()}</div>'
         f'{_MAP_TIP_JS}'
@@ -278,15 +278,15 @@ def _geo_svg(region, members, status, data, geo):
         name_ko, name_en, disp = _country_names(code, data)
         cname = name_ko or name_en or code
         parts.append(
-            f'<path d="{d}" fill="{fill}" stroke="#fbf9f9" stroke-width="0.4" '
+            f'<path d="{d}" fill="{fill}" stroke="#F7F8FA" stroke-width="0.4" '
             'stroke-linejoin="round" tabindex="0" role="img" class="region-map-c" '
             'style="cursor:pointer;transition:fill .15s,filter .15s;outline:none" '
             f'data-cname="{rre.esc(cname)}" data-ccode="{rre.esc(disp)}" '
             f'data-state="{rre.esc(lbl)}">'
             f'<title>{rre.esc(cname)} ({rre.esc(disp)}) — {rre.esc(lbl)}</title></path>')
     hover_css = (
-        '<style>.region-map-c:hover{filter:brightness(1.08) drop-shadow(0 1px 2px rgba(0,32,78,.35))}'
-        '.region-map-c:focus-visible{stroke:#00204e;stroke-width:1}</style>')
+        '<style>.region-map-c:hover{filter:brightness(1.08) drop-shadow(0 1px 2px rgba(20,23,28,.35))}'
+        '.region-map-c:focus-visible{stroke:#3F6CB4;stroke-width:1}</style>')
     return (
         f'{hover_css}'
         f'<svg viewBox="0 0 100 {view_h}" preserveAspectRatio="xMidYMid meet" '
@@ -311,7 +311,7 @@ def _node_svg(region, members, status, data):
             f'<g tabindex="0" role="img" class="region-map-c" style="cursor:pointer;outline:none" '
             f'data-cname="{rre.esc(cname)}" data-ccode="{rre.esc(disp)}" data-state="{rre.esc(lbl)}">'
             f'<title>{rre.esc(cname)} ({rre.esc(disp)}) — {rre.esc(lbl)}</title>'
-            f'<circle cx="{x}" cy="{y}" r="6.4" fill="{fill}" stroke="#fbf9f9" stroke-width="1"/>'
+            f'<circle cx="{x}" cy="{y}" r="6.4" fill="{fill}" stroke="#F7F8FA" stroke-width="1"/>'
             f'<text x="{x}" y="{y + 2.1}" text-anchor="middle" font-size="4.4" '
             f'font-weight="700" fill="{fg}">{rre.esc(disp)}</text></g>')
     return (
@@ -325,7 +325,7 @@ def _products_cell(products):
     if not products:
         return '<span class="text-on-surface-variant">—</span>'
     return '<div class="flex flex-wrap gap-1">' + "".join(
-        rre.badge(p, "#d6e3ff", "#00468c") for p in products) + '</div>'
+        rre.badge(p, "#EAF0F8", "#2C4C86") for p in products) + '</div>'
 
 
 def entered_list(data):
@@ -337,7 +337,7 @@ def entered_list(data):
         f'<td class="p-sm font-mono text-xs text-on-surface">{rre.esc(r.get("code", ""))}</td>'
         f'<td class="p-sm text-on-surface">{rre.esc(r.get("name_ko", ""))} '
         f'<span class="text-on-surface-variant">{rre.esc(r.get("name_en", ""))}</span></td>'
-        f'<td class="p-sm">{rre.badge(r.get("status", "-"), "#e8f0fe", "#1967d2")}</td>'
+        f'<td class="p-sm">{rre.badge(r.get("status", "-"), "#EAF0F8", "#3F6CB4")}</td>'
         f'<td class="p-sm text-on-surface-variant">{rre.esc(r.get("solution", "—"))}</td>'
         f'<td class="p-sm">{_products_cell(r.get("products", []))}</td>'
         f'<td class="p-sm text-right text-on-surface-variant">{rre.esc(r.get("since", "—"))}</td>'
@@ -377,7 +377,7 @@ def quickwin_table(data):
         f'<td class="p-sm text-on-surface whitespace-nowrap">{rre.esc(r.get("name_ko", ""))} '
         f'<span class="font-mono text-xs text-on-surface-variant">{rre.esc(r.get("code", ""))}</span></td>'
         f'{score_cell(r.get("composite_score", 0))}'
-        f'<td class="p-sm">{rre.badge("퀵윈" if r.get("quick_win") else r.get("quadrant", "-"), "#e6f4ea" if r.get("quick_win") else "#eef0f2", "#137333" if r.get("quick_win") else "#555555")}</td>'
+        f'<td class="p-sm">{rre.badge("퀵윈" if r.get("quick_win") else r.get("quadrant", "-"), "#E9F3EE" if r.get("quick_win") else "#EEF0F2", "#4F8A6D" if r.get("quick_win") else "#6B7280")}</td>'
         '</tr>' for r in rows)
     return (
         '<div class="bg-surface rounded-lg p-lg border border-surface-border custom-shadow-level-2 flex flex-col h-full">'
@@ -500,8 +500,6 @@ def render_html(data):
 
     return (tpl
             .replace("{{PAGE_TITLE}}", rre.esc(title))
-            .replace("{{REGION_EN}}", rre.esc(en))
-            .replace("{{REGION_KO}}", rre.esc(ko))
             .replace("{{REGION_MAP}}", region_map(data))
             .replace("{{QUICKWIN_TABLE}}", quickwin_table(data))
             .replace("{{REGION_INSIGHT}}", region_insight(data))

@@ -10,6 +10,7 @@
         "할부금융"
       ],
       "since": 2015,
+      "entry_form": "단독법인",
       "build_cost": 5000,
       "build_months": 18,
       "reuse_factor": 0.7
@@ -21,6 +22,7 @@
         "리스"
       ],
       "since": 2017,
+      "entry_form": "단독법인",
       "build_cost": 6000,
       "build_months": 20,
       "reuse_factor": 0.5
@@ -32,6 +34,7 @@
         "운용리스"
       ],
       "since": 2019,
+      "entry_form": "단독법인",
       "build_cost": 4500,
       "build_months": 16,
       "reuse_factor": 1.0
@@ -42,7 +45,8 @@
         "오토론",
         "리스"
       ],
-      "since": 2018
+      "since": 2018,
+      "entry_form": "JV"
     },
     "IT": {
       "solution": "Cetelem Core",
@@ -50,7 +54,8 @@
         "오토론",
         "할부금융"
       ],
-      "since": 2020
+      "since": 2020,
+      "entry_form": "JV"
     },
     "DE": {
       "solution": "Self-built",
@@ -59,7 +64,54 @@
         "운용리스",
         "할부금융"
       ],
-      "since": 2016
+      "since": 2016,
+      "entry_form": "JV"
+    },
+    "CA": {
+      "solution": "Salesforce",
+      "products": [
+        "오토론",
+        "리스"
+      ],
+      "since": 2018,
+      "entry_form": "단독법인"
+    },
+    "IN": {
+      "solution": "Self-built",
+      "products": [
+        "오토론",
+        "할부금융"
+      ],
+      "since": 2021,
+      "entry_form": "단독법인"
+    },
+    "CN": {
+      "solution": "Self-built",
+      "products": [
+        "오토론",
+        "리스"
+      ],
+      "since": 2019,
+      "entry_form": "JV"
+    },
+    "ID": {
+      "solution": "NetSol",
+      "products": [
+        "오토론",
+        "할부금융"
+      ],
+      "since": 2020,
+      "entry_form": "JV"
+    },
+    "BR": {
+      "solution": "Self-built",
+      "products": [
+        "오토론",
+        "리스",
+        "할부금융"
+      ],
+      "since": 2017,
+      "entry_form": "JV"
     }
   },
   "region_baselines": {
@@ -79,15 +131,16 @@
     "HU": "미진출",
     "FR": "운영중",
     "IT": "운영중",
-    "CA": "미진출",
+    "CA": "운영중",
     "MX": "미진출",
     "NZ": "미진출",
     "JP": "미진출",
     "KR": "미진출",
     "SG": "미진출",
-    "IN": "미진출",
-    "ID": "미진출",
-    "CN": "미진출"
+    "IN": "준비중",
+    "ID": "운영중",
+    "CN": "운영중",
+    "BR": "운영중"
   },
   "country_to_region": {
     "ES": "EU",

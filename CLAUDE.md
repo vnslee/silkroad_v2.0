@@ -11,8 +11,8 @@
   - `generation/region_report_engine.py` — 권역 리서치 JSON → 권역 진단 리포트 JSON 생성 (권역 퀵윈 스코어링·랭킹)
   - `rendering/country_report_renderer.py` — 국가 리포트 JSON → HTML **보고서**(PR1) 렌더링
   - `rendering/region_report_renderer.py` — 권역 리포트 JSON → HTML **보고서**(PR2) 렌더링
-  - `rendering/country_detail_renderer.py` — 국가 리서치 JSON → HTML **상세화면**(P1) 렌더링
-  - `rendering/region_detail_renderer.py` — 권역 리서치 JSON → HTML **상세화면**(P2) 렌더링
+  - `rendering/country_detail_rendering_engine.py` — 국가 리서치 JSON → HTML **상세화면**(P1) 렌더링
+  - `rendering/region_detail_rendering_engine.py` — 권역 리서치 JSON → HTML **상세화면**(P2) 렌더링
   - `rendering/render_helpers.py` — 공유 표현/차트/포맷 헬퍼 모듈(`esc`·`fmt_value`·`line_chart`·`bar`·`score_color`·`card`·`TOK` 등). 상세화면 렌더러가 `import ... as rre`로 재사용(중복 작성 금지).
   - ⚠️ **보고서(report) 렌더링은 country(PR1)·region(PR2) 양쪽 구현됨**, **상세화면(detail) 렌더링도 country(P1)·region(P2) 양쪽 구현됨**. 상세화면(P1/P2, `detail/` 출력)과 진단 보고서(PR1/PR2, `report/` 출력)는 별개 산출 라인이다.
 - `app/backend/storage/` — 데이터 (입력/출력 분리)
@@ -49,10 +49,10 @@ python3 app/backend/engine/rendering/country_report_renderer.py app/backend/stor
 python3 app/backend/engine/rendering/region_report_renderer.py app/backend/storage/report/region/EU/data/RPT_RGN_EU_001.json
 
 # 국가 상세화면(P1) 렌더 — 리서치 데이터(data/research/country/<CODE>) → detail/country/<CODE>/html
-python3 app/backend/engine/rendering/country_detail_renderer.py ES
+python3 app/backend/engine/rendering/country_detail_rendering_engine.py ES
 
 # 권역 상세화면(P2) 렌더 — 리서치 데이터(data/research/region/<REGION>) → detail/region/<REGION>/html
-python3 app/backend/engine/rendering/region_detail_renderer.py EU
+python3 app/backend/engine/rendering/region_detail_rendering_engine.py EU
 ```
 
 ## 컨벤션 / 게이트

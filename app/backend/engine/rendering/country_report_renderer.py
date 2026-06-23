@@ -8,9 +8,15 @@ Implements data nature -> chart type mapping from render spec.
 
 import html
 import json
+import os
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+
+# 같은 rendering/ 폴더의 공유 디자인 토큰·헬퍼 모듈을 sys.path에 추가해 재사용(AISea 토큰 단일 소스)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import render_helpers as rre
 
 
 class CountryReportRenderer:
@@ -271,7 +277,7 @@ class CountryReportRenderer:
             y3 = cy + r_inner * math.sin(end_angle)
             x4 = cx + r_inner * math.cos(start_angle)
             y4 = cy + r_inner * math.sin(start_angle)
-            color = s.get("color") or "#00204e"
+            color = s.get("color") or "#3F6CB4"
             d = (
                 f"M {x1:.2f} {y1:.2f} "
                 f"A {r_outer} {r_outer} 0 {large} 1 {x2:.2f} {y2:.2f} "
@@ -283,7 +289,7 @@ class CountryReportRenderer:
 
         legend = "".join(
             f'<div class="flex items-center gap-xs">'
-            f'<span class="w-3 h-3 rounded-sm" style="background:{s.get("color", "#00204e")}"></span>'
+            f'<span class="w-3 h-3 rounded-sm" style="background:{s.get("color", "#3F6CB4")}"></span>'
             f'<span class="font-label-sm text-label-sm text-text-secondary">{s["label"]}</span>'
             f'<span class="font-label-sm text-label-sm text-text-primary font-semibold">{(s.get("value") or 0)/total*100:.0f}%</span>'
             f'</div>'
@@ -291,7 +297,7 @@ class CountryReportRenderer:
         )
 
         center_html = (
-            f'<text x="{cx}" y="{cy + 1}" text-anchor="middle" font-size="14" font-weight="700" fill="#00204e">{center_label}</text>'
+            f'<text x="{cx}" y="{cy + 1}" text-anchor="middle" font-size="14" font-weight="700" fill="#3F6CB4">{center_label}</text>'
             if center_label else ''
         )
 
@@ -332,8 +338,8 @@ class CountryReportRenderer:
         primary, other = mapping[name]
         v = max(0.0, min(100.0, v))
         return [
-            {"label": primary, "value": v, "color": "#00204e"},
-            {"label": other,   "value": 100 - v, "color": "#c4c6d2"},
+            {"label": primary, "value": v, "color": "#3F6CB4"},
+            {"label": other,   "value": 100 - v, "color": "#E6E9EC"},
         ]
 
     def _render_sparkline(self, history: list, forecast: list, unit: str = "") -> str:
@@ -370,26 +376,26 @@ class CountryReportRenderer:
         grid = ""
         for i in range(3):
             gy = mt + chart_h * i / 2
-            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#e3e2e2"/>'
+            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#E6E9EC"/>'
 
         # Y labels (max / min)
         y_labels = (
-            f'<text x="{ml - 4}" y="{mt + 6}" font-size="9" fill="#747782" text-anchor="end">{y_max - pad:,.0f}</text>'
-            f'<text x="{ml - 4}" y="{mt + chart_h - 1}" font-size="9" fill="#747782" text-anchor="end">{y_min + pad:,.0f}</text>'
+            f'<text x="{ml - 4}" y="{mt + 6}" font-size="9" fill="#9AA0A8" text-anchor="end">{y_max - pad:,.0f}</text>'
+            f'<text x="{ml - 4}" y="{mt + chart_h - 1}" font-size="9" fill="#9AA0A8" text-anchor="end">{y_min + pad:,.0f}</text>'
         )
 
         # X labels (first/last year)
         first_y, last_y = years[0], years[-1]
         x_labels = (
-            f'<text x="{x_of(first_y)}" y="{mt + chart_h + 12}" font-size="9" fill="#747782" text-anchor="middle">{first_y}</text>'
-            f'<text x="{x_of(last_y)}" y="{mt + chart_h + 12}" font-size="9" fill="#747782" text-anchor="middle">{last_y}</text>'
+            f'<text x="{x_of(first_y)}" y="{mt + chart_h + 12}" font-size="9" fill="#9AA0A8" text-anchor="middle">{first_y}</text>'
+            f'<text x="{x_of(last_y)}" y="{mt + chart_h + 12}" font-size="9" fill="#9AA0A8" text-anchor="middle">{last_y}</text>'
         )
 
         # History path (solid)
         hist_d = ""
         if history:
             hist_d = "M " + " L ".join(f"{x_of(p['year'])} {y_of(p['value'])}" for p in history)
-            hist_d = f'<path d="{hist_d}" fill="none" stroke="#00204e" stroke-width="2"/>'
+            hist_d = f'<path d="{hist_d}" fill="none" stroke="#3F6CB4" stroke-width="2"/>'
 
         # Forecast path (dashed) — connect last history point to first forecast
         fc_d = ""
@@ -397,14 +403,14 @@ class CountryReportRenderer:
             start = (history or [forecast[0]])[-1]
             seq = [start] + list(forecast)
             fc_d_path = "M " + " L ".join(f"{x_of(p['year'])} {y_of(p['value'])}" for p in seq)
-            fc_d = f'<path d="{fc_d_path}" fill="none" stroke="#005db7" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>'
+            fc_d = f'<path d="{fc_d_path}" fill="none" stroke="#3F6CB4" stroke-width="2" stroke-dasharray="4 3" opacity="0.85"/>'
 
         # Dots
         dots = ""
         for p in (history or []):
-            dots += f'<circle cx="{x_of(p["year"])}" cy="{y_of(p["value"])}" r="2.5" fill="#00204e"/>'
+            dots += f'<circle cx="{x_of(p["year"])}" cy="{y_of(p["value"])}" r="2.5" fill="#3F6CB4"/>'
         for p in (forecast or []):
-            dots += f'<circle cx="{x_of(p["year"])}" cy="{y_of(p["value"])}" r="2.5" fill="#005db7" opacity="0.7"/>'
+            dots += f'<circle cx="{x_of(p["year"])}" cy="{y_of(p["value"])}" r="2.5" fill="#3F6CB4" opacity="0.7"/>'
 
         unit_label = f' ({unit})' if unit else ''
         return f'''
@@ -463,11 +469,11 @@ class CountryReportRenderer:
                 cagr_html = f'''
                 <div class="flex gap-md font-label-sm text-label-sm text-text-secondary">
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#00204e"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4"></span>
                         <span data-i18n="cagr_hist" data-en="CAGR (history):">CAGR(과거):</span> <span class="font-semibold text-text-primary">{cagr_h}%</span>
                     </span>
                     <span class="inline-flex items-center gap-xs">
-                        <span class="w-2 h-2 rounded-full" style="background:#005db7;opacity:0.7"></span>
+                        <span class="w-2 h-2 rounded-full" style="background:#3F6CB4;opacity:0.7"></span>
                         <span data-i18n="cagr_forecast" data-en="CAGR (forecast):">CAGR(전망):</span> <span class="font-semibold text-text-primary">{cagr_f}%</span>
                     </span>
                 </div>
@@ -757,9 +763,9 @@ class CountryReportRenderer:
             sub = r.get("sub")
             bars += f'''
             <g>
-                <text x="0" y="{y + bar_h/2 + 4}" font-size="13" fill="#1b1c1c" font-weight="600">{i+1}. {label}</text>
-                <rect x="180" y="{y}" width="{width}" height="{bar_h}" rx="4" fill="#00204e" opacity="0.85"/>
-                <text x="{180 + width + 8}" y="{y + bar_h/2 + 4}" font-size="12" fill="#434751" font-weight="600">{v}%{f' · {sub}' if sub else ''}</text>
+                <text x="0" y="{y + bar_h/2 + 4}" font-size="13" fill="#14171C" font-weight="600">{i+1}. {label}</text>
+                <rect x="180" y="{y}" width="{width}" height="{bar_h}" rx="4" fill="#3F6CB4" opacity="0.85"/>
+                <text x="{180 + width + 8}" y="{y + bar_h/2 + 4}" font-size="12" fill="#3B3F46" font-weight="600">{v}%{f' · {sub}' if sub else ''}</text>
             </g>
             '''
         return f'''
@@ -790,15 +796,15 @@ class CountryReportRenderer:
             y = 20 + i * (bar_h + gap)
             x1 = 160 + ((r["lo"] - all_lo) / span) * 540
             x2 = 160 + ((r["hi"] - all_lo) / span) * 540
-            color = r.get("accent", "#005db7")
+            color = r.get("accent", "#3F6CB4")
             items_html += f'''
             <g>
-                <text x="0" y="{y + bar_h/2 + 4}" font-size="13" fill="#1b1c1c" font-weight="600">{r['label']}</text>
+                <text x="0" y="{y + bar_h/2 + 4}" font-size="13" fill="#14171C" font-weight="600">{r['label']}</text>
                 <line x1="{x1}" y1="{y + bar_h/2}" x2="{x2}" y2="{y + bar_h/2}" stroke="{color}" stroke-width="6" stroke-linecap="round"/>
                 <circle cx="{x1}" cy="{y + bar_h/2}" r="5" fill="{color}"/>
                 <circle cx="{x2}" cy="{y + bar_h/2}" r="5" fill="{color}"/>
-                <text x="{x1 - 6}" y="{y + bar_h/2 + 4}" font-size="11" fill="#434751" font-weight="600" text-anchor="end">{r['lo']}{axis_label}</text>
-                <text x="{x2 + 8}" y="{y + bar_h/2 + 4}" font-size="11" fill="#434751" font-weight="600">{r['hi']}{axis_label}</text>
+                <text x="{x1 - 6}" y="{y + bar_h/2 + 4}" font-size="11" fill="#3B3F46" font-weight="600" text-anchor="end">{r['lo']}{axis_label}</text>
+                <text x="{x2 + 8}" y="{y + bar_h/2 + 4}" font-size="11" fill="#3B3F46" font-weight="600">{r['hi']}{axis_label}</text>
             </g>
             '''
         return f'''
@@ -850,19 +856,19 @@ class CountryReportRenderer:
         for i in range(5):
             gy = mt + chart_h * i / 4
             val = y_max - (y_max - y_min) * i / 4
-            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#e3e2e2" stroke-width="1"/>'
-            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#747782" text-anchor="end">{val:.0f}</text>'
+            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#E6E9EC" stroke-width="1"/>'
+            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#9AA0A8" text-anchor="end">{val:.0f}</text>'
 
         # x axis labels
         x_labels = ""
         for y in years:
             xp = x_of(y)
-            x_labels += f'<text x="{xp}" y="{mt + chart_h + 16}" font-size="10" fill="#747782" text-anchor="middle">{y}</text>'
+            x_labels += f'<text x="{xp}" y="{mt + chart_h + 16}" font-size="10" fill="#9AA0A8" text-anchor="middle">{y}</text>'
 
         series_paths = ""
         legend_items = ""
         for s in series:
-            color = s.get("color", "#00204e")
+            color = s.get("color", "#3F6CB4")
             hist = s.get("history", [])
             fc = s.get("forecast", [])
             if hist:
@@ -931,8 +937,8 @@ class CountryReportRenderer:
             if s.get("is_total"):
                 top = s["value"]
                 top_y = baseline_y - (top / y_max) * chart_h
-                bars += f'<rect x="{x}" y="{top_y}" width="{col_w}" height="{baseline_y - top_y}" fill="#00204e" rx="3"/>'
-                bars += f'<text x="{x + col_w/2}" y="{top_y - 6}" font-size="11" fill="#00204e" font-weight="700" text-anchor="middle">{self.format_currency(top, currency)}</text>'
+                bars += f'<rect x="{x}" y="{top_y}" width="{col_w}" height="{baseline_y - top_y}" fill="#3F6CB4" rx="3"/>'
+                bars += f'<text x="{x + col_w/2}" y="{top_y - 6}" font-size="11" fill="#3F6CB4" font-weight="700" text-anchor="middle">{self.format_currency(top, currency)}</text>'
                 running = top
             else:
                 start = running
@@ -940,10 +946,10 @@ class CountryReportRenderer:
                 end = running
                 top_y = baseline_y - (max(start, end) / y_max) * chart_h
                 bot_y = baseline_y - (min(start, end) / y_max) * chart_h
-                fill = "#10b981" if s["value"] >= 0 else "#E63946"
+                fill = "#4F8A6D" if s["value"] >= 0 else "#C0533F"
                 bars += f'<rect x="{x}" y="{top_y}" width="{col_w}" height="{bot_y - top_y}" fill="{fill}" opacity="0.85" rx="3"/>'
                 bars += f'<text x="{x + col_w/2}" y="{top_y - 6}" font-size="11" fill="{fill}" font-weight="700" text-anchor="middle">+{self.format_currency(s["value"], currency)}</text>'
-            bars += f'<text x="{x + col_w/2}" y="{baseline_y + 16}" font-size="11" fill="#434751" text-anchor="middle">{s["label"]}</text>'
+            bars += f'<text x="{x + col_w/2}" y="{baseline_y + 16}" font-size="11" fill="#3B3F46" text-anchor="middle">{s["label"]}</text>'
 
         return f'''
         <section class="bg-surface-container-lowest border border-surface-border rounded-xl p-lg card-shadow">
@@ -952,7 +958,7 @@ class CountryReportRenderer:
                 <h2 class="font-headline-md text-headline-md text-primary">{title}</h2>
             </div>
             <svg class="w-full" viewBox="0 0 {W} {baseline_y + 40}" preserveAspectRatio="xMidYMid meet">
-                <line x1="40" y1="{baseline_y}" x2="{W - 20}" y2="{baseline_y}" stroke="#c4c6d2" stroke-width="1"/>
+                <line x1="40" y1="{baseline_y}" x2="{W - 20}" y2="{baseline_y}" stroke="#E6E9EC" stroke-width="1"/>
                 {bars}
             </svg>
         </section>
@@ -989,8 +995,8 @@ class CountryReportRenderer:
         spike_h = (y_of(0) - y_of(one_off))
         build_spike = (
             f'<rect x="{spike_x}" y="{spike_top_y}" width="{bar_w}" height="{spike_h}" '
-            f'rx="3" fill="#00204e"/>'
-            f'<text x="{x_of(0)}" y="{spike_top_y - 8}" font-size="11" fill="#00204e" '
+            f'rx="3" fill="#3F6CB4"/>'
+            f'<text x="{x_of(0)}" y="{spike_top_y - 8}" font-size="11" fill="#3F6CB4" '
             f'font-weight="700" text-anchor="middle">구축 {self.format_currency(one_off, currency)}</text>'
         )
 
@@ -1006,11 +1012,11 @@ class CountryReportRenderer:
         # Data dots + Y10 label
         dots = ""
         for i, y in enumerate(years_axis):
-            dots += f'<circle cx="{x_of(y)}" cy="{y_of(cum_total[i])}" r="3.5" fill="#005db7"/>'
+            dots += f'<circle cx="{x_of(y)}" cy="{y_of(cum_total[i])}" r="3.5" fill="#3F6CB4"/>'
         last_idx = len(years_axis) - 1
         last_label = (
             f'<text x="{x_of(years) - 6}" y="{y_of(cum_total[last_idx]) - 10}" '
-            f'font-size="12" fill="#005db7" font-weight="700" text-anchor="end">'
+            f'font-size="12" fill="#3F6CB4" font-weight="700" text-anchor="end">'
             f'Y{years} 누적 {self.format_currency(cum_total[-1], currency)}</text>'
         )
 
@@ -1019,14 +1025,14 @@ class CountryReportRenderer:
         for i in range(5):
             gy = mt + chart_h * i / 4
             val = y_max - y_max * i / 4
-            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#e3e2e2"/>'
-            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#747782" text-anchor="end">{self.format_currency(val, currency)}</text>'
+            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#E6E9EC"/>'
+            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#9AA0A8" text-anchor="end">{self.format_currency(val, currency)}</text>'
 
         # X-axis labels
         x_labels = ""
         for y in years_axis:
             xp = x_of(y)
-            x_labels += f'<text x="{xp}" y="{mt + chart_h + 18}" font-size="10" fill="#747782" text-anchor="middle">Y{y}</text>'
+            x_labels += f'<text x="{xp}" y="{mt + chart_h + 18}" font-size="10" fill="#9AA0A8" text-anchor="middle">Y{y}</text>'
 
         return f'''
         <section class="bg-surface-container-lowest border border-surface-border rounded-xl p-lg card-shadow">
@@ -1036,14 +1042,14 @@ class CountryReportRenderer:
                     <h2 class="font-headline-md text-headline-md text-primary">{title}</h2>
                 </div>
                 <div class="flex items-center gap-md">
-                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#00204e"></span><span class="font-label-sm text-label-sm text-text-secondary">Y0 구축비</span></div>
-                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#005db7"></span><span class="font-label-sm text-label-sm text-text-secondary">누적 총비용</span></div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-sm" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">Y0 구축비</span></div>
+                    <div class="flex items-center gap-xs"><span class="w-3 h-3 rounded-full" style="background:#3F6CB4"></span><span class="font-label-sm text-label-sm text-text-secondary">누적 총비용</span></div>
                 </div>
             </div>
             <svg class="w-full" viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid meet">
                 {grid}
-                <path d="{area_d}" fill="#005db7" opacity="0.12"/>
-                <path d="{line_d}" fill="none" stroke="#005db7" stroke-width="2.5"/>
+                <path d="{area_d}" fill="#3F6CB4" opacity="0.12"/>
+                <path d="{line_d}" fill="none" stroke="#3F6CB4" stroke-width="2.5"/>
                 {dots}
                 {build_spike}
                 {last_label}
@@ -1089,7 +1095,7 @@ class CountryReportRenderer:
             x1 = x_of(t["min_volume"])
             x2 = x_of(min(t["max_volume"], x_max))
             y = y_of(t["price_per_unit"])
-            path += f'<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="#00204e" stroke-width="3" stroke-linecap="round"/>'
+            path += f'<line x1="{x1}" y1="{y}" x2="{x2}" y2="{y}" stroke="#3F6CB4" stroke-width="3" stroke-linecap="round"/>'
         # Current volume marker
         cx = x_of(current_volume)
         marker_price = None
@@ -1101,9 +1107,9 @@ class CountryReportRenderer:
         if marker_price is not None:
             cy = y_of(marker_price)
             marker = f'''
-                <line x1="{cx}" y1="{mt}" x2="{cx}" y2="{mt + chart_h}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4"/>
-                <circle cx="{cx}" cy="{cy}" r="6" fill="#10b981"/>
-                <text x="{cx + 10}" y="{cy + 4}" font-size="12" fill="#065f46" font-weight="700">현재 {current_volume:,}건 → {self.format_currency(marker_price, currency)}</text>
+                <line x1="{cx}" y1="{mt}" x2="{cx}" y2="{mt + chart_h}" stroke="#4F8A6D" stroke-width="1.5" stroke-dasharray="4 4"/>
+                <circle cx="{cx}" cy="{cy}" r="6" fill="#4F8A6D"/>
+                <text x="{cx + 10}" y="{cy + 4}" font-size="12" fill="#4F8A6D" font-weight="700">현재 {current_volume:,}건 → {self.format_currency(marker_price, currency)}</text>
             '''
 
         # Gridlines and labels (Y)
@@ -1111,15 +1117,15 @@ class CountryReportRenderer:
         for i in range(5):
             gy = mt + chart_h * i / 4
             val = y_max - y_max * i / 4
-            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#e3e2e2"/>'
-            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#747782" text-anchor="end">{self.format_currency(val, currency)}</text>'
+            grid += f'<line x1="{ml}" y1="{gy}" x2="{ml + chart_w}" y2="{gy}" stroke="#E6E9EC"/>'
+            grid += f'<text x="{ml - 6}" y="{gy + 4}" font-size="10" fill="#9AA0A8" text-anchor="end">{self.format_currency(val, currency)}</text>'
 
         # X labels (tier thresholds)
         x_labels = ""
         for t in tiers:
             xv = t["min_volume"]
             xp = x_of(xv)
-            x_labels += f'<text x="{xp}" y="{mt + chart_h + 16}" font-size="10" fill="#747782" text-anchor="middle">{xv:,}</text>'
+            x_labels += f'<text x="{xp}" y="{mt + chart_h + 16}" font-size="10" fill="#9AA0A8" text-anchor="middle">{xv:,}</text>'
 
         return f'''
         <section class="bg-surface-container-lowest border border-surface-border rounded-xl p-lg card-shadow">
@@ -1139,10 +1145,10 @@ class CountryReportRenderer:
 
     # -----------------------------------------------------------------
     # Summary KPI visualizations (similarity donut / TCO waterfall /
-    # build-period comparison bar). 대상국=남색(#00204e), 베이스라인=회색(#c4c6d2).
+    # build-period comparison bar). 대상국=남색(#3F6CB4), 베이스라인=회색(#E6E9EC).
     # -----------------------------------------------------------------
-    _NAVY = "#00204e"
-    _GRAY = "#c4c6d2"
+    _NAVY = "#3F6CB4"
+    _GRAY = "#E6E9EC"
 
     def render_similarity_donut_card(self, score: float) -> str:
         """유사도 점수를 도넛(남색=유사, 회색=차이)으로 표시하는 패널 카드."""
@@ -1229,8 +1235,8 @@ class CountryReportRenderer:
                 top_y = baseline_y - (max(start, running) / y_max) * chart_h
                 bot_y = baseline_y - (min(start, running) / y_max) * chart_h
                 bars += f'<rect x="{x}" y="{top_y}" width="{col_w}" height="{bot_y - top_y}" fill="{self._GRAY}" rx="3"/>'
-                bars += f'<text x="{x + col_w/2}" y="{top_y - 6}" font-size="10" fill="#747782" font-weight="700" text-anchor="middle">+{self.format_currency(s["value"], currency)}</text>'
-            bars += (f'<text x="{x + col_w/2}" y="{baseline_y + 14}" font-size="9.5" fill="#434751" '
+                bars += f'<text x="{x + col_w/2}" y="{top_y - 6}" font-size="10" fill="#9AA0A8" font-weight="700" text-anchor="middle">+{self.format_currency(s["value"], currency)}</text>'
+            bars += (f'<text x="{x + col_w/2}" y="{baseline_y + 14}" font-size="9.5" fill="#3B3F46" '
                      f'text-anchor="middle" data-i18n="wf_label" data-en="{html.escape(s["en"])}">{s["label"]}</text>')
 
         return f'''
@@ -1273,11 +1279,11 @@ class CountryReportRenderer:
             name_ko = html.escape(self.get_country_name(code))
             name_en = html.escape(self.get_country_name_en(code))
             bars += (
-                f'<text x="0" y="{y + 11}" font-size="15" fill="#434751" font-weight="700">'
+                f'<text x="0" y="{y + 11}" font-size="15" fill="#3B3F46" font-weight="700">'
                 f'<tspan data-i18n="country_name" data-en="{name_en}">{name_ko}</tspan></text>'
-                f'<rect x="0" y="{bar_y}" width="{track_w}" height="{bar_h}" rx="5" fill="#eceef4"/>'
+                f'<rect x="0" y="{bar_y}" width="{track_w}" height="{bar_h}" rx="5" fill="#EEF0F2"/>'
                 f'<rect x="0" y="{bar_y}" width="{w:.1f}" height="{bar_h}" rx="5" fill="{color}"/>'
-                f'<text x="{w + 8:.1f}" y="{bar_y + bar_h / 2 + 4}" font-size="13" fill="{color if color != self._GRAY else "#747782"}" font-weight="700">{m:.1f}M</text>'
+                f'<text x="{w + 8:.1f}" y="{bar_y + bar_h / 2 + 4}" font-size="13" fill="{color if color != self._GRAY else "#9AA0A8"}" font-weight="700">{m:.1f}M</text>'
             )
         height = top + len(rows) * (lbl_h + bar_h + gap)
         delta = base_months - target_months
@@ -1385,7 +1391,7 @@ class CountryReportRenderer:
                 f'<span data-i18n="summary_line3_tail" data-en=" is the recommended path.">을(를) 권고합니다.</span>'
             )
 
-        # 요약 패널 — 활성 탭과 동일한 primary 네이비(#00204e) 배경 + 밝은 텍스트.
+        # 요약 패널 — 활성 탭과 동일한 primary 네이비(#3F6CB4) 배경 + 밝은 텍스트.
         summary_panel = f'''
         <section class="bg-primary border border-primary rounded-xl p-lg card-shadow">
             <div class="flex items-center gap-sm mb-md pb-sm border-b border-white/20">
@@ -1651,17 +1657,17 @@ class CountryReportRenderer:
                     <div class="relative flex flex-col items-center">
                         <div class="w-full aspect-square relative flex items-center justify-center mb-md max-w-md mx-auto">
                             <svg class="w-full h-full overflow-visible" viewBox="0 0 200 200">
-                                <polygon fill="none" points="100,20 180,100 100,180 20,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,40 160,100 100,160 40,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,60 140,100 100,140 60,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <polygon fill="none" points="100,80 120,100 100,120 80,100" stroke="#DCDCDC" stroke-width="1"/>
-                                <line stroke="#DCDCDC" stroke-width="1" x1="100" y1="20" x2="100" y2="180"/>
-                                <line stroke="#DCDCDC" stroke-width="1" x1="20" y1="100" x2="180" y2="100"/>
-                                <polygon fill="rgba(0, 32, 78, 0.15)" points="100,{100-radar_axes['system']*0.8} {100+radar_axes['product']*0.8},100 100,{100+radar_axes['regulatory']*0.8} {100-radar_axes['risk']*0.8},100" stroke="#00204e" stroke-width="2"/>
-                                <circle cx="100" cy="{100-radar_axes['system']*0.8}" fill="#00204e" r="3"/>
-                                <circle cx="{100+radar_axes['product']*0.8}" cy="100" fill="#00204e" r="3"/>
-                                <circle cx="100" cy="{100+radar_axes['regulatory']*0.8}" fill="#00204e" r="3"/>
-                                <circle cx="{100-radar_axes['risk']*0.8}" cy="100" fill="#00204e" r="3"/>
+                                <polygon fill="none" points="100,20 180,100 100,180 20,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,40 160,100 100,160 40,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,60 140,100 100,140 60,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <polygon fill="none" points="100,80 120,100 100,120 80,100" stroke="#E6E9EC" stroke-width="1"/>
+                                <line stroke="#E6E9EC" stroke-width="1" x1="100" y1="20" x2="100" y2="180"/>
+                                <line stroke="#E6E9EC" stroke-width="1" x1="20" y1="100" x2="180" y2="100"/>
+                                <polygon fill="rgba(63,108,180,0.15)" points="100,{100-radar_axes['system']*0.8} {100+radar_axes['product']*0.8},100 100,{100+radar_axes['regulatory']*0.8} {100-radar_axes['risk']*0.8},100" stroke="#3F6CB4" stroke-width="2"/>
+                                <circle cx="100" cy="{100-radar_axes['system']*0.8}" fill="#3F6CB4" r="3"/>
+                                <circle cx="{100+radar_axes['product']*0.8}" cy="100" fill="#3F6CB4" r="3"/>
+                                <circle cx="100" cy="{100+radar_axes['regulatory']*0.8}" fill="#3F6CB4" r="3"/>
+                                <circle cx="{100-radar_axes['risk']*0.8}" cy="100" fill="#3F6CB4" r="3"/>
                             </svg>
                             {labels_html}
                         </div>
@@ -1756,7 +1762,7 @@ class CountryReportRenderer:
         path_hq = "active" if final_path == "HQ" else "inactive"
 
         # Color tokens by active path — 박스(남색/회색)와 통일: 활성 경로는 항상 primary 남색
-        active_color = "#00204e"
+        active_color = "#3F6CB4"
         score_branch_x = {"B": 150, "EXT_CHECK": 450, "HQ_MID": 750}[score_path]
 
         # Localization requirements (특화요건) — pulled from decision items
@@ -1803,9 +1809,9 @@ class CountryReportRenderer:
         inner = f'''
             <style>
                 @keyframes dt-pulse {{
-                    0% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0.25); }}
-                    70% {{ transform: scale(1.04); box-shadow: 0 0 0 16px rgba(0,32,78,0); }}
-                    100% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(0,32,78,0); }}
+                    0% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0.25); }}
+                    70% {{ transform: scale(1.04); box-shadow: 0 0 0 16px rgba(63,108,180,0); }}
+                    100% {{ transform: scale(1); box-shadow: 0 0 0 0 rgba(63,108,180,0); }}
                 }}
                 @keyframes dt-pop {{
                     0% {{ transform: scale(0.85); opacity: 0; }}
@@ -1824,13 +1830,13 @@ class CountryReportRenderer:
                     to {{ stroke-dashoffset: 0; }}
                 }}
                 @keyframes dt-glow {{
-                    0%, 100% {{ filter: drop-shadow(0 0 6px rgba(0,32,78,0.45)); }}
-                    50% {{ filter: drop-shadow(0 0 14px rgba(0,32,78,0.9)); }}
+                    0%, 100% {{ filter: drop-shadow(0 0 6px rgba(63,108,180,0.45)); }}
+                    50% {{ filter: drop-shadow(0 0 14px rgba(63,108,180,0.9)); }}
                 }}
                 .dt-node-start {{ animation: dt-pulse 2.4s ease-in-out infinite; }}
                 .dt-diamond {{ animation: dt-pop 0.6s ease-out 0.3s both; transform-origin: center; }}
                 .dt-flow-line {{
-                    stroke: #94a3b8;
+                    stroke: #9AA0A8;
                     stroke-width: 2;
                     stroke-dasharray: 6 6;
                     animation: dt-flow 1.2s linear infinite;
@@ -1857,58 +1863,58 @@ class CountryReportRenderer:
                 <svg class="w-full max-w-4xl block" viewBox="0 0 900 640" preserveAspectRatio="xMidYMid meet" style="margin-bottom: -8px;">
                     <defs>
                         <marker id="arrow-soft" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8" />
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#9AA0A8" />
                         </marker>
                     </defs>
 
                     <!-- (a) 권역 내 시스템 존재 다이아몬드 (top) -->
                     <g class="dt-diamond">
-                        <polygon points="450,20 520,80 450,140 380,80" fill="#fbf9f9" stroke="#00204e" stroke-width="2"/>
-                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">권역 내 구축</text>
-                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#00204e" font-weight="700">시스템 존재?</text>
+                        <polygon points="450,20 520,80 450,140 380,80" fill="#F7F8FA" stroke="#3F6CB4" stroke-width="2"/>
+                        <text x="450" y="75" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">권역 내 구축</text>
+                        <text x="450" y="92" text-anchor="middle" font-size="14" fill="#3F6CB4" font-weight="700">시스템 존재?</text>
                     </g>
 
                     <!-- (a) YES → 점수 다이아몬드 -->
                     <path d="M450 140 L450 200" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="{'#00204e' if region_system_exists else '#94a3b8'}" data-i18n="yes_with_country" data-en="YES ({self.get_country_name_en(base_country)})">YES ({base_country_name})</text>
+                    <text x="465" y="175" text-anchor="start" font-size="14" font-weight="700" fill="{'#3F6CB4' if region_system_exists else '#9AA0A8'}" data-i18n="yes_with_country" data-en="YES ({self.get_country_name_en(base_country)})">YES ({base_country_name})</text>
 
                     <!-- (a) NO → 외부솔루션 기준점 다이아몬드 -->
                     <path d="M520 80 L820 80 L820 480 L520 480" class="dt-flow-line" opacity="0.25" />
-                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="{'#00204e' if not region_system_exists else '#94a3b8'}">NO → 외부솔루션</text>
+                    <text x="700" y="70" text-anchor="middle" font-size="14" font-weight="700" fill="{'#3F6CB4' if not region_system_exists else '#9AA0A8'}">NO → 외부솔루션</text>
 
                     <!-- (b) 점수 분기 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 0.6s;">
-                        <polygon points="450,200 525,260 450,320 375,260" fill="#fbf9f9" stroke="{'#00204e' if region_system_exists else '#94a3b8'}" stroke-width="2"/>
-                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="{'#00204e' if region_system_exists else '#94a3b8'}" font-weight="700">유사도</text>
-                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="{'#00204e' if region_system_exists else '#94a3b8'}" font-weight="800">{similarity_score:.1f}</text>
+                        <polygon points="450,200 525,260 450,320 375,260" fill="#F7F8FA" stroke="{'#3F6CB4' if region_system_exists else '#9AA0A8'}" stroke-width="2"/>
+                        <text x="450" y="255" text-anchor="middle" font-size="12" fill="{'#3F6CB4' if region_system_exists else '#9AA0A8'}" font-weight="700">유사도</text>
+                        <text x="450" y="280" text-anchor="middle" font-size="18" fill="{'#3F6CB4' if region_system_exists else '#9AA0A8'}" font-weight="800">{similarity_score:.1f}</text>
                     </g>
 
                     <!-- (b) Score branch 1: ≥70 → B leaf -->
                     <path d="M450 320 L450 360 L150 360 L150 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="{'#00204e' if (region_system_exists and score_path == 'B') else '#94a3b8'}">≥ 70 → 권역 내 확산</text>
+                    <text x="300" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="{'#3F6CB4' if (region_system_exists and score_path == 'B') else '#9AA0A8'}">≥ 70 → 권역 내 확산</text>
 
                     <!-- (b) Score branch 2: 50~70 → HQ leaf -->
                     <path d="M450 320 L450 360 L750 360 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="{'#00204e' if (region_system_exists and score_path == 'HQ_MID') else '#94a3b8'}">50~70 → 본사 자체구축</text>
+                    <text x="600" y="350" text-anchor="middle" font-size="14" font-weight="700" fill="{'#3F6CB4' if (region_system_exists and score_path == 'HQ_MID') else '#9AA0A8'}">50~70 → 본사 자체구축</text>
 
                     <!-- (b) Score branch 3: <50 → secondary gate (with longer gap) -->
                     <path d="M450 320 L450 420" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="{'#00204e' if (region_system_exists and score_path == 'EXT_CHECK') else '#94a3b8'}">&lt; 50</text>
+                    <text x="465" y="370" text-anchor="start" font-size="14" font-weight="700" fill="{'#3F6CB4' if (region_system_exists and score_path == 'EXT_CHECK') else '#9AA0A8'}">&lt; 50</text>
 
                     <!-- (c) 외부솔루션 기준점 다이아몬드 -->
                     <g class="dt-diamond" style="animation-delay: 1.0s;">
-                        <polygon points="450,420 520,480 450,540 380,480" fill="#fbf9f9" stroke="{'#00204e' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#94a3b8'}" stroke-width="2"/>
-                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="{'#00204e' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#94a3b8'}" font-weight="700">외부솔루션</text>
-                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="{'#00204e' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#94a3b8'}" font-weight="700">기준점 통과?</text>
+                        <polygon points="450,420 520,480 450,540 380,480" fill="#F7F8FA" stroke="{'#3F6CB4' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#9AA0A8'}" stroke-width="2"/>
+                        <text x="450" y="475" text-anchor="middle" font-size="12" fill="{'#3F6CB4' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#9AA0A8'}" font-weight="700">외부솔루션</text>
+                        <text x="450" y="492" text-anchor="middle" font-size="12" fill="{'#3F6CB4' if ((not region_system_exists) or (region_system_exists and score_path == 'EXT_CHECK')) else '#9AA0A8'}" font-weight="700">기준점 통과?</text>
                     </g>
 
                     <!-- (c) Gate → EXT leaf -->
                     <path d="M450 540 L450 615" class="dt-flow-line" opacity="0.25" />
-                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="{'#00204e' if (final_path == 'EXT') else '#94a3b8'}">YES → 외부솔루션</text>
+                    <text x="465" y="585" text-anchor="start" font-size="14" font-weight="700" fill="{'#3F6CB4' if (final_path == 'EXT') else '#9AA0A8'}">YES → 외부솔루션</text>
 
                     <!-- (c) Gate → HQ leaf (fallback) -->
                     <path d="M520 480 L750 480 L750 560" class="dt-flow-line" opacity="0.25" />
-                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="{'#00204e' if (final_path == 'HQ' and (not region_system_exists or score_path == 'EXT_CHECK')) else '#94a3b8'}">NO (Fallback)</text>
+                    <text x="640" y="472" text-anchor="middle" font-size="14" font-weight="700" fill="{'#3F6CB4' if (final_path == 'HQ' and (not region_system_exists or score_path == 'EXT_CHECK')) else '#9AA0A8'}">NO (Fallback)</text>
 
                     <!-- Active path: region NOT exists → gate YES → EXT -->
                     {'<path d="M520 80 L820 80 L820 480 L520 480 M450 540 L450 615" class="dt-active-path" />' if (not region_system_exists and final_path == 'EXT') else ''}
@@ -2048,7 +2054,7 @@ class CountryReportRenderer:
         if base_country or base_system:
             chips = []
             if base_country:
-                chips.append(f'<span class="px-2 py-[2px] rounded bg-[#E8F0FE] text-[#1967D2] font-label-sm text-label-sm"><span data-i18n="header_baseline" data-en="Baseline">기준국</span> {_e(base_country)}</span>')
+                chips.append(f'<span class="px-2 py-[2px] rounded bg-[#EAF0F8] text-[#3F6CB4] font-label-sm text-label-sm"><span data-i18n="header_baseline" data-en="Baseline">기준국</span> {_e(base_country)}</span>')
             if base_system:
                 chips.append(f'<span class="px-2 py-[2px] rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">{_e(base_system)}</span>')
             sub = '<div class="flex items-center gap-xs mt-sm">' + "".join(chips) + '</div>'
@@ -2057,7 +2063,7 @@ class CountryReportRenderer:
         return f'''
         <div class="bg-surface-container-lowest border border-surface-border rounded-xl p-lg card-shadow">
             <div class="flex items-start gap-md">
-                <div class="w-12 h-12 rounded-lg bg-[#E8F0FE] text-[#1967D2] flex items-center justify-center shrink-0">
+                <div class="w-12 h-12 rounded-lg bg-[#EAF0F8] text-[#3F6CB4] flex items-center justify-center shrink-0">
                     <span class="material-symbols-outlined">verified</span>
                 </div>
                 <div class="flex-1">
@@ -2582,13 +2588,13 @@ class CountryReportRenderer:
                 ranges.append({"lo": float(m.group(1)), "hi": float(m.group(2))})
             rb_rows = []
             if len(ranges) >= 1:
-                rb_rows.append({"label": "신차 자동차대출", "lo": ranges[0]["lo"], "hi": ranges[0]["hi"], "accent": "#00204e"})
+                rb_rows.append({"label": "신차 자동차대출", "lo": ranges[0]["lo"], "hi": ranges[0]["hi"], "accent": "#3F6CB4"})
             if len(ranges) >= 2:
-                rb_rows.append({"label": "캡티브 프로모", "lo": ranges[1]["lo"], "hi": ranges[1]["hi"], "accent": "#10b981"})
+                rb_rows.append({"label": "캡티브 프로모", "lo": ranges[1]["lo"], "hi": ranges[1]["hi"], "accent": "#4F8A6D"})
             single = re.search(r"평균.*?(\d+(?:\.\d+)?)\s*%", text)
             if single:
                 v = float(single.group(1))
-                rb_rows.append({"label": "소비자신용 평균", "lo": v, "hi": v, "accent": "#E63946"})
+                rb_rows.append({"label": "소비자신용 평균", "lo": v, "hi": v, "accent": "#C0533F"})
             if rb_rows:
                 rate_chart = self.render_range_bar_chart("경쟁사 금리 범위", "percent", rb_rows)
 
@@ -2600,7 +2606,7 @@ class CountryReportRenderer:
             ts = ev_item["timeseries"]
             line_series.append({
                 "name": "EV 보급률",
-                "color": "#005db7",
+                "color": "#3F6CB4",
                 "history": ts.get("history", []),
                 "forecast": ts.get("forecast", []),
             })
@@ -2608,7 +2614,7 @@ class CountryReportRenderer:
             ts = rv_item["timeseries"]
             line_series.append({
                 "name": "EV/ICE 잔존가치(3년)",
-                "color": "#E63946",
+                "color": "#C0533F",
                 "history": ts.get("history", []),
                 "forecast": ts.get("forecast", []),
             })
@@ -2959,115 +2965,13 @@ class CountryReportRenderer:
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>{html.escape(report_title_ko)}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {{
-            darkMode: "class",
-            theme: {{
-                extend: {{
-                    "colors": {{
-                        "accent-red": "#E63946",
-                        "surface-bright": "#fbf9f9",
-                        "on-primary-fixed-variant": "#1c4489",
-                        "tertiary-fixed": "#ffdad8",
-                        "primary-fixed-dim": "#aec6ff",
-                        "inverse-surface": "#303031",
-                        "surface-container-lowest": "#ffffff",
-                        "secondary": "#005db7",
-                        "on-tertiary": "#ffffff",
-                        "on-primary": "#ffffff",
-                        "error": "#ba1a1a",
-                        "on-tertiary-fixed-variant": "#92001c",
-                        "secondary-fixed": "#d6e3ff",
-                        "tertiary": "#4d000a",
-                        "inverse-primary": "#aec6ff",
-                        "primary-container": "#003478",
-                        "on-primary-container": "#7d9fe9",
-                        "primary-fixed": "#d8e2ff",
-                        "on-secondary-container": "#003268",
-                        "surface-dim": "#dbdad9",
-                        "surface-container-low": "#f5f3f3",
-                        "surface-border": "#DCDCDC",
-                        "on-error": "#ffffff",
-                        "surface-container-highest": "#e3e2e2",
-                        "surface-container": "#efeded",
-                        "secondary-fixed-dim": "#a9c7ff",
-                        "on-tertiary-fixed": "#410007",
-                        "surface-variant": "#e3e2e2",
-                        "on-tertiary-container": "#ff7576",
-                        "inverse-on-surface": "#f2f0f0",
-                        "outline": "#747782",
-                        "surface-light": "#F8F9FA",
-                        "text-secondary": "#555555",
-                        "on-primary-fixed": "#001a43",
-                        "surface-tint": "#395da2",
-                        "on-secondary-fixed": "#001b3d",
-                        "on-surface-variant": "#434751",
-                        "on-secondary-fixed-variant": "#00468c",
-                        "on-error-container": "#93000a",
-                        "outline-variant": "#c4c6d2",
-                        "text-disabled": "#BEBEBE",
-                        "secondary-container": "#599bfe",
-                        "tertiary-fixed-dim": "#ffb3b1",
-                        "on-secondary": "#ffffff",
-                        "background": "#fbf9f9",
-                        "error-container": "#ffdad6",
-                        "surface": "#fbf9f9",
-                        "on-background": "#1b1c1c",
-                        "text-primary": "#000000",
-                        "surface-container-high": "#e9e8e7",
-                        "primary": "#00204e",
-                        "tertiary-container": "#750015",
-                        "on-surface": "#1b1c1c"
-                    }},
-                    "borderRadius": {{
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    }},
-                    "spacing": {{
-                        "sm": "8px",
-                        "margin-desktop": "48px",
-                        "gutter": "24px",
-                        "base": "4px",
-                        "margin-mobile": "16px",
-                        "xl": "32px",
-                        "lg": "24px",
-                        "xs": "4px",
-                        "md": "16px"
-                    }},
-                    "fontFamily": {{
-                        "headline-md": ["Hanken Grotesk"],
-                        "label-md": ["Hanken Grotesk"],
-                        "headline-lg": ["Hanken Grotesk"],
-                        "body-sm": ["Hanken Grotesk"],
-                        "display-lg": ["Hanken Grotesk"],
-                        "label-sm": ["Hanken Grotesk"],
-                        "body-lg": ["Hanken Grotesk"],
-                        "headline-lg-mobile": ["Hanken Grotesk"],
-                        "body-md": ["Hanken Grotesk"]
-                    }},
-                    "fontSize": {{
-                        "headline-md": ["24px", {{"lineHeight": "32px", "fontWeight": "600"}}],
-                        "label-md": ["12px", {{"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}}],
-                        "headline-lg": ["32px", {{"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}}],
-                        "body-sm": ["14px", {{"lineHeight": "20px", "fontWeight": "400"}}],
-                        "display-lg": ["48px", {{"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}}],
-                        "label-sm": ["11px", {{"lineHeight": "14px", "fontWeight": "500"}}],
-                        "body-lg": ["18px", {{"lineHeight": "28px", "fontWeight": "400"}}],
-                        "headline-lg-mobile": ["24px", {{"lineHeight": "32px", "fontWeight": "700"}}],
-                        "body-md": ["16px", {{"lineHeight": "24px", "fontWeight": "400"}}]
-                    }}
-                }}
-            }}
-        }}
-    </script>
+    {rre.head_links()}
+    {rre.tailwind_config_block()}
     <style>
-        body {{ font-family: 'Hanken Grotesk', 'Noto Sans KR', sans-serif; }}
+        body {{ font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif; }}
+        .mono, .font-mono {{ font-family: 'Space Grotesk', 'Pretendard', sans-serif; }}
         .backdrop-blur-md {{ backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }}
-        .card-shadow {{ box-shadow: 0 4px 8px rgba(0, 32, 78, 0.04); }}
+        .card-shadow {{ box-shadow: 0 4px 8px rgba(20, 23, 28, 0.04); }}
         details > summary::-webkit-details-marker {{ display: none; }}
         details > summary {{ list-style: none; }}
         @media print {{
@@ -3090,7 +2994,7 @@ class CountryReportRenderer:
         .tab-content {{ display: none; }}
         .tab-content.active {{ display: block; }}
         .tab-button.active {{
-            background-color: #00204e;
+            background-color: #101622;
             color: white;
         }}
     </style>

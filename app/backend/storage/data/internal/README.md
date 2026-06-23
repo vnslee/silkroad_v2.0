@@ -47,6 +47,7 @@
 | `region_baselines` | `{region: ISO2}` | 권역별 기준국(B국) — `EU=GB, NA=US, APAC=AU`. 권역 보고서에서 IT 유사도 비교 기준. |
 | `country_to_region` | `{ISO2: region}` | 국가 → 권역 매핑. 신규 국가 추가 시 여기에 등록. |
 | `country_status` | `{ISO2: "운영중"\|"준비중"\|"미진출"}` | 진출 단계 표시 (UI 용). |
+| `oem_markets` | `{production: {ISO2: note}, sales: {ISO2: note}}` | **당사 OEM(현대자동차) 해외 진출국**. 메인 화면 세계지도 컬러링용. `production`(해외 생산공장 보유) > `sales`(판매법인·딜러). 2단계 컬러링 권장(production 진한 색 / sales 옅은 색). `country_status`('우리사' 진출 단계)와는 별개 데이터. 출처: 위키피디아 생산공장 + 현대차 공식 글로벌 디스트리뷰터(2024~2025), 러시아(RU)는 공장 매각·철수로 제외. |
 
 ### 2. 베이스라인 채점 (탭1-1 유사도 비교 기준)
 

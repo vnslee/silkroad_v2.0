@@ -130,15 +130,27 @@ def competitors_table(data):
         f'</tr></thead><tbody>{body}</tbody></table></div></div>')
 
 
+# 리서치 데이터가 없는 국가(예: 베이스라인국 AU)용 코드→한글명 폴백.
+_COUNTRY_KO_FALLBACK = {
+    "GB": "영국", "US": "미국", "AU": "호주", "BR": "브라질",
+    "FR": "프랑스", "IT": "이탈리아", "DE": "독일", "CA": "캐나다",
+    "IN": "인도", "CN": "중국", "ID": "인도네시아", "ES": "스페인",
+    "PL": "폴란드", "MX": "멕시코",
+}
+
+
 def _country_ko(code):
-    """국가코드 → 한글 국가명. 해당국 리서치 데이터에서 조회, 없으면 코드 반환."""
+    """국가코드 → 한글 국가명. 해당국 리서치 데이터에서 조회, 없으면 폴백 사전, 그래도 없으면 코드."""
     path = os.path.join(DATA, "research", "country", code, f"{code}_latest.json")
     try:
         with open(path, encoding="utf-8") as f:
             d = json.load(f)
-        return d.get("country_ko") or d.get("country") or code
+        name = d.get("country_ko") or d.get("country")
+        if name:
+            return name
     except Exception:
-        return code
+        pass
+    return _COUNTRY_KO_FALLBACK.get(code, code)
 
 
 def baseline_panel(data):
@@ -179,62 +191,6 @@ def baseline_panel(data):
         '<div>'
         '<h3 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-sm">'
         '<span class="material-symbols-outlined text-secondary">star</span>권역 베이스라인 국가</h3>'
-        '<div class="border border-surface-border rounded-lg bg-surface overflow-hidden flex flex-col lg:flex-row">'
-        f'{body}</div></div>')
-
-
-def entry_panel(data):
-    """진출 정보 — 해당 국가의 사내 운영 자산(진출 형태·솔루션·진출년도).
-
-    country_assets[code]에 있으면 기진출로 보고 진출 형태(단독법인/조인트벤처/지점 등)·
-    솔루션·진출년도를 한 패널로 표시. 없으면 미진출로 표시.
-    """
-    code = data.get("code", "")
-    path = os.path.join(DATA, "internal", "internal_latest.json")
-    assets, statuses = {}, {}
-    try:
-        with open(path, encoding="utf-8") as f:
-            internal = json.load(f)
-        assets = internal.get("country_assets", {})
-        statuses = internal.get("country_status", {})
-    except Exception:
-        pass
-
-    # 진출 단계 배지 — 준비중이면 패널 제목 옆에 표시(운영중은 별도 배지 없이 진출년도로 드러남).
-    status = statuses.get(code, "")
-    status_badge = ""
-    if status == "준비중":
-        status_badge = (
-            '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-label-sm '
-            'bg-[#FFF4E5] text-[#B26A00] border border-[#FFE0B2]">'
-            '<span class="w-1.5 h-1.5 rounded-full bg-[#B26A00] mr-1.5"></span>준비중</span>')
-
-    def cell(label, value_html):
-        # baseline_panel과 동일한 셀 스타일(라벨 위 / 값 아래, 좁으면 세로 스택).
-        return (
-            '<div class="flex-1 min-w-0 py-sm px-md border-b lg:border-b-0 lg:border-r border-surface-border last:border-0">'
-            f'<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-xs">{rre.esc(label)}</div>'
-            f'<div class="font-body-md text-body-md text-on-surface break-words">{value_html}</div></div>')
-
-    asset = assets.get(code)
-    if asset:
-        entry_form = asset.get("entry_form") or "—"
-        solution = asset.get("solution") or "—"
-        since = asset.get("since")
-        since_str = f"{since}년" if since else "—"
-        body = (
-            cell("진출 형태", rre.esc(entry_form))
-            + cell("운영 솔루션", rre.esc(solution))
-            + cell("진출년도", rre.esc(since_str)))
-    else:
-        # 미진출국 — 진단 대상. 단일 셀로 안내.
-        body = cell("진출 형태", '<span class="text-on-surface-variant">미진출 · 진단 대상</span>')
-
-    return (
-        '<div>'
-        '<h3 class="font-headline-md text-headline-md text-primary mb-sm flex items-center gap-sm">'
-        '<span class="material-symbols-outlined text-secondary">flag</span>진출 정보'
-        f'{status_badge}</h3>'
         '<div class="border border-surface-border rounded-lg bg-surface overflow-hidden flex flex-col lg:flex-row">'
         f'{body}</div></div>')
 
@@ -303,7 +259,7 @@ def render_html(data):
             .replace("{{PAGE_TITLE}}", rre.esc(title))
             .replace("{{CHARTS}}", charts(data))
             .replace("{{COMPETITORS}}", competitors_table(data))
-            .replace("{{INSIGHT_PANEL}}", insight_panel(data) + entry_panel(data) + baseline_panel(data)))
+            .replace("{{INSIGHT_PANEL}}", insight_panel(data) + baseline_panel(data)))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

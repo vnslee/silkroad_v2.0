@@ -26,6 +26,11 @@ class CountrySummary(BaseModel):
     is_baseline: bool = False
     has_detail: bool = False
     has_report: bool = False
+    # 진출 정보(internal_latest.json: country_status·country_assets) — 팝업 헤더 상태바 표시용
+    entry_status: Optional[str] = None  # "운영중" | "준비중" | "미진출" | None(미등록)
+    entry_form: Optional[str] = None  # "단독법인" | "JV" 등 (기진출국만)
+    solution: Optional[str] = None  # 운영 솔루션 (기진출국만)
+    since: Optional[int] = None  # 진출년도 (기진출국만)
 
 
 class RegionSummary(BaseModel):

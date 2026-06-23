@@ -70,6 +70,15 @@ def _load_latest_research(domain: str, target_id: str) -> Optional[dict]:
         return None
 
 
+def _load_internal() -> dict:
+    """internal_latest.json 로드(사내 룰셋·자산). 실패 시 빈 dict."""
+    try:
+        with open(config.INTERNAL_LATEST, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
 def _has_detail(domain: str, target_id: str) -> bool:
     d = config.DETAIL_DIR / domain / target_id / "html"
     return d.is_dir() and any(d.glob("*.html"))
@@ -103,18 +112,28 @@ def list_countries() -> List[CountrySummary]:
     out: List[CountrySummary] = []
     if not base.is_dir():
         return out
+    internal = _load_internal()
+    assets = internal.get("country_assets", {})
+    statuses = internal.get("country_status", {})
     for d in sorted(p for p in base.iterdir() if p.is_dir()):
         code = d.name
         data = _load_latest_research("country", code) or {}
+        ccode = data.get("code", code)
+        asset = assets.get(ccode, {})
         out.append(
             CountrySummary(
-                code=data.get("code", code),
+                code=ccode,
                 name=data.get("country", code),
                 name_ko=data.get("country_ko"),
                 region=data.get("region"),
                 is_baseline=bool(data.get("is_baseline", False)),
                 has_detail=_has_detail("country", code),
                 has_report=_has_report("country", code),
+                # 진출 정보 — country_status(단계) + country_assets(기진출 자산)
+                entry_status=statuses.get(ccode),
+                entry_form=asset.get("entry_form"),
+                solution=asset.get("solution"),
+                since=asset.get("since"),
             )
         )
     return out

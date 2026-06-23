@@ -26,6 +26,11 @@ interface CatalogItem {
   region?: string
   isBaseline: boolean
   hasReport: boolean
+  // 진출 정보(country만) — 팝업 헤더 상태바 표시용
+  entryStatus?: string
+  entryForm?: string
+  solution?: string
+  since?: number
 }
 
 export default function DetailView({ domain, code, mode }: Props) {
@@ -51,6 +56,10 @@ export default function DetailView({ domain, code, mode }: Props) {
             region: 'region' in x ? (x.region ?? undefined) : undefined,
             isBaseline: 'is_baseline' in x ? x.is_baseline : false,
             hasReport: x.has_report,
+            entryStatus: 'entry_status' in x ? (x.entry_status ?? undefined) : undefined,
+            entryForm: 'entry_form' in x ? (x.entry_form ?? undefined) : undefined,
+            solution: 'solution' in x ? (x.solution ?? undefined) : undefined,
+            since: 'since' in x ? (x.since ?? undefined) : undefined,
           })),
         )
       })
@@ -106,12 +115,18 @@ export default function DetailView({ domain, code, mode }: Props) {
 
   const isCountry = domain === 'country'
   const meta = catalog.find((c) => c.code === code)
-  const status = meta?.isBaseline ? '기준국' : meta?.hasReport ? '진출' : '진출예정'
-  const statusStyle = meta?.isBaseline
-    ? 'bg-secondary-fixed text-on-secondary-fixed-variant'
-    : meta?.hasReport
+
+  // 진출 단계 — 국가는 internal의 entry_status(운영중/준비중/미진출) 우선, 없으면 기존 규칙 폴백.
+  const fallbackStatus = meta?.isBaseline ? '기준국' : meta?.hasReport ? '진출' : '진출예정'
+  const status = isCountry && meta?.entryStatus ? meta.entryStatus : fallbackStatus
+  const statusStyle =
+    status === '운영중' || status === '진출'
       ? 'bg-success-container text-success border border-success/30'
-      : 'bg-surface-container text-on-surface-variant'
+      : status === '준비중'
+        ? 'bg-[#FFF4E5] text-[#B26A00] border border-[#FFE0B2]'
+        : meta?.isBaseline
+          ? 'bg-secondary-fixed text-on-secondary-fixed-variant'
+          : 'bg-surface-container text-on-surface-variant'
 
   // 대상 선택 옵션
   const targetOptions: SelectOption[] = catalog.map((c) => ({
@@ -177,6 +192,25 @@ export default function DetailView({ domain, code, mode }: Props) {
               <span className="font-label-sm text-label-sm text-outline">
                 {isCountry ? `Region: ${meta?.region ?? '-'}` : '권역'}
               </span>
+              {/* 진출 정보(country, 기진출국만) — 진출형태·솔루션 배지 + 진출년도 칩 */}
+              {isCountry && meta?.entryForm && (
+                <span className="inline-flex items-center gap-xs rounded px-2 py-0.5 font-label-sm text-label-sm bg-secondary-fixed text-on-secondary-fixed-variant">
+                  <Icon name="apartment" className="text-[14px]" />
+                  {meta.entryForm}
+                </span>
+              )}
+              {isCountry && meta?.solution && (
+                <span className="inline-flex items-center gap-xs rounded px-2 py-0.5 font-label-sm text-label-sm bg-surface-variant text-on-surface-variant">
+                  <Icon name="dns" className="text-[14px]" />
+                  {meta.solution}
+                </span>
+              )}
+              {isCountry && meta?.since && (
+                <span className="inline-flex items-center gap-xs font-label-sm text-label-sm text-outline">
+                  <Icon name="calendar_today" className="text-[14px]" />
+                  {meta.since}년
+                </span>
+              )}
               {/* 데이터 버전 선택 */}
               <span className="font-label-sm text-label-sm text-outline">·</span>
               <HeaderSelect

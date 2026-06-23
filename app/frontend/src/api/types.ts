@@ -22,6 +22,11 @@ export interface CountrySummary {
   is_baseline: boolean
   has_detail: boolean
   has_report: boolean
+  // 진출 정보(internal: country_status·country_assets) — 팝업 헤더 상태바 표시용
+  entry_status?: string | null // "운영중" | "준비중" | "미진출" | null
+  entry_form?: string | null // "단독법인" | "JV" 등 (기진출국만)
+  solution?: string | null // 운영 솔루션 (기진출국만)
+  since?: number | null // 진출년도 (기진출국만)
 }
 
 export interface RegionSummary {

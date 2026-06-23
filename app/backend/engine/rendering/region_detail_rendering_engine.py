@@ -26,6 +26,7 @@ DETAIL = os.path.join(STORAGE, "detail")
 # 같은 rendering/ 폴더의 포맷·차트 헬퍼 재사용 (중복 작성 금지)
 sys.path.insert(0, BASE)
 import render_helpers as rre  # noqa: E402
+from region_geo import REGION_GEO, COUNTRY_NAME_KO  # noqa: E402  실제 국경 SVG + 한글명 폴백
 
 TPL_PATH = os.path.join(BASE, "templates", "region_detail_template.html")
 
@@ -94,8 +95,8 @@ def _country_names(gb_code, snapshot):
             d = json.load(f)
         return d.get("country_ko", ""), d.get("country", ""), gb_code
     except Exception:
-        # ③ 코드 폴백
-        return gb_code, gb_code, gb_code
+        # ③ 한글명 폴백 사전(지도 멤버국) → 없으면 코드
+        return COUNTRY_NAME_KO.get(gb_code, gb_code), gb_code, gb_code
 
 
 def build_entered(snapshot, internal):
@@ -177,50 +178,146 @@ _MAP_STATE = {
 }
 
 
-def region_map(data):
-    """권역 도형 추상화 지도 — 소속 국가 노드를 대략 지리 위치에 배치하고
-    진출상태별로 색 구분. 실제 국경이 아닌 도형 지도(의존성 0, 데이터 주도)."""
+def _map_legend():
+    return "".join(
+        '<span class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant">'
+        f'<span class="inline-block w-3 h-3 rounded-full" style="background:{c}"></span>{rre.esc(lbl)}</span>'
+        for c, _fg, lbl in _MAP_STATE.values())
+
+
+def _map_shell(region, svg):
+    """지도 카드 chrome(제목·범례) + SVG 본문 + 툴팁 스크립트 래핑."""
+    return (
+        '<div class="bg-surface rounded-lg p-lg border border-surface-border custom-shadow-level-2 flex flex-col h-full">'
+        '<h3 class="font-headline-md text-[18px] leading-[24px] text-primary font-bold mb-md flex items-center gap-sm">'
+        '<span class="material-symbols-outlined text-secondary text-[20px]">map</span>권역 지도</h3>'
+        '<div class="region-map-wrap relative flex-1 flex items-center justify-center min-h-[260px]">'
+        f'{svg}'
+        '<div class="region-map-tip pointer-events-none absolute z-10 hidden px-2 py-1 rounded-md '
+        'font-label-md text-label-md font-semibold text-white whitespace-nowrap" '
+        'style="background:#00204e;box-shadow:0 4px 8px -2px rgba(0,32,78,.4);transform:translate(-50%,-130%)"></div>'
+        '</div>'
+        f'<div class="flex flex-wrap gap-md mt-md pt-md border-t border-surface-border">{_map_legend()}</div>'
+        f'{_MAP_TIP_JS}'
+        '</div>')
+
+
+# 지도 마우스오버 툴팁 — 호버한 path/노드의 data-* 를 읽어 국가명을 띄운다.
+# (의존성 0 — 인라인 바닐라 JS. iframe·standalone 어디서 열어도 동작.)
+_MAP_TIP_JS = """<script>
+(function(){
+  var wraps=document.querySelectorAll('.region-map-wrap');
+  wraps.forEach(function(wrap){
+    var tip=wrap.querySelector('.region-map-tip');
+    if(!tip) return;
+    wrap.querySelectorAll('[data-cname]').forEach(function(el){
+      function show(e){
+        tip.textContent=el.getAttribute('data-cname')+' ('+el.getAttribute('data-ccode')+')';
+        tip.classList.remove('hidden');
+        var r=wrap.getBoundingClientRect();
+        var x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+        var y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+        tip.style.left=x+'px'; tip.style.top=y+'px';
+      }
+      function hide(){ tip.classList.add('hidden'); }
+      el.addEventListener('mousemove',show);
+      el.addEventListener('mouseenter',show);
+      el.addEventListener('mouseleave',hide);
+      el.addEventListener('focus',function(){
+        tip.textContent=el.getAttribute('data-cname')+' ('+el.getAttribute('data-ccode')+')';
+        tip.classList.remove('hidden');
+        var br=el.getBoundingClientRect(), wr=wrap.getBoundingClientRect();
+        tip.style.left=(br.left+br.width/2-wr.left)+'px';
+        tip.style.top=(br.top-wr.top)+'px';
+      });
+      el.addEventListener('blur',hide);
+    });
+  });
+})();
+</script>"""
+
+
+def _region_members(data):
     internal = data.get("_internal", {})
     region = data.get("code", "")
     c2r = internal.get("country_to_region", {})
     status = internal.get("country_status", {})
     members = [c for c, r in c2r.items() if r == region]
+    return region, members, status
+
+
+def _state_color(code, status):
+    s = status.get(alias(code))
+    key = s if s in ("운영중", "준비중") else "_미진출"
+    fill, fg, lbl = _MAP_STATE[key]
+    return fill, fg, lbl
+
+
+def region_map(data):
+    """권역 지도 — geo 데이터(실제 국경 SVG path)가 있으면 진짜 지도로,
+    없으면 도형(원형 노드) 폴백으로 렌더. 진출상태별 색 구분 + 마우스오버 국가명 툴팁."""
+    region, members, status = _region_members(data)
     if not members:
         return ""
 
+    geo = REGION_GEO.get(region)
+    if geo:
+        return _map_shell(region, _geo_svg(region, members, status, data, geo))
+    return _map_shell(region, _node_svg(region, members, status, data))
+
+
+def _geo_svg(region, members, status, data, geo):
+    """실제 국경 path 지도. 각 국가 path에 진출상태 색 + data-* (호버 툴팁용)."""
+    view_h = geo.get("_viewH", 100)
+    parts = []
+    for code in members:
+        d = geo.get(code)
+        if not d:
+            continue  # geo 미수록 국가는 스킵(폴백 권역 외 누락 방지)
+        fill, _fg, lbl = _state_color(code, status)
+        name_ko, name_en, disp = _country_names(code, data)
+        cname = name_ko or name_en or code
+        parts.append(
+            f'<path d="{d}" fill="{fill}" stroke="#fbf9f9" stroke-width="0.4" '
+            'stroke-linejoin="round" tabindex="0" role="img" class="region-map-c" '
+            'style="cursor:pointer;transition:fill .15s,filter .15s;outline:none" '
+            f'data-cname="{rre.esc(cname)}" data-ccode="{rre.esc(disp)}" '
+            f'data-state="{rre.esc(lbl)}">'
+            f'<title>{rre.esc(cname)} ({rre.esc(disp)}) — {rre.esc(lbl)}</title></path>')
+    hover_css = (
+        '<style>.region-map-c:hover{filter:brightness(1.08) drop-shadow(0 1px 2px rgba(0,32,78,.35))}'
+        '.region-map-c:focus-visible{stroke:#00204e;stroke-width:1}</style>')
+    return (
+        f'{hover_css}'
+        f'<svg viewBox="0 0 100 {view_h}" preserveAspectRatio="xMidYMid meet" '
+        'class="w-full h-full max-h-[320px]" role="img" '
+        f'aria-label="{rre.esc(region)} 권역 진출 상태 지도(실제 국경)">{"".join(parts)}</svg>')
+
+
+def _node_svg(region, members, status, data):
+    """폴백 — geo 데이터 없는 권역: 원형 노드(대략 지리/격자) 지도. 호버 툴팁 포함."""
     coords = _MAP_COORDS.get(region, {})
-    # 좌표 없는 권역 → 격자 폴백 (region-agnostic)
     if not coords:
         cols = 4
         coords = {c: (12 + (i % cols) * 26, 18 + (i // cols) * 24)
                   for i, c in enumerate(members)}
-
-    def state_key(code):
-        s = status.get(alias(code))
-        return s if s in ("운영중", "준비중") else "_미진출"
-
     nodes = []
     for code in members:
         x, y = coords.get(code, (50, 50))
-        fill, fg, _ = _MAP_STATE[state_key(code)]
+        fill, fg, lbl = _state_color(code, status)
+        name_ko, name_en, disp = _country_names(code, data)
+        cname = name_ko or name_en or code
         nodes.append(
-            f'<g><circle cx="{x}" cy="{y}" r="6.4" fill="{fill}" stroke="#fbf9f9" stroke-width="1"/>'
+            f'<g tabindex="0" role="img" class="region-map-c" style="cursor:pointer;outline:none" '
+            f'data-cname="{rre.esc(cname)}" data-ccode="{rre.esc(disp)}" data-state="{rre.esc(lbl)}">'
+            f'<title>{rre.esc(cname)} ({rre.esc(disp)}) — {rre.esc(lbl)}</title>'
+            f'<circle cx="{x}" cy="{y}" r="6.4" fill="{fill}" stroke="#fbf9f9" stroke-width="1"/>'
             f'<text x="{x}" y="{y + 2.1}" text-anchor="middle" font-size="4.4" '
-            f'font-weight="700" fill="{fg}">{rre.esc(code)}</text></g>')
-
-    legend = "".join(
-        '<span class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant">'
-        f'<span class="inline-block w-3 h-3 rounded-full" style="background:{c}"></span>{rre.esc(lbl)}</span>'
-        for c, _fg, lbl in _MAP_STATE.values())
-
+            f'font-weight="700" fill="{fg}">{rre.esc(disp)}</text></g>')
     return (
-        '<div class="bg-surface rounded-lg p-lg border border-surface-border custom-shadow-level-2 flex flex-col h-full">'
-        '<h3 class="font-headline-md text-[18px] leading-[24px] text-primary font-bold mb-md flex items-center gap-sm">'
-        '<span class="material-symbols-outlined text-secondary text-[20px]">map</span>권역 지도</h3>'
-        '<div class="flex-1 flex items-center justify-center min-h-[260px]">'
-        f'<svg viewBox="0 10 82 76" preserveAspectRatio="xMidYMid meet" class="w-full h-full max-h-[300px]" role="img" aria-label="{rre.esc(region)} 권역 진출 상태 지도">{"".join(nodes)}</svg></div>'
-        f'<div class="flex flex-wrap gap-md mt-md pt-md border-t border-surface-border">{legend}</div>'
-        '</div>')
+        f'<svg viewBox="0 10 82 76" preserveAspectRatio="xMidYMid meet" '
+        'class="w-full h-full max-h-[300px]" role="img" '
+        f'aria-label="{rre.esc(region)} 권역 진출 상태 지도">{"".join(nodes)}</svg>')
 
 
 def _products_cell(products):

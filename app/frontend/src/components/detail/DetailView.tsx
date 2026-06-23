@@ -108,8 +108,8 @@ export default function DetailView({ domain, code, mode }: Props) {
   const statusStyle = meta?.isBaseline
     ? 'bg-secondary-fixed text-on-secondary-fixed-variant'
     : meta?.hasReport
-      ? 'bg-[#e8f5e9] text-[#2e7d32] border border-[#a5d6a7]'
-      : 'bg-surface-variant text-on-surface-variant'
+      ? 'bg-success-container text-success border border-success/30'
+      : 'bg-surface-container text-on-surface-variant'
 
   // 대상 선택 옵션
   const targetOptions: SelectOption[] = catalog.map((c) => ({

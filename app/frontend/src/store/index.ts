@@ -17,12 +17,14 @@ interface AppState {
   activePopup: boolean // §5.2 챗봇 위치 규칙
   activeJobs: JobRef[] // §5.3 프로그레스 카드 노출 판단
   lang: Lang
+  chatOpen: boolean // FAB·챗 패널이 공유
 }
 
 let state: AppState = {
   activePopup: false,
   activeJobs: [],
   lang: 'ko',
+  chatOpen: false,
 }
 
 const listeners = new Set<() => void>()
@@ -45,6 +47,8 @@ export const store = {
 
   setActivePopup: (v: boolean) => setState({ activePopup: v }),
   setLang: (lang: Lang) => setState({ lang }),
+  setChatOpen: (chatOpen: boolean) => setState({ chatOpen }),
+  toggleChat: () => setState({ chatOpen: !state.chatOpen }),
 
   addJob(ref: JobRef) {
     if (state.activeJobs.some((j) => j.jobId === ref.jobId)) return

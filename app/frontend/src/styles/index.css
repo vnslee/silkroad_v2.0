@@ -11,6 +11,18 @@
     @apply bg-background text-on-surface font-sans antialiased;
   }
 
+  /* AISea 커스텀 스크롤바(mockup 동일) */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d2d7de;
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
   /* Material Symbols (mockup 아이콘) */
   .material-symbols-outlined {
     font-family: 'Material Symbols Outlined';
@@ -34,6 +46,71 @@
   :focus-visible {
     @apply outline outline-2 outline-offset-2 outline-secondary;
   }
+
+  /* Space Grotesk — 숫자·로고용 모노 강조 유틸 */
+  .mono {
+    font-family: 'Space Grotesk', Pretendard, system-ui, sans-serif;
+  }
+}
+
+/* AISea 모션 키프레임(mockup 동일) */
+@keyframes aisea-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes aisea-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes aisea-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.975) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aisea-op {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes aisea-slide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-aisea-pop {
+  animation: aisea-pop 0.18s ease;
+}
+.animate-aisea-op {
+  animation: aisea-op 0.2s ease;
+}
+.animate-aisea-slide {
+  animation: aisea-slide 0.25s ease;
+}
+.animate-aisea-spin {
+  animation: aisea-spin 0.9s linear infinite;
 }
 
 /* prefers-reduced-motion 존중(AR-1) — 모션 최소화 */

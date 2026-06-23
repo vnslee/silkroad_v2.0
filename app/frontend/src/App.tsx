@@ -24,17 +24,32 @@ function prefersReducedMotion(): boolean {
 export default function App() {
   const { route, navigate, goHome } = useRoute()
   // 딥링크면 인트로 스킵
-  const [introDone, setIntroDone] = useState(
-    () => typeof window !== 'undefined' && isDeepLink(window.location.hash),
-  )
+  const deepLink = typeof window !== 'undefined' && isDeepLink(window.location.hash)
+  const [introDone, setIntroDone] = useState(() => deepLink)
+  // 인트로를 실제로 본 경우에만 지도 줌인 모핑(딥링크·reduced-motion 진입은 정적)
+  const [mapEnter, setMapEnter] = useState(false)
 
   if (!introDone) {
-    return <GlobeIntro reducedMotion={prefersReducedMotion()} onDone={() => setIntroDone(true)} />
+    return (
+      <GlobeIntro
+        reducedMotion={prefersReducedMotion()}
+        onDone={() => {
+          if (!prefersReducedMotion()) setMapEnter(true)
+          setIntroDone(true)
+        }}
+      />
+    )
   }
 
   // 화면(모드 무지) — 컨테이너가 모드로 래핑(Q2=A)
   const overlay = route.screen !== 'map' && (
-    <Suspense fallback={<div className="p-xl text-on-surface-variant">로딩 중…</div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-full items-center justify-center p-xl font-body-md text-on-surface-variant">
+          로딩 중…
+        </div>
+      }
+    >
       {route.screen === 'detail' && route.domain && route.id && (
         <DetailView domain={route.domain} code={route.id} mode={route.mode} />
       )}
@@ -45,22 +60,52 @@ export default function App() {
     </Suspense>
   )
 
+  // AISea 모달 상단 스트립 — route 기준 태그/타이틀(P1=국가 정보·PR1=국가 진단 보고서 등)
+  const frame = modalFrame(route)
+
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <MapView
+        enterAnim={mapEnter}
         onSelectCountry={(code) => navigate({ screen: 'detail', domain: 'country', id: code, mode: 'popup' })}
         onSelectRegion={(region) => navigate({ screen: 'detail', domain: 'region', id: region, mode: 'popup' })}
       />
 
       {overlay && route.mode === 'popup' && (
-        <PopupContainer onClose={goHome}>{overlay}</PopupContainer>
+        <PopupContainer onClose={goHome} tag={frame.tag} tagClass={frame.tagClass} title={frame.title}>
+          {overlay}
+        </PopupContainer>
       )}
       {overlay && route.mode === 'fullscreen' && (
-        <FullscreenContainer onBack={goHome}>{overlay}</FullscreenContainer>
+        <FullscreenContainer onBack={goHome} tag={frame.tag} tagClass={frame.tagClass} title={frame.title}>
+          {overlay}
+        </FullscreenContainer>
       )}
 
       <ProgressPanel />
       <ChatWidget />
     </div>
   )
+}
+
+// route → 모달 스트립 태그/타이틀. 데이터(국가명 등)는 뷰 자체 헤더가 담당하므로 여기선 분류 라벨만.
+function modalFrame(route: ReturnType<typeof useRoute>['route']): {
+  tag: string
+  tagClass: string
+  title: string
+} {
+  if (route.screen === 'ruleset') return { tag: '룰셋 설정', tagClass: 'bg-text-secondary', title: '진단 룰셋 설정' }
+  const isCountry = route.domain === 'country'
+  if (route.screen === 'report')
+    return {
+      tag: isCountry ? '국가 진단 보고서' : '권역 진단 보고서',
+      tagClass: 'bg-aisea-dark',
+      title: isCountry ? '국가 진단 보고서' : '권역 진단 보고서',
+    }
+  // detail
+  return {
+    tag: isCountry ? '국가 정보' : '권역 정보',
+    tagClass: 'bg-primary',
+    title: isCountry ? '국가 상세' : '권역 상세',
+  }
 }

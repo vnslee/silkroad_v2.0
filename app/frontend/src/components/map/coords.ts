@@ -21,3 +21,51 @@ export const COUNTRY_COORDS: Record<string, [number, number]> = {
   PR: [-66.59, 18.22], // Puerto Rico
   PT: [-8.22, 39.4], // Portugal
 }
+
+// ISO alpha-2 → world-atlas(countries-110m) numeric id(ISO 3166-1 numeric).
+// 권역 폴리곤 색칠 시 feature.id(숫자)와 국가코드를 잇는 매핑. research 보유국 기준.
+export const COUNTRY_NUMERIC: Record<string, string> = {
+  AT: '040', // Austria
+  BR: '076', // Brazil
+  DK: '208', // Denmark
+  ES: '724', // Spain
+  GB: '826', // United Kingdom
+  IT: '380', // Italy
+  MX: '484', // Mexico
+  NL: '528', // Netherlands
+  PL: '616', // Poland
+  PT: '620', // Portugal
+}
+
+// 권역 코드 → 폴리곤 채움/테두리 색. DESIGN.md Kinetic Enterprise 팔레트 계열.
+// 진출 권역만 지도 상에서 별도 색으로 강조한다(web_design_spec 5-4 권역 분기).
+export const REGION_FILL: Record<string, { fill: string; stroke: string }> = {
+  EU: { fill: '#bcd4ff', stroke: '#599bfe' }, // secondary-container 계열
+  NORTH_AMERICA: { fill: '#cfe0d6', stroke: '#4f9d76' },
+  SOUTH_AMERICA: { fill: '#ffd9c2', stroke: '#e08a4d' },
+  ASIA: { fill: '#e3cdf0', stroke: '#9b6fc2' },
+}
+
+// 권역 코드 → world-atlas(countries-110m) 국가명 집합. 권역 단위 하이라이트/클릭 영역 계산용.
+// 백엔드 country.region(보유국만)이 아니라 "대륙 전체"를 권역으로 묶기 위해 국가명 기반으로 정의한다.
+// 국가명은 world-atlas properties.name 표기를 따른다(예: 'United States of America', 'Czechia').
+export const REGION_COUNTRY_NAMES: Record<string, string[]> = {
+  // 유럽권역(EU 데모) — 지리적 유럽 전반(영국·스위스·노르딕 포함)
+  EU: [
+    'Albania', 'Austria', 'Belarus', 'Belgium', 'Bosnia and Herz.', 'Bulgaria', 'Croatia',
+    'Czechia', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary',
+    'Iceland', 'Ireland', 'Italy', 'Kosovo', 'Latvia', 'Lithuania', 'Luxembourg', 'Macedonia',
+    'Moldova', 'Montenegro', 'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Serbia',
+    'Slovakia', 'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Ukraine', 'United Kingdom',
+  ],
+  NORTH_AMERICA: ['United States of America', 'Canada', 'Mexico'],
+  SOUTH_AMERICA: [
+    'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay',
+    'Peru', 'Suriname', 'Uruguay', 'Venezuela',
+  ],
+  ASIA: [
+    'Bangladesh', 'Cambodia', 'China', 'India', 'Indonesia', 'Japan', 'Laos', 'Malaysia',
+    'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Pakistan', 'Philippines', 'South Korea',
+    'Sri Lanka', 'Taiwan', 'Thailand', 'Vietnam',
+  ],
+}

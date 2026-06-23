@@ -90,7 +90,7 @@ export default function ReportView({ domain, code, reportId, mode }: Props) {
   const statusStyle = meta?.isBaseline
     ? 'bg-secondary-fixed text-on-secondary-fixed-variant border-secondary-fixed-dim'
     : meta?.hasReport
-      ? 'bg-[#e8f5e9] text-[#2e7d32] border-[#a5d6a7]'
+      ? 'bg-success-container text-success border-success/30'
       : 'bg-surface-container text-text-secondary border-surface-border'
 
   const targetOptions: SelectOption[] = catalog.map((c) => ({

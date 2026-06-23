@@ -144,9 +144,17 @@ export function ChatWidget() {
   }
 
   function startResearch(p: Pending) {
-    const body = p.domain === 'region' ? { member_codes: p.missingCodes } : undefined
+    // 정책: 권역 신규 리서치는 지원하지 않는다(보유 권역만 운용). 방어적 가드 — 백엔드도 403.
+    if (p.domain === 'region') {
+      setPending(null)
+      setActions([])
+      pushAssistant(
+        '권역 단위 신규 리서치는 현재 지원하지 않습니다. 권역 내 개별 국가의 리서치를 도와드릴 수 있어요.',
+      )
+      return
+    }
     api
-      .triggerResearch(p.domain, p.id, body)
+      .triggerResearch(p.domain, p.id, undefined)
       .then((job) => {
         setPending(null)
         setActions([])

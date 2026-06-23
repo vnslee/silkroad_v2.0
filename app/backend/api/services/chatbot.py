@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from .. import config
 from ..schemas import ChatResponse, ChatTurn
-from . import bedrock_client, storage_resolver
+from . import bedrock_client, research_policy, storage_resolver
 
 _log = config.get_logger("chatbot")
 
@@ -311,13 +311,50 @@ def _answer_existing(
     )
 
 
-def _qa_actions(exists: bool, has_report: bool) -> List[str]:
-    """보유국 QA 답변에 함께 노출할 선택지(상세요약/리서치 재수행/보고서)."""
+def _qa_actions(domain: str, exists: bool, has_report: bool) -> List[str]:
+    """보유 대상 QA 답변에 함께 노출할 선택지(상세요약/리서치 재수행/보고서).
+
+    정책: 권역(region)은 재리서치를 제공하지 않는다(권역 리서치 전면 제외).
+    국가는 보유국이므로 재리서치 허용.
+    """
     if not exists:
         return []
-    actions = ["summary", "re_research"]
+    actions = ["summary"]
+    if domain == "country":
+        actions.append("re_research")  # 보유국 재리서치 허용
     actions.append("re_report" if has_report else "report")
     return actions
+
+
+def _region_research_blocked(target_id: str, exists: bool, has_report: bool) -> ChatResponse:
+    """권역 리서치 요청을 정중히 거절(트리거 없음). 보유 권역이면 보고서 선택지는 유지."""
+    return ChatResponse(
+        intent="qa",
+        exists=exists,
+        has_report=has_report,
+        needs_research=False,
+        research_suggestion=(
+            "권역 단위 신규 리서치는 현재 지원하지 않습니다. "
+            "보유 중인 권역(EU·북미·남미·아시아태평양) 정보로 답변드리거나, "
+            "권역 내 개별 국가의 리서치를 도와드릴 수 있어요."
+        ),
+        actions=_qa_actions("region", exists, has_report) if exists else [],
+    )
+
+
+def _country_research_blocked(target_id: str) -> ChatResponse:
+    """보유 권역 밖 국가의 신규 리서치 요청을 거절(트리거 없음)."""
+    _allowed, reason = research_policy.country_research_allowed(target_id)
+    return ChatResponse(
+        intent="qa",
+        exists=False,
+        needs_research=False,
+        research_suggestion=(
+            (reason or f"'{target_id}'는 신규 리서치할 수 없습니다.")
+            + " 보유 중인 국가 정보로만 답변드릴 수 있어요."
+        ),
+        actions=[],
+    )
 
 
 def handle(
@@ -348,17 +385,10 @@ def handle(
     else:
         missing = []
 
-    # 부분 데이터(§6.5.2) — 권역은 있으나 일부 멤버 누락 → 리서치 제안(확인 후).
+    # 부분 데이터 — 권역은 있으나 일부 멤버 누락. 정책상 권역 리서치는 제외하므로
+    # 트리거하지 않고, 보유 정보로 답하거나 개별 국가 리서치를 안내한다.
     if domain == "region" and exists and missing:
-        return ChatResponse(
-            intent="research",
-            exists=exists,
-            has_report=has_report,
-            needs_research=True,
-            missing_codes=missing,
-            research_suggestion="일부 국가 정보가 부족합니다. 리서치를 진행할까요?",
-            actions=["research"],
-        )
+        return _region_research_blocked(target_id, exists, has_report)
 
     # ── 보고서 생성 의도 ──
     if intent == "report":
@@ -373,7 +403,12 @@ def handle(
                 research_suggestion=f"{target_id} 진단 보고서를 {verb}합니다.",
                 actions=["re_report" if has_report else "report"],
             )
-        # 미보유 → 보고서 전에 리서치 필요.
+        # 미보유 → 보고서 전에 리서치 필요. 단, 정책상 막힌 대상은 리서치를 제안하지 않는다.
+        if domain == "region":
+            return _region_research_blocked(target_id, exists, has_report)
+        allowed, _reason = research_policy.country_research_allowed(target_id)
+        if not allowed:
+            return _country_research_blocked(target_id)
         return ChatResponse(
             intent="research",
             exists=False,
@@ -387,6 +422,9 @@ def handle(
 
     # ── 리서치 수행/재수행 의도 ──
     if intent == "research":
+        # 정책: 권역 리서치는 신규·재수행 모두 제외. 보유 권역이면 보고서 선택지만 유지.
+        if domain == "region":
+            return _region_research_blocked(target_id, exists, has_report)
         if exists and not missing:
             return ChatResponse(
                 intent="research",
@@ -397,30 +435,10 @@ def handle(
                 research_suggestion=f"{target_id} 리서치를 재수행합니다.",
                 actions=["re_research"],
             )
-        # 권역 신규 리서치 — 메시지에서 멤버 국가를 추출해 함께 넘긴다(없으면 지정 요청).
-        if domain == "region":
-            members = member_codes or extract_member_codes(message)
-            if not members:
-                return ChatResponse(
-                    intent="research",
-                    exists=False,
-                    needs_research=True,
-                    research_suggestion=(
-                        f"{target_id} 권역 리서치를 진행하려면 포함할 국가를 알려주세요. "
-                        "예: '아프리카 권역 중 나이지리아, 케냐, 남아공 리서치해줘'"
-                    ),
-                    actions=["research"],
-                )
-            return ChatResponse(
-                intent="research",
-                exists=False,
-                needs_research=True,
-                missing_codes=members,
-                research_suggestion=(
-                    f"{target_id} 권역 리서치를 진행합니다(포함 국가: {', '.join(members)})."
-                ),
-                actions=["research"],
-            )
+        # 미보유 국가 신규 리서치 — 보유 권역 소속만 허용(정책).
+        allowed, _reason = research_policy.country_research_allowed(target_id)
+        if not allowed:
+            return _country_research_blocked(target_id)
         return ChatResponse(
             intent="research",
             exists=False,
@@ -437,28 +455,16 @@ def handle(
             exists=True,
             has_report=has_report,
             answer=answer,
-            actions=_qa_actions(True, has_report),
+            actions=_qa_actions(domain, True, has_report),
         )
 
-    # 미보유국 일반 질의 → 임의 답변 금지. 리서치 의도를 먼저 묻는다(확인 후 트리거).
-    # 사용자가 거절하면 프론트가 '보유국 정보에 한해 답변' 안내로 제한한다.
+    # 미보유 일반 질의 → 임의 답변 금지.
+    # 정책: 권역은 신규 리서치 제외 → 거절 안내. 국가는 보유 권역 소속만 리서치 제안.
     if domain == "region":
-        members = member_codes or extract_member_codes(message)
-        sug = (
-            f"'{target_id}' 권역 보유 정보가 없습니다. 외부 리서치를 진행할까요?"
-        )
-        if members:
-            sug += f" (포함 국가: {', '.join(members)})"
-        else:
-            sug += " 포함할 국가를 알려주세요. 예: '나이지리아, 케냐, 남아공'"
-        return ChatResponse(
-            intent="research",
-            exists=False,
-            needs_research=True,
-            missing_codes=members,
-            research_suggestion=sug,
-            actions=["research"],
-        )
+        return _region_research_blocked(target_id, exists, has_report)
+    allowed, _reason = research_policy.country_research_allowed(target_id)
+    if not allowed:
+        return _country_research_blocked(target_id)
     sug = (
         f"'{target_id}' 보유 정보가 없습니다. 외부 리서치를 진행할까요? "
         "(원치 않으시면 보유 중인 국가 정보로만 답변드릴 수 있어요.)"

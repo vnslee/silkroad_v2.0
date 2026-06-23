@@ -70,7 +70,6 @@ REGION_NAMES = {
 LABELS = {
     # 헤더 / 버튼
     "btn_pdf":            {"ko": "PDF", "en": "PDF"},
-    "btn_share":          {"ko": "공유", "en": "Share"},
     "btn_lang_toggle":    {"ko": "EN", "en": "한"},
     "header_report_id":   {"ko": "Report ID", "en": "Report ID"},
     "header_generated":   {"ko": "생성", "en": "Generated"},
@@ -224,14 +223,6 @@ LABELS = {
     "common_no_data":    {"ko": "데이터 없음", "en": "No data"},
     "common_unknown":    {"ko": "—", "en": "—"},
     "common_view_more":  {"ko": "더 보기", "en": "More"},
-
-    # 공유 모달
-    "share_title":       {"ko": "보고서 공유", "en": "Share Report"},
-    "share_desc":        {"ko": "QR 스캔 또는 URL 복사로 공유", "en": "Share via QR scan or URL copy"},
-    "share_url_label":   {"ko": "현재 페이지 URL", "en": "Current page URL"},
-    "share_copy":        {"ko": "복사", "en": "Copy"},
-    "share_copied":      {"ko": "복사됨", "en": "Copied"},
-    "share_qr_hint":     {"ko": "스마트폰 카메라로 QR 코드 스캔 시 모바일 브라우저에서 열림.", "en": "Scan with smartphone camera to open on mobile."},
 
     # 추가 — 테이블 헤더 / pill
     "tbl_rank":           {"ko": "순위", "en": "Rank"},
@@ -1799,13 +1790,6 @@ class RegionReportRenderer:
         region = target.get("region", "EU")
         baseline = target.get("baseline_country", "GB")
         report_id = self.report.get("report_id", "RPT_RGN_XXX")
-        generated_at = self.report.get("generated_at", "")
-
-        try:
-            dt = datetime.fromisoformat(generated_at)
-            generated_str = dt.strftime("%Y-%m-%d %H:%M")
-        except Exception:
-            generated_str = generated_at
 
         ko, en = REGION_NAMES.get(region, (region, region))
         title = {
@@ -1813,7 +1797,6 @@ class RegionReportRenderer:
             "en": f"{en} Regional Quickwin Analysis Report",
         }
         title_plain = f'{title["ko"]} / {title["en"]}'  # <title> 태그용 (PDF 파일명)
-        data_year = self.baseline_data_year(baseline)
 
         fx = self.report.get("fx") or {}
         fx_note = ""
@@ -1945,41 +1928,6 @@ class RegionReportRenderer:
 </head>
 <body class="bg-surface min-h-screen font-body-md text-text-primary antialiased">
 <div class="w-full flex flex-col relative bg-surface">
-    <header class="border-b border-surface-border px-margin-desktop py-lg shrink-0">
-        <div class="max-w-7xl mx-auto flex justify-between items-start gap-gutter">
-            <div class="flex gap-md items-start">
-                <div class="w-12 h-12 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">public</span>
-                </div>
-                <div>
-                    <h1 class="font-headline-lg text-headline-lg text-primary tracking-tight m-0">{self.loc_span(title)}</h1>
-                    <div class="flex items-center gap-sm mt-xs flex-wrap">
-                        <span class="font-label-sm text-label-sm uppercase tracking-wider text-text-secondary"><span data-i18n="header_report_id" data-en="Report ID">Report ID</span>: {self.esc(report_id)}</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary"><span data-i18n="header_generated" data-en="Generated">생성</span>: {self.esc(generated_str)}</span>
-                        <span class="w-1 h-1 rounded-full bg-surface-border"></span>
-                        <span class="font-label-sm text-label-sm text-text-secondary"><span data-i18n="header_baseline" data-en="Baseline">기준국</span> {self.esc(self.country_en(baseline))}</span>{(
-                        '<span class="w-1 h-1 rounded-full bg-surface-border"></span>'
-                        '<span class="font-label-sm text-label-sm text-text-secondary">'
-                        '<span data-i18n="header_data_year" data-en="Data year">데이터 기준연도</span> '
-                        f'{self.esc(data_year)}</span>') if data_year else ""}
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-sm shrink-0">
-                <button id="lang-toggle" onclick="toggleLang()" class="flex items-center gap-xs px-md py-sm border border-surface-border text-text-secondary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">language</span>
-                    <span id="lang-label">EN</span>
-                </button>
-                <button onclick="exportPDF()" class="flex items-center gap-xs px-md py-sm border border-primary text-primary rounded-lg font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>PDF
-                </button>
-                <button onclick="openShareModal()" class="flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:scale-[0.98] transition-transform">
-                    <span class="material-symbols-outlined text-[18px]">share</span>Share
-                </button>
-            </div>
-        </div>
-    </header>
     <main class="flex-1 px-margin-desktop py-lg">
         <div class="max-w-7xl mx-auto">
             {self.render_tabs_nav()}
@@ -1996,37 +1944,6 @@ class RegionReportRenderer:
             <span>{fx_note}</span>
         </div>
     </footer>
-</div>
-
-<!-- Share Modal — QR 코드 + URL 복사 -->
-<div id="share-modal" class="no-print hidden fixed inset-0 z-[60] items-center justify-center" style="background: rgba(0, 32, 78, 0.4); backdrop-filter: blur(6px);" onclick="closeShareModal(event)">
-    <div class="bg-surface-container-lowest rounded-xl shadow-[0_12px_24px_rgba(0,32,78,0.16)] max-w-md w-full mx-md flex flex-col" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-lg py-md border-b border-surface-border">
-            <div>
-                <h3 class="font-headline-md text-headline-md text-primary m-0" data-i18n="share_title" data-en="Share Report">보고서 공유</h3>
-                <p class="font-body-sm text-body-sm text-text-secondary mt-xs m-0" data-i18n="share_desc" data-en="Share via QR scan or URL copy">QR 스캔 또는 URL 복사로 공유</p>
-            </div>
-            <button onclick="closeShareModal()" class="text-on-surface-variant hover:text-primary p-xs rounded-full hover:bg-surface-container">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        <div class="px-lg py-lg flex flex-col items-center gap-md">
-            <div class="bg-white border-2 border-surface-border rounded-lg p-sm">
-                <img id="share-qr" src="" alt="QR Code" class="w-56 h-56" />
-            </div>
-            <div class="w-full">
-                <div class="text-label-sm text-text-secondary uppercase tracking-wider mb-xs" data-i18n="share_url_label" data-en="Current page URL">현재 페이지 URL</div>
-                <div class="flex items-stretch gap-xs">
-                    <input id="share-url" type="text" readonly class="flex-1 min-w-0 px-sm py-xs bg-surface-light border border-surface-border rounded text-body-sm text-on-surface-variant font-mono truncate" />
-                    <button onclick="copyShareUrl()" class="px-sm py-xs bg-primary text-on-primary rounded font-label-md text-label-md hover:scale-[0.98] transition-transform flex items-center gap-xs shrink-0">
-                        <span class="material-symbols-outlined text-[18px]">content_copy</span>
-                        <span id="share-copy-label" data-i18n="share_copy" data-en="Copy">복사</span>
-                    </button>
-                </div>
-            </div>
-            <p class="text-label-sm text-text-secondary text-center" data-i18n="share_qr_hint" data-en="Scan with smartphone camera to open on mobile.">스마트폰 카메라로 QR 코드 스캔 시 모바일 브라우저에서 열림.</p>
-        </div>
-    </div>
 </div>
 <script>
     document.querySelectorAll('.tab-button').forEach(btn => {{
@@ -2098,56 +2015,7 @@ class RegionReportRenderer:
             e.preventDefault();
             exportPDF();
         }}
-        if (e.key === 'Escape') closeShareModal();
     }});
-
-    // 공유 모달 — QR 코드 + URL 복사
-    function openShareModal() {{
-        const url = window.location.href;
-        const input = document.getElementById('share-url');
-        const img = document.getElementById('share-qr');
-        input.value = url;
-        // 공개 무료 QR API — 외부 호출 가능한 환경에서만 이미지 표시.
-        // file:// 로컬 파일에서도 https 외부 이미지는 일반적으로 로드됨.
-        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=' + encodeURIComponent(url);
-        img.onerror = () => {{
-            const _isEn = (document.documentElement.lang || '').toLowerCase().startsWith('en');
-            img.alt = _isEn
-                ? 'Could not load QR code (offline). Please copy the URL to share.'
-                : 'QR 코드를 불러올 수 없습니다 (오프라인 환경). URL을 직접 복사해서 공유하세요.';
-            img.style.display = 'none';
-        }};
-        const modal = document.getElementById('share-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }}
-
-    function closeShareModal(e) {{
-        if (e && e.target && e.target.closest('#share-modal > div')) return;  // 내부 클릭 무시
-        const modal = document.getElementById('share-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }}
-
-    async function copyShareUrl() {{
-        const url = document.getElementById('share-url').value;
-        const label = document.getElementById('share-copy-label');
-        const isEn = (document.documentElement.lang || '').toLowerCase().startsWith('en');
-        const TXT_COPIED = isEn ? 'Copied' : '복사됨';
-        const TXT_COPY   = isEn ? 'Copy' : '복사';
-        const TXT_FAIL   = isEn ? 'Failed' : '실패';
-        try {{
-            await navigator.clipboard.writeText(url);
-            label.textContent = TXT_COPIED;
-            setTimeout(() => {{ label.textContent = TXT_COPY; }}, 1500);
-        }} catch (err) {{
-            const input = document.getElementById('share-url');
-            input.select();
-            try {{ document.execCommand('copy'); label.textContent = TXT_COPIED; }}
-            catch {{ label.textContent = TXT_FAIL; }}
-            setTimeout(() => {{ label.textContent = TXT_COPY; }}, 1500);
-        }}
-    }}
 </script>
 </body>
 </html>'''

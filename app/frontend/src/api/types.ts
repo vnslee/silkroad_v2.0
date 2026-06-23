@@ -119,6 +119,9 @@ export interface ChatResponse {
   needs_research: boolean
   research_suggestion?: string | null
   missing_codes: string[]
+  // 질문에서 백엔드가 식별한 대상(§6.5) — 리서치 트리거 대상으로 사용.
+  resolved_domain?: Domain | null
+  resolved_target_id?: string | null
 }
 
 export interface ResearchTriggerRequest {

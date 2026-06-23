@@ -3398,47 +3398,6 @@
     </main>
 </div>
 
-<!-- Share Modal — QR 코드 + URL 복사 -->
-<div id="share-modal" class="no-print hidden fixed inset-0 z-[60] items-center justify-center" style="background: rgba(0, 32, 78, 0.4); backdrop-filter: blur(6px);">
-    <div class="bg-surface-container-lowest rounded-xl shadow-[0_12px_24px_rgba(0,32,78,0.16)] max-w-md w-full mx-md flex flex-col" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-lg py-md border-b border-surface-border">
-            <div>
-                <h3 class="font-headline-md text-headline-md text-primary m-0">보고서 공유</h3>
-                <p class="font-body-sm text-body-sm text-text-secondary mt-xs m-0">QR 스캔 또는 URL 복사로 공유</p>
-            </div>
-            <button id="share-close" class="text-on-surface-variant hover:text-primary p-xs rounded-full hover:bg-surface-container">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-        <div class="px-lg py-lg flex flex-col items-center gap-md">
-            <div class="bg-white border-2 border-surface-border rounded-lg p-sm">
-                <img id="share-qr" src="" alt="QR Code" class="w-56 h-56" />
-            </div>
-            <div class="w-full">
-                <div class="text-label-sm text-text-secondary uppercase tracking-wider mb-xs">현재 페이지 URL</div>
-                <div class="flex items-stretch gap-xs">
-                    <input id="share-url" type="text" readonly class="flex-1 min-w-0 px-sm py-xs bg-surface-light border border-surface-border rounded text-body-sm text-on-surface-variant font-mono truncate" />
-                    <button id="share-copy" class="px-sm py-xs bg-primary text-on-primary rounded font-label-md text-label-md hover:scale-[0.98] transition-transform flex items-center gap-xs shrink-0">
-                        <span class="material-symbols-outlined text-[18px]">content_copy</span>
-                        <span id="share-copy-label">복사</span>
-                    </button>
-                </div>
-            </div>
-            <div class="w-full grid grid-cols-2 gap-sm">
-                <button id="share-email" class="flex items-center justify-center gap-xs px-sm py-sm border border-primary text-primary rounded font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">mail</span>
-                    이메일로 보내기
-                </button>
-                <button id="share-download" class="flex items-center justify-center gap-xs px-sm py-sm border border-primary text-primary rounded font-label-md text-label-md hover:bg-surface-light transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">download</span>
-                    HTML 다운로드
-                </button>
-            </div>
-            <p class="text-label-sm text-text-secondary text-center">스마트폰 카메라로 QR 코드 스캔 시 모바일 브라우저에서 열림.</p>
-        </div>
-    </div>
-</div>
-
 <script>
     // Tab switching functionality
     document.querySelectorAll('.tab-button').forEach(button => {
@@ -3541,8 +3500,6 @@
         "신차 자동차대출": "New-Car Auto Loan",
         "캡티브 프로모": "Captive Promo",
         "소비자신용 평균": "Consumer Credit Avg.",
-        "이메일로 보내기": "Send by Email",
-        "HTML 다운로드": "Download HTML",
         // KPI / 점수
         "종합 유사도": "Overall Similarity",
         "종합 유사도 점수": "Overall Similarity Score",
@@ -3661,14 +3618,6 @@
         "통과/탈락": "Pass / Fail",
         "통과 게이트": "Passing Gate",
         "통과 게이트 수": "Passing Gate Count",
-        // 공유 모달 / 버튼
-        "보고서 공유": "Share Report",
-        "QR 스캔 또는 URL 복사로 공유": "Share via QR scan or URL copy",
-        "현재 페이지 URL": "Current page URL",
-        "복사": "Copy",
-        "복사됨": "Copied",
-        "실패": "Failed",
-        "스마트폰 카메라로 QR 코드 스캔 시 모바일 브라우저에서 열림.": "Scan with smartphone camera to open on mobile.",
         // 푸터·메타
         "Report ID": "Report ID",
         "생성": "Generated",
@@ -3925,94 +3874,6 @@
         }
     });
 
-    // Share modal (QR code + URL copy)
-    const shareBtn = document.getElementById('btn-share');
-    const shareModal = document.getElementById('share-modal');
-    const shareClose = document.getElementById('share-close');
-    const shareUrlInput = document.getElementById('share-url');
-    const shareQrImg = document.getElementById('share-qr');
-    const shareCopyBtn = document.getElementById('share-copy');
-    const shareCopyLabel = document.getElementById('share-copy-label');
-
-    function openShareModal() {
-        if (!shareModal) return;
-        const url = window.location.href;
-        shareUrlInput.value = url;
-        // 공개 무료 QR API (외부 호출 가능한 환경에서만 표시)
-        shareQrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=' + encodeURIComponent(url);
-        shareQrImg.onerror = () => {
-            shareQrImg.alt = 'QR 코드를 불러올 수 없습니다 (오프라인 환경). URL을 직접 복사해서 공유하세요.';
-        };
-        shareModal.classList.remove('hidden');
-        shareModal.style.display = 'flex';
-    }
-    function closeShareModal() {
-        if (!shareModal) return;
-        shareModal.classList.add('hidden');
-        shareModal.style.display = '';
-    }
-
-    if (shareBtn) shareBtn.addEventListener('click', openShareModal);
-    if (shareClose) shareClose.addEventListener('click', closeShareModal);
-    if (shareModal) {
-        shareModal.addEventListener('click', (e) => {
-            if (e.target === shareModal) closeShareModal();
-        });
-    }
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeShareModal();
-    });
-
-    if (shareCopyBtn) {
-        shareCopyBtn.addEventListener('click', async () => {
-            const url = shareUrlInput.value;
-            try {
-                if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(url);
-                } else {
-                    shareUrlInput.select();
-                    document.execCommand('copy');
-                }
-                shareCopyLabel.textContent = '복사됨';
-                setTimeout(() => shareCopyLabel.textContent = '복사', 1500);
-            } catch (_) {
-                shareCopyLabel.textContent = '실패';
-                setTimeout(() => shareCopyLabel.textContent = '복사', 1500);
-            }
-        });
-    }
-
-    // Email
-    const shareEmailBtn = document.getElementById('share-email');
-    if (shareEmailBtn) {
-        shareEmailBtn.addEventListener('click', () => {
-            const title = document.title;
-            const url = window.location.href;
-            const body = [title, '', 'URL: ' + url, '', '— 자동 생성 보고서'].join('\n');
-            const mailto = 'mailto:?subject=' + encodeURIComponent('[보고서] ' + title) +
-                           '&body=' + encodeURIComponent(body);
-            window.location.href = mailto;
-        });
-    }
-
-    // HTML download
-    const shareDownloadBtn = document.getElementById('share-download');
-    if (shareDownloadBtn) {
-        shareDownloadBtn.addEventListener('click', () => {
-            try {
-                const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
-                const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-                const blobUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = (document.title || 'report') + '.html';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(blobUrl);
-            } catch (_) {}
-        });
-    }
 </script>
 </body>
 </html>

@@ -1,12 +1,11 @@
-// ChatWidget(C5, FR-3, L6) — C1 mockup 충실 재현.
-// 위젯 FAB(material 아이콘+ping) / 헤더(아바타·타이틀) / 말풍선 / 모드 토글 / 입력 바.
-// needs_research 분기(domain·missing_codes)·리서치+폴링·위치 규칙(§5.2)·무상태 history(Q4=A).
-import { useState } from 'react'
+// ChatWidget(C5, FR-3, L6) — AISea C1 충실 재현.
+// 다크 헤더 / 버블(유저=블루·봇=흰 카드) / 퀵프롬프트 칩 / 둥근 입력 바 / 다크 pill FAB.
+// chatOpen은 store 구독(상단바 챗 버튼·FAB가 공유). API/needs_research/리서치+폴링 로직 불변(§5.2).
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../../api/client'
 import type { ChatTurn, Domain } from '../../api/types'
 import { useStore, store } from '../../store'
 import { useJobPolling } from '../../hooks/useJobPolling'
-import { Icon } from '../common/Icon'
 
 interface Pending {
   domain: Domain
@@ -14,25 +13,34 @@ interface Pending {
   missingCodes: string[]
 }
 
+const QUICK_PROMPTS = [
+  '스페인 시장 진단 보고서 만들어줘',
+  '유럽 권역 내 Quick-win 가능 국가 분석',
+]
+
 export function ChatWidget() {
-  const [open, setOpen] = useState(false)
+  const open = useStore((s) => s.chatOpen)
+  const activePopup = useStore((s) => s.activePopup)
   const [turns, setTurns] = useState<ChatTurn[]>([
     {
       role: 'assistant',
       content:
-        '안녕하세요. 글로벌 진출 진단 어시스턴트입니다. 국가·권역 진단이나 시장 분석에 대해 무엇이든 물어보세요.',
+        '안녕하세요 👋 AISea 진단 어시스턴트예요.\n진출을 검토 중인 국가나 권역을 말씀해 주시면 리스크 진단을 도와드릴게요.',
     },
   ])
   const [input, setInput] = useState('')
-  const [mode, setMode] = useState<'internal' | 'external'>('internal')
+  const [typing, setTyping] = useState(false)
   const [target] = useState<{ domain: Domain; id: string }>({ domain: 'country', id: 'ES' })
   const [pending, setPending] = useState<Pending | null>(null)
   const [researchJob, setResearchJob] = useState<string | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const activePopup = useStore((s) => s.activePopup)
-  const position = activePopup
-    ? 'bottom-lg left-lg'
-    : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'
+  const scrollToEnd = () => {
+    setTimeout(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }, 30)
+  }
+  useEffect(scrollToEnd, [turns, typing])
 
   useJobPolling(researchJob, {
     onDone: () => {
@@ -48,6 +56,7 @@ export function ChatWidget() {
   })
 
   function pushAssistant(content: string) {
+    setTyping(false)
     setTurns((t) => [...t, { role: 'assistant', content }])
   }
 
@@ -56,6 +65,7 @@ export function ChatWidget() {
     const next: ChatTurn[] = [...turns, { role: 'user', content: text }]
     setTurns(next)
     setInput('')
+    setTyping(true)
     try {
       const resp = await api.chat({
         domain: target.domain,
@@ -64,8 +74,14 @@ export function ChatWidget() {
         history: next,
       })
       if (resp.answer) pushAssistant(resp.answer)
+      else setTyping(false)
       if (resp.needs_research) {
-        setPending({ domain: target.domain, id: target.id, missingCodes: resp.missing_codes })
+        // 백엔드가 질문에서 식별한 대상 우선(§6.5), 없으면 기존 target 폴백.
+        setPending({
+          domain: resp.resolved_domain ?? target.domain,
+          id: resp.resolved_target_id ?? target.id,
+          missingCodes: resp.missing_codes,
+        })
         pushAssistant(resp.research_suggestion ?? '보유 정보가 없습니다. 리서치를 진행할까요?')
       }
     } catch (e) {
@@ -92,145 +108,143 @@ export function ChatWidget() {
       .catch((e) => pushAssistant(`리서치 트리거 실패: ${String(e)}`))
   }
 
-  // ── FAB ──
+  // ── FAB (다크 pill) ──
   if (!open) {
     return (
       <button
         type="button"
-        aria-label="어시스턴트 열기"
-        onClick={() => setOpen(true)}
-        className="group absolute bottom-lg left-lg z-chat flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_12px_24px_rgba(0,32,78,0.2)] transition-transform duration-200 hover:scale-105"
+        aria-label="AISea 어시스턴트 열기"
+        onClick={() => store.setChatOpen(true)}
+        className="absolute bottom-[26px] right-[78px] z-chat flex h-[52px] animate-aisea-slide items-center gap-md rounded-full bg-primary-container pl-[18px] pr-[20px] text-on-primary shadow-[0_10px_30px_rgba(20,23,28,0.28)] transition-colors hover:bg-aisea-dark-2"
       >
-        <Icon name="smart_toy" filled className="text-[26px]" />
-        <span className="absolute inset-0 animate-ping rounded-full border-2 border-primary opacity-40" />
+        <span className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-primary">
+          <span className="block h-[11px] w-[13px] rounded-[4px] border-2 border-white" />
+        </span>
+        <span className="font-body-md text-[14px] font-semibold">AISea에게 물어보기</span>
       </button>
     )
   }
 
-  // ── 챗봇 카드 ──
+  // 위치 — 팝업 활성 시 좌하단(§5.2), 아니면 중앙
+  const wrap = activePopup
+    ? 'items-end justify-start p-lg'
+    : 'items-center justify-center'
+  const box = activePopup
+    ? 'h-[54%] min-h-[440px] w-[30%] min-w-[340px]'
+    : 'h-[62%] min-h-[520px] max-h-[90%] w-[46%] min-w-[420px]'
+
   return (
-    <div
-      className={`absolute z-chat flex h-[70vh] max-h-[640px] w-[min(90vw,440px)] flex-col overflow-hidden rounded-xl bg-surface-container-lowest shadow-[0_12px_24px_rgba(0,32,78,0.16)] ${position}`}
-      role="dialog"
-      aria-label="진단 어시스턴트"
-    >
-      {/* 헤더 */}
-      <div className="flex items-center justify-between border-b border-surface-border px-lg py-md">
-        <div className="flex items-center gap-md">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container">
-            <Icon name="smart_toy" filled className="text-on-primary-container text-[20px]" />
+    <div className={`pointer-events-none absolute inset-0 z-chat flex ${wrap}`}>
+      <div
+        role="dialog"
+        aria-label="AISea 어시스턴트"
+        className={`pointer-events-auto flex animate-aisea-op flex-col overflow-hidden rounded-[18px] border border-surface-border bg-surface-container-lowest shadow-[0_24px_70px_rgba(20,23,28,0.26)] ${box}`}
+      >
+        {/* 헤더 (다크) */}
+        <div className="flex flex-none items-center gap-md bg-primary-container px-md py-md text-on-primary">
+          <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] bg-primary">
+            <span className="block h-[11px] w-[13px] rounded-[4px] border-2 border-white" />
           </div>
-          <div>
-            <h2 className="font-headline-md text-headline-md leading-tight text-primary">
-              진단 어시스턴트
-            </h2>
-            <p className="mt-0.5 font-label-sm text-label-sm uppercase tracking-widest text-text-secondary">
-              Powered by Hyundai Capital AI
-            </p>
-          </div>
-        </div>
-        <button
-          aria-label="챗봇 닫기"
-          onClick={() => setOpen(false)}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-variant hover:text-primary"
-        >
-          <Icon name="close" className="text-[20px]" />
-        </button>
-      </div>
-
-      {/* 대화 영역 */}
-      <div className="flex flex-1 flex-col gap-lg overflow-y-auto p-lg" aria-live="polite">
-        {turns.map((t, i) =>
-          t.role === 'assistant' ? (
-            <div key={i} className="flex max-w-[85%] gap-md">
-              <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-container">
-                <Icon name="smart_toy" filled className="text-on-primary-container text-sm" />
-              </div>
-              <div className="rounded-2xl rounded-tl-sm border border-surface-border bg-surface p-md font-body-md text-body-md text-on-surface shadow-[0_4px_8px_rgba(0,32,78,0.04)]">
-                {t.content}
-              </div>
+          <div className="flex-1">
+            <div className="font-body-md text-[14px] font-bold">AISea 어시스턴트</div>
+            <div className="flex items-center gap-xs font-label-sm text-label-sm text-on-primary-container">
+              <span className="inline-block h-[6px] w-[6px] rounded-full bg-success" />
+              진단 엔진 온라인
             </div>
-          ) : (
-            <div key={i} className="flex max-w-[85%] flex-row-reverse gap-md self-end">
-              <div className="mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-secondary-container">
-                <Icon name="person" className="text-on-secondary-container text-sm" />
-              </div>
-              <div className="rounded-2xl rounded-tr-sm bg-primary p-md font-body-md text-body-md text-on-primary shadow-[0_4px_8px_rgba(0,32,78,0.08)]">
-                {t.content}
-              </div>
-            </div>
-          ),
-        )}
-        {pending && !researchJob && (
-          <div className="flex gap-sm">
-            <button
-              className="rounded-full bg-primary px-md py-sm font-label-md text-label-md text-on-primary"
-              onClick={startResearch}
-            >
-              예, 리서치 진행
-            </button>
-            <button
-              className="rounded-full bg-surface-container-high px-md py-sm font-label-md text-label-md text-on-surface-variant"
-              onClick={() => setPending(null)}
-            >
-              아니오
-            </button>
           </div>
-        )}
-      </div>
-
-      {/* 하단: 모드 토글 + 입력 */}
-      <div className="flex flex-col gap-md border-t border-surface-border px-lg py-md shadow-[0_-4px_12px_rgba(0,32,78,0.04)]">
-        <div className="flex items-center justify-center">
-          <div className="inline-flex rounded-full border border-surface-border bg-surface-container-high p-1">
-            <button
-              onClick={() => setMode('internal')}
-              className={`flex items-center gap-2 rounded-full px-md py-sm font-label-md text-label-md transition-all ${
-                mode === 'internal'
-                  ? 'bg-surface-container-lowest text-primary shadow-[0_2px_4px_rgba(0,32,78,0.08)]'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              <Icon name="database" className="text-[16px]" /> 내부 데이터
-            </button>
-            <button
-              onClick={() => setMode('external')}
-              className={`flex items-center gap-2 rounded-full px-md py-sm font-label-md text-label-md transition-all ${
-                mode === 'external'
-                  ? 'bg-surface-container-lowest text-primary shadow-[0_2px_4px_rgba(0,32,78,0.08)]'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              <Icon name="travel_explore" className="text-[16px]" /> 외부 리서치
-            </button>
-          </div>
-        </div>
-
-        <form
-          className="flex items-center gap-sm"
-          onSubmit={(e) => {
-            e.preventDefault()
-            send(input)
-          }}
-        >
-          <input
-            className="h-[48px] w-full rounded-lg border border-surface-border bg-surface px-md font-body-md text-body-md text-on-surface placeholder:text-text-disabled focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="질문을 입력하세요…"
-            aria-label="질문 입력"
-          />
           <button
-            type="submit"
-            aria-label="전송"
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-[0_2px_4px_rgba(0,32,78,0.16)] transition-colors hover:bg-primary-container hover:text-on-primary-container"
+            onClick={() => store.setChatOpen(false)}
+            aria-label="챗봇 닫기"
+            className="flex h-[30px] w-[30px] items-center justify-center rounded-lg text-on-primary-container transition-colors hover:bg-white/10"
           >
-            <Icon name="send" className="text-[18px]" />
+            <span className="text-[16px] leading-none">✕</span>
           </button>
-        </form>
-        <p className="text-center font-label-sm text-label-sm text-text-disabled">
-          AI 응답에는 부정확한 내용이 있을 수 있습니다. 중요한 정보는 확인해 주세요.
-        </p>
+        </div>
+
+        {/* 대화 영역 */}
+        <div
+          ref={scrollRef}
+          aria-live="polite"
+          className="flex flex-1 flex-col gap-md overflow-y-auto bg-surface-light p-lg"
+        >
+          {turns.map((t, i) => (
+            <div key={i} className={`flex ${t.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div
+                className={`max-w-[80%] whitespace-pre-wrap rounded-[14px] px-md py-sm font-body-sm text-[13.5px] leading-relaxed ${
+                  t.role === 'user'
+                    ? 'bg-primary text-on-primary'
+                    : 'border border-surface-border bg-surface-container-lowest text-on-surface'
+                }`}
+              >
+                {t.content}
+              </div>
+            </div>
+          ))}
+          {typing && (
+            <div className="flex justify-start">
+              <div className="flex gap-[4px] rounded-[14px] border border-surface-border bg-surface-container-lowest px-md py-md">
+                <span className="h-[6px] w-[6px] rounded-full bg-outline" style={{ animation: 'aisea-pulse 1s infinite' }} />
+                <span className="h-[6px] w-[6px] rounded-full bg-outline" style={{ animation: 'aisea-pulse 1s infinite .2s' }} />
+                <span className="h-[6px] w-[6px] rounded-full bg-outline" style={{ animation: 'aisea-pulse 1s infinite .4s' }} />
+              </div>
+            </div>
+          )}
+          {pending && !researchJob && (
+            <div className="flex gap-sm">
+              <button
+                className="rounded-full bg-primary px-md py-sm font-label-md text-label-md text-on-primary"
+                onClick={startResearch}
+              >
+                예, 리서치 진행
+              </button>
+              <button
+                className="rounded-full bg-surface-container px-md py-sm font-label-md text-label-md text-on-surface-variant"
+                onClick={() => setPending(null)}
+              >
+                아니오
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 하단: 퀵프롬프트 + 입력 */}
+        <div className="flex-none border-t border-surface-border bg-surface-container-lowest px-md py-sm">
+          {turns.length <= 1 && (
+            <div className="mb-sm flex flex-wrap gap-xs">
+              {QUICK_PROMPTS.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => send(q)}
+                  className="rounded-[9px] bg-primary-fixed px-md py-xs font-body-sm text-[12px] font-medium leading-snug text-primary transition-colors hover:bg-primary-fixed-dim"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+          <form
+            className="flex items-center gap-sm rounded-[12px] bg-surface-container py-[5px] pl-md pr-[5px]"
+            onSubmit={(e) => {
+              e.preventDefault()
+              send(input)
+            }}
+          >
+            <input
+              className="flex-1 bg-transparent font-body-sm text-[13.5px] text-on-surface outline-none placeholder:text-outline"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="진출 시장에 대해 물어보세요…"
+              aria-label="질문 입력"
+            />
+            <button
+              type="submit"
+              aria-label="전송"
+              className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-primary text-[15px] text-on-primary transition-colors hover:bg-inverse-primary"
+            >
+              ↑
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )

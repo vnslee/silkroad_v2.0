@@ -8,6 +8,8 @@ import type { CountrySummary, Domain, RegionSummary, ReportRef } from '../../api
 import { buildMailtoUrl } from '../../utils/mailto'
 import { Icon } from '../common/Icon'
 import { HeaderSelect, type SelectOption } from '../common/HeaderSelect'
+import { HeaderEmblem } from '../common/HeaderEmblem'
+import { fitEmbeddedHtml } from '../common/fitEmbeddedHtml'
 import type { EntryMode } from '../../app/route'
 
 interface Props {
@@ -90,7 +92,7 @@ export default function ReportView({ domain, code, reportId, mode }: Props) {
   const statusStyle = meta?.isBaseline
     ? 'bg-secondary-fixed text-on-secondary-fixed-variant border-secondary-fixed-dim'
     : meta?.hasReport
-      ? 'bg-[#e8f5e9] text-[#2e7d32] border-[#a5d6a7]'
+      ? 'bg-success-container text-success border-success/30'
       : 'bg-surface-container text-text-secondary border-surface-border'
 
   const targetOptions: SelectOption[] = catalog.map((c) => ({
@@ -150,22 +152,8 @@ export default function ReportView({ domain, code, reportId, mode }: Props) {
       {/* 헤더 chrome */}
       <div className="flex shrink-0 items-start justify-between gap-gutter border-b border-surface-border p-lg pr-16">
         <div className="flex items-start gap-md">
-          {/* 국기(국가) / 지구본(권역) — 참조 RPT_CTR_PL_003 헤더 형식 */}
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-surface-border bg-surface-container">
-            {isCountry ? (
-              <img
-                alt={`${name} 국기`}
-                src={`https://flagcdn.com/w160/${code.toLowerCase()}.png`}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  // flagcdn 차단/실패 시 국기 아이콘으로 폴백
-                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-                }}
-              />
-            ) : (
-              <Icon name="public" filled className="text-primary text-[24px]" />
-            )}
-          </div>
+          {/* 국기(국가) / 권역 엠블럼 — 참조 RPT_CTR_PL_003 헤더 형식 */}
+          <HeaderEmblem domain={domain} code={code} name={name} />
           <div>
             {/* 제목(위) — 대상 선택 드롭다운 */}
             <HeaderSelect
@@ -238,6 +226,7 @@ export default function ReportView({ domain, code, reportId, mode }: Props) {
         src={paths.reportHtml(domain, code, selected)}
         className="min-h-0 w-full flex-1 border-0 bg-surface"
         loading="lazy"
+        onLoad={fitEmbeddedHtml}
       />
     </div>
   )

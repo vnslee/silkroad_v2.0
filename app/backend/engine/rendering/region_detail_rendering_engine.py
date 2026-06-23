@@ -25,7 +25,7 @@ DETAIL = os.path.join(STORAGE, "detail")
 
 # 같은 rendering/ 폴더의 포맷·차트 헬퍼 재사용 (중복 작성 금지)
 sys.path.insert(0, BASE)
-import region_report_rendering_engine as rre  # noqa: E402
+import render_helpers as rre  # noqa: E402
 
 TPL_PATH = os.path.join(BASE, "templates", "region_detail_template.html")
 

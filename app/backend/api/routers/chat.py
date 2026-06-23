@@ -27,9 +27,21 @@ def chat(req: ChatRequest) -> ChatResponse:
     if not re.fullmatch(TARGET_ID_PATTERN, target):
         raise HTTPException(status_code=422, detail=f"target_id 형식 오류: {target}")
     members = [c.upper() for c in (req.member_codes or [])]
+    domain = req.domain
     try:
-        return chatbot.handle(
-            req.domain, target, req.message, history=req.history, member_codes=members
+        # 질문 속 국가/권역을 LLM으로 추출 — 식별되면 그 대상으로 분기,
+        # 실패 시 프론트가 보낸 domain/target_id로 폴백(§6.5).
+        resolved = chatbot.resolve_target(req.message, history=req.history)
+        if resolved:
+            r_domain, r_target = resolved
+            if re.fullmatch(TARGET_ID_PATTERN, r_target):
+                domain, target = r_domain, r_target
+        resp = chatbot.handle(
+            domain, target, req.message, history=req.history, member_codes=members
         )
+        # 식별한 대상을 응답에 실어 프론트가 리서치 트리거 대상으로 쓰게 한다.
+        resp.resolved_domain = domain
+        resp.resolved_target_id = target
+        return resp
     except BedrockError as exc:
         raise HTTPException(status_code=502, detail=f"Bedrock 호출 실패: {exc}")

@@ -2662,8 +2662,15 @@ class CountryReportRenderer:
         if competitors:
             comp_list = competitors.get("value") or []
 
-            def _classify_competitor(name: str) -> str:
-                n = name.lower()
+            def _competitor_name(c) -> str:
+                # competitors.value 원소는 문자열(구 baseline 데이터) 또는
+                # {"rank":N,"name":"..."} dict(신규 리서치 에이전트 출력) 둘 다 가능.
+                if isinstance(c, dict):
+                    return str(c.get("name") or c.get("value") or "")
+                return str(c)
+
+            def _classify_competitor(c) -> str:
+                n = _competitor_name(c).lower()
                 # OEM 캡티브 (브랜드명 + Financial/Bank/Kredit/Credit/Capital)
                 oem_brands = ["volkswagen", "vw", "toyota", "bmw", "mercedes", "audi",
                               "ford", "renault", "hyundai", "kia", "nissan", "honda",
@@ -2697,7 +2704,7 @@ class CountryReportRenderer:
                 if not g["members"]:
                     continue
                 chips = "".join(
-                    f'<span class="inline-flex items-center gap-xs bg-surface rounded-full border border-surface-container-highest px-sm py-[2px] font-label-sm text-label-sm text-text-primary">{m}</span>'
+                    f'<span class="inline-flex items-center gap-xs bg-surface rounded-full border border-surface-container-highest px-sm py-[2px] font-label-sm text-label-sm text-text-primary">{_competitor_name(m)}</span>'
                     for m in g["members"]
                 )
                 cards_html += f'''
@@ -2750,6 +2757,9 @@ class CountryReportRenderer:
             brands = brand_top10.get("value") or []
 
             def _brand_row(rank, name):
+                # 브랜드 원소도 문자열/{"rank","name"} dict 양쪽 허용(competitors와 동일 방어).
+                if isinstance(name, dict):
+                    name = str(name.get("name") or name.get("value") or "")
                 captive = self._has_captive_hint(name)
                 cap_chip = (
                     '<span class="inline-flex items-center gap-xs bg-secondary-container/30 text-secondary border border-secondary/40 px-2 py-[1px] rounded-full font-label-sm text-label-sm">'

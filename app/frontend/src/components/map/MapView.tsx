@@ -75,32 +75,42 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
   const lang = useStore((s) => s.lang)
   const langRef = useRef(lang)
   langRef.current = lang
+  // 리서치 완료 시 증가 → 카탈로그(마커) 재조회 트리거.
+  const countriesVersion = useStore((s) => s.countriesVersion)
   // hover 툴팁(권역 라벨 / 국가명) — 화면 좌표 기준 HTML 오버레이. bg=툴팁 배경색(권역/마커별).
   const [tip, setTip] = useState<{ x: number; y: number; text: string; bg: string } | null>(null)
 
   useEffect(() => {
+    let cancelled = false
     Promise.all([api.getCountries(), api.getRegions()])
       .then(([c, r]) => {
+        if (cancelled) return
         setCountries(c)
         setRegions(r)
       })
-      .catch((e) => setError(String(e)))
-  }, [])
+      .catch((e) => !cancelled && setError(String(e)))
+    return () => {
+      cancelled = true
+    }
+    // countriesVersion 변경(리서치 완료) 시 재조회 → 신규 국가 마커 자동 표시.
+  }, [countriesVersion])
 
   const markers = useMemo<Marker[]>(
     () =>
       countries
         .map((c) => {
-          const coord = COUNTRY_COORDS[c.code]
-          if (!coord) return null
+          // 좌표는 API(geo 참조)가 단일 출처. 구버전 응답 폴백으로만 정적 테이블 사용.
+          const lon = c.lon ?? COUNTRY_COORDS[c.code]?.[0]
+          const lat = c.lat ?? COUNTRY_COORDS[c.code]?.[1]
+          if (lon == null || lat == null) return null
           // 기진출국(established) = 기준국(is_baseline) / 그 외 = 진출후보국(candidate). AISea mockup 2종 구분.
           const status: Marker['status'] = c.is_baseline ? 'established' : 'candidate'
           const m: Marker = {
             code: c.code,
             name: c.name,
             nameKo: c.name_ko ?? undefined,
-            lon: coord[0],
-            lat: coord[1],
+            lon,
+            lat,
             status,
           }
           return m

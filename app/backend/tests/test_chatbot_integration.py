@@ -54,3 +54,63 @@ def test_chat_endpoint_bad_target_422(client):
         json={"domain": "country", "target_id": "toolong123", "message": "hi"},
     )
     assert r.status_code == 422
+
+
+# ── 의도 분기 (qa / research / report) ───────────────────────────
+
+
+def test_intent_detection():
+    assert chatbot._detect_intent("독일 시장 어때?") == "qa"
+    assert chatbot._detect_intent("스페인 보고서 만들어줘") == "report"
+    assert chatbot._detect_intent("프랑스 리서치 다시 해줘") == "research"
+    assert chatbot._detect_intent("이탈리아 진단 보고서 생성") == "report"
+
+
+def test_report_intent_missing_data_needs_research(monkeypatch):
+    # 미보유국에 보고서 요청 → 보고서 트리거 금지, 리서치 먼저 제안.
+    monkeypatch.setattr(bedrock_client, "generate_text", _fail_if_called)
+    resp = chatbot.handle("country", "ZZ", "ZZ 보고서 만들어줘")
+    assert resp.needs_report is False
+    assert resp.needs_research is True
+    assert resp.auto_trigger is False
+    assert resp.actions == ["research"]
+
+
+def test_report_intent_existing_auto_triggers():
+    # 보유국(ES)에 보고서 생성 명시 → 즉시 트리거(auto_trigger) + 보고서 존재 시 재생성.
+    resp = chatbot.handle("country", "ES", "ES 보고서 생성해줘")
+    assert resp.needs_report is True
+    assert resp.auto_trigger is True
+    assert resp.exists is True
+    assert resp.has_report is True
+    assert resp.actions == ["re_report"]
+
+
+def test_research_intent_existing_auto_triggers():
+    # 보유국 리서치 재수행 명시 → 즉시 트리거.
+    resp = chatbot.handle("country", "ES", "ES 리서치 다시 해줘")
+    assert resp.needs_research is True
+    assert resp.auto_trigger is True
+    assert resp.actions == ["re_research"]
+
+
+def test_qa_existing_returns_actions(monkeypatch):
+    # 보유국 일반 질의 → 내부 데이터로 답변 + 선택지 칩(상세요약/재리서치/보고서).
+    monkeypatch.setattr(bedrock_client, "generate_text", lambda *a, **k: "답변입니다.")
+    resp = chatbot.handle("country", "ES", "ES 금리 어때?")
+    assert resp.intent == "qa"
+    assert resp.answer == "답변입니다."
+    assert "summary" in resp.actions
+    assert "re_research" in resp.actions
+    # ES는 보고서 보유 → re_report 노출.
+    assert "re_report" in resp.actions
+
+
+def test_qa_missing_no_answer_offers_research(monkeypatch):
+    # 미보유국 일반 질의 → 임의 답변 금지, 리서치 의도 질의(거절 시 보유국 한정).
+    monkeypatch.setattr(bedrock_client, "generate_text", _fail_if_called)
+    resp = chatbot.handle("country", "ZZ", "ZZ 금리 어때?")
+    assert resp.answer is None
+    assert resp.needs_research is True
+    assert resp.auto_trigger is False
+    assert resp.actions == ["research"]

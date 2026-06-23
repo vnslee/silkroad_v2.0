@@ -1,6 +1,8 @@
-// 국가 코드 → 대표 좌표[lon, lat]. 마커 배치용 간이 테이블(Q7=A).
-// research 보유 국가 전체. 확장 시 world-atlas 중심 계산으로 대체 가능.
-// (data/research/country/<CODE> 가 추가되면 여기에 좌표를 등록해야 지도에 마커가 뜬다.)
+// 국가 코드 → 대표 좌표[lon, lat]. 마커 배치용 폴백 시드.
+// ⚠️ 좌표의 단일 출처는 백엔드 storage/data/geo/country_geo.json 이며, 카탈로그 API
+//    (/api/countries)가 lon/lat 를 내려준다. 신규 리서치 국가는 research_agent가 geo에
+//    자동 upsert 하므로 여기에 수동 등록할 필요가 없다. 이 테이블은 API 응답에 좌표가
+//    없을 때(구버전 등)의 폴백 + GlobeIntro 첫 페인트용으로만 남겨둔다.
 export const COUNTRY_COORDS: Record<string, [number, number]> = {
   AR: [-63.62, -38.42], // Argentina
   AT: [14.55, 47.52], // Austria
@@ -16,6 +18,7 @@ export const COUNTRY_COORDS: Record<string, [number, number]> = {
   IN: [78.96, 20.59], // India
   IT: [12.57, 41.87], // Italy
   MX: [-102.55, 23.63], // Mexico
+  NG: [8.68, 9.08], // Nigeria
   NL: [5.29, 52.13], // Netherlands
   PL: [19.15, 51.92], // Poland
   PR: [-66.59, 18.22], // Puerto Rico
@@ -32,6 +35,7 @@ export const COUNTRY_NUMERIC: Record<string, string> = {
   GB: '826', // United Kingdom
   IT: '380', // Italy
   MX: '484', // Mexico
+  NG: '566', // Nigeria
   NL: '528', // Netherlands
   PL: '616', // Poland
   PT: '620', // Portugal

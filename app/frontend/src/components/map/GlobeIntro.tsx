@@ -6,6 +6,7 @@ import * as d3 from 'd3'
 import { feature } from 'topojson-client'
 import worldData from 'world-atlas/countries-110m.json'
 import type { Topology } from 'topojson-specification'
+import { api } from '../../api/client'
 import { COUNTRY_COORDS } from './coords'
 
 interface Props {
@@ -81,7 +82,20 @@ export function GlobeIntro({ reducedMotion, onDone }: Props) {
       return [-r[0], -r[1]]
     }
 
-    const markers = Object.values(COUNTRY_COORDS)
+    // 마커 좌표는 백엔드 geo 참조가 단일 출처. 인트로는 즉시 그려야 하므로 정적 테이블로
+    // 먼저 그리고(첫 페인트 지연 방지), API 응답이 오면 좌표 집합을 교체한다.
+    let markers: Array<[number, number]> = Object.values(COUNTRY_COORDS)
+    api
+      .getCountries()
+      .then((cs) => {
+        const fromApi = cs
+          .filter((c) => c.lon != null && c.lat != null)
+          .map((c) => [c.lon as number, c.lat as number] as [number, number])
+        if (fromApi.length) markers = fromApi
+      })
+      .catch(() => {
+        /* 인트로는 장식 — 실패 시 정적 폴백 유지 */
+      })
     const start = performance.now()
     let raf = 0
     let finished = false

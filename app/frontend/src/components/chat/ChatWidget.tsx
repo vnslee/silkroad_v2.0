@@ -3,7 +3,7 @@
 // chatOpen은 store 구독(상단바 챗 버튼·FAB가 공유). API/needs_research/리서치+폴링 로직 불변(§5.2).
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../../api/client'
-import type { ChatTurn, Domain } from '../../api/types'
+import type { ChatAction, ChatTurn, Domain, JobKind } from '../../api/types'
 import { useStore, store } from '../../store'
 import { useJobPolling } from '../../hooks/useJobPolling'
 
@@ -11,6 +11,15 @@ interface Pending {
   domain: Domain
   id: string
   missingCodes: string[]
+}
+
+// 칩 한 개의 메타: 라벨 + 클릭 동작 키.
+const ACTION_LABELS: Record<ChatAction, string> = {
+  summary: '국가 상세 정보 요약하기',
+  research: '리서치 수행',
+  re_research: '리서치 재수행',
+  report: '보고서 생성',
+  re_report: '보고서 재생성',
 }
 
 const QUICK_PROMPTS = [
@@ -30,9 +39,18 @@ export function ChatWidget() {
   ])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
-  const [target] = useState<{ domain: Domain; id: string }>({ domain: 'country', id: 'ES' })
+  // 초기 대상은 스페인이지만, 백엔드가 질문에서 식별한 대상(resolved_*)으로 매 턴 갱신한다.
+  // (이전엔 고정이라 어떤 질문이든 ES 데이터로만 답하는 버그가 있었음 — §6.5)
+  const [target, setTarget] = useState<{ domain: Domain; id: string }>({ domain: 'country', id: 'ES' })
   const [pending, setPending] = useState<Pending | null>(null)
-  const [researchJob, setResearchJob] = useState<string | null>(null)
+  // 현재 노출 중인 선택지 칩(상세요약/리서치/보고서). resp.actions로 세팅.
+  const [actions, setActions] = useState<ChatAction[]>([])
+  // 상세 요약 분기 대기 — 사용자가 '상세 화면' vs '요약' 중 선택.
+  const [summaryAsk, setSummaryAsk] = useState<{ domain: Domain; id: string } | null>(null)
+  // 챗봇 상단 진행 팝업: 리서치/보고서 트리거 시 잡 진행률을 챗봇 위에 표시.
+  const [activeJob, setActiveJob] = useState<
+    { jobId: string; kind: JobKind; label: string } | null
+  >(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const scrollToEnd = () => {
@@ -42,16 +60,31 @@ export function ChatWidget() {
   }
   useEffect(scrollToEnd, [turns, typing])
 
-  useJobPolling(researchJob, {
-    onDone: () => {
-      store.removeJob(researchJob ?? '')
-      setResearchJob(null)
-      pushAssistant('리서치가 완료되었습니다. 다시 질문해 주시면 데이터를 바탕으로 답변드릴게요.')
-      setPending(null)
+  // 진행 중 잡 폴링 — 완료/실패 시 챗봇 안내. 잡 카드는 제거하지 않고(우상단 진행 패널이
+  // 완료 상태·상세 바를 계속 보여주도록) 사용자가 패널에서 직접 닫는다.
+  useJobPolling(activeJob?.jobId ?? null, {
+    onDone: (result) => {
+      const job = activeJob
+      setActiveJob(null)
+      if (job?.kind === 'research') {
+        pushAssistant('리서치가 완료되었습니다. 다시 질문해 주시면 데이터를 바탕으로 답변드릴게요.')
+        setPending(null)
+        // 신규/갱신 국가가 카탈로그에 반영됐으므로 지도가 마커를 재조회하도록 신호.
+        store.refreshCountries()
+      } else if (job?.kind === 'report') {
+        const reportId =
+          result && 'report_id' in result ? (result as { report_id: string }).report_id : null
+        pushAssistant(
+          reportId
+            ? `보고서 생성이 완료되었습니다 (${reportId}). 메일로 공유하시겠어요?`
+            : '보고서 생성이 완료되었습니다.',
+        )
+      }
     },
     onError: (msg) => {
-      setResearchJob(null)
-      pushAssistant(`리서치 중 오류가 발생했습니다: ${msg}`)
+      const kind = activeJob?.kind
+      setActiveJob(null)
+      pushAssistant(`${kind === 'report' ? '보고서 생성' : '리서치'} 중 오류가 발생했습니다: ${msg}`)
     },
   })
 
@@ -66,6 +99,8 @@ export function ChatWidget() {
     setTurns(next)
     setInput('')
     setTyping(true)
+    setActions([])
+    setSummaryAsk(null)
     try {
       const resp = await api.chat({
         domain: target.domain,
@@ -73,39 +108,96 @@ export function ChatWidget() {
         message: text,
         history: next,
       })
+      // 백엔드가 질문에서 식별한 대상을 다음 턴 대상으로 반영(ES 고정 버그 방지, §6.5).
+      const resolved =
+        resp.resolved_domain && resp.resolved_target_id
+          ? { domain: resp.resolved_domain, id: resp.resolved_target_id }
+          : target
+      if (resolved.domain !== target.domain || resolved.id !== target.id) {
+        setTarget(resolved)
+      }
       if (resp.answer) pushAssistant(resp.answer)
       else setTyping(false)
-      if (resp.needs_research) {
-        // 백엔드가 질문에서 식별한 대상 우선(§6.5), 없으면 기존 target 폴백.
+
+      // 명시적 의도(보유국 재리서치/보고서 생성) → 확인 없이 즉시 트리거.
+      if (resp.auto_trigger && resp.needs_report) {
+        if (resp.research_suggestion) pushAssistant(resp.research_suggestion)
+        startReport(resolved.domain, resolved.id)
+      } else if (resp.auto_trigger && resp.needs_research) {
+        if (resp.research_suggestion) pushAssistant(resp.research_suggestion)
+        startResearch({ domain: resolved.domain, id: resolved.id, missingCodes: resp.missing_codes })
+      } else if (resp.needs_research || resp.needs_report) {
+        // 확인 필요(미보유국 등) → 제안 문구 + 예/아니오 칩.
         setPending({
-          domain: resp.resolved_domain ?? target.domain,
-          id: resp.resolved_target_id ?? target.id,
+          domain: resolved.domain,
+          id: resolved.id,
           missingCodes: resp.missing_codes,
         })
-        pushAssistant(resp.research_suggestion ?? '보유 정보가 없습니다. 리서치를 진행할까요?')
+        if (resp.research_suggestion) pushAssistant(resp.research_suggestion)
       }
+
+      // 보유국 QA → 선택지 칩 노출(상세요약/리서치 재수행/보고서).
+      setActions(resp.actions ?? [])
     } catch (e) {
       pushAssistant(`오류가 발생했습니다: ${String(e)}`)
     }
   }
 
-  function startResearch() {
-    if (!pending) return
-    const body = pending.domain === 'region' ? { member_codes: pending.missingCodes } : undefined
+  function startResearch(p: Pending) {
+    const body = p.domain === 'region' ? { member_codes: p.missingCodes } : undefined
     api
-      .triggerResearch(pending.domain, pending.id, body)
+      .triggerResearch(p.domain, p.id, body)
       .then((job) => {
-        setResearchJob(job.job_id)
-        store.addJob({
-          jobId: job.job_id,
-          kind: 'research',
-          domain: pending.domain,
-          id: pending.id,
-          label: `${pending.id} 리서치`,
-        })
-        pushAssistant('리서치를 시작했습니다. 잠시만 기다려 주세요…')
+        setPending(null)
+        setActions([])
+        setActiveJob({ jobId: job.job_id, kind: 'research', label: `${p.id} 리서치` })
+        store.addJob({ jobId: job.job_id, kind: 'research', domain: p.domain, id: p.id, label: `${p.id} 리서치` })
+        pushAssistant('리서치를 시작했습니다. 진행 상황은 상단에 표시됩니다…')
       })
       .catch((e) => pushAssistant(`리서치 트리거 실패: ${String(e)}`))
+  }
+
+  function startReport(domain: Domain, id: string) {
+    api
+      .createReport(domain, id)
+      .then((job) => {
+        setActions([])
+        setActiveJob({ jobId: job.job_id, kind: 'report', label: `${id} 보고서` })
+        store.addJob({ jobId: job.job_id, kind: 'report', domain, id, label: `${id} 보고서` })
+        pushAssistant('보고서 생성을 시작했습니다. 진행 상황은 상단에 표시됩니다…')
+      })
+      .catch((e) => pushAssistant(`보고서 생성 트리거 실패: ${String(e)}`))
+  }
+
+  // 선택지 칩 클릭 처리.
+  function onAction(action: ChatAction) {
+    setActions([])
+    if (action === 'summary') {
+      // 상세 화면 vs 요약 — 사용자에게 추가 질의(요구사항).
+      setSummaryAsk({ domain: target.domain, id: target.id })
+      pushAssistant(`${target.id} 정보를 상세 화면에서 보시겠어요, 아니면 요약으로 받으시겠어요?`)
+      return
+    }
+    if (action === 'research' || action === 're_research') {
+      startResearch({ domain: target.domain, id: target.id, missingCodes: [] })
+      return
+    }
+    if (action === 'report' || action === 're_report') {
+      startReport(target.domain, target.id)
+    }
+  }
+
+  // 상세 요약 분기: 상세 화면 열기 / 챗봇에서 요약 받기.
+  function onSummaryChoice(openDetail: boolean) {
+    const ask = summaryAsk
+    setSummaryAsk(null)
+    if (!ask) return
+    if (openDetail) {
+      store.setChatOpen(false)
+      window.location.hash = `#/${ask.domain}/${ask.id}/detail?mode=popup`
+    } else {
+      send(`${ask.id} 핵심 지표를 요약해줘`)
+    }
   }
 
   // ── FAB (다크 pill) ──
@@ -138,8 +230,11 @@ export function ChatWidget() {
       <div
         role="dialog"
         aria-label="AISea 어시스턴트"
-        className={`pointer-events-auto flex animate-aisea-op flex-col overflow-hidden rounded-[18px] border border-surface-border bg-surface-container-lowest shadow-[0_24px_70px_rgba(20,23,28,0.26)] ${box}`}
+        className={`pointer-events-auto relative flex animate-aisea-op flex-col overflow-hidden rounded-[18px] border border-surface-border bg-surface-container-lowest shadow-[0_24px_70px_rgba(20,23,28,0.26)] ${box}`}
       >
+        {/* 진행 상황은 우상단 메인 프로그레스 패널(ProgressPanel)에서 상세 표시한다.
+            (이전엔 챗봇 상단 오버레이로 떴으나 위치가 어색해 패널로 일원화) */}
+
         {/* 헤더 (다크) */}
         <div className="flex flex-none items-center gap-md bg-primary-container px-md py-md text-on-primary">
           <div className="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] bg-primary">
@@ -189,20 +284,59 @@ export function ChatWidget() {
               </div>
             </div>
           )}
-          {pending && !researchJob && (
+          {/* 예/아니오 확인(미보유국 리서치 등). 거절 시 보유국 한정 안내. */}
+          {pending && !activeJob && !summaryAsk && (
             <div className="flex gap-sm">
               <button
                 className="rounded-full bg-primary px-md py-sm font-label-md text-label-md text-on-primary"
-                onClick={startResearch}
+                onClick={() => startResearch(pending)}
               >
                 예, 리서치 진행
               </button>
               <button
                 className="rounded-full bg-surface-container px-md py-sm font-label-md text-label-md text-on-surface-variant"
-                onClick={() => setPending(null)}
+                onClick={() => {
+                  setPending(null)
+                  pushAssistant(
+                    '알겠습니다. 보유 중인 국가 정보에 한해서만 답변드릴 수 있어요. 다른 국가를 물어봐 주세요.',
+                  )
+                }}
               >
                 아니오
               </button>
+            </div>
+          )}
+
+          {/* 상세 요약 분기: 상세 화면 / 요약 */}
+          {summaryAsk && !activeJob && (
+            <div className="flex gap-sm">
+              <button
+                className="rounded-full bg-primary px-md py-sm font-label-md text-label-md text-on-primary"
+                onClick={() => onSummaryChoice(true)}
+              >
+                상세 화면 열기
+              </button>
+              <button
+                className="rounded-full bg-surface-container px-md py-sm font-label-md text-label-md text-on-surface-variant"
+                onClick={() => onSummaryChoice(false)}
+              >
+                요약으로 받기
+              </button>
+            </div>
+          )}
+
+          {/* 선택지 칩(보유국 QA): 상세요약 / 리서치(재)수행 / 보고서(재)생성 */}
+          {actions.length > 0 && !pending && !summaryAsk && !activeJob && (
+            <div className="flex flex-wrap gap-xs">
+              {actions.map((a) => (
+                <button
+                  key={a}
+                  onClick={() => onAction(a)}
+                  className="rounded-full border border-primary/30 bg-primary-fixed px-md py-xs font-label-md text-label-md text-primary transition-colors hover:bg-primary-fixed-dim"
+                >
+                  {ACTION_LABELS[a]}
+                </button>
+              ))}
             </div>
           )}
         </div>

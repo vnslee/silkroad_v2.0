@@ -1,0 +1,1 @@
+import{j as n}from"./index-BZp6DaaI.js";function e({name:i,className:s="",filled:a=!1,title:o}){return n.jsx("span",{className:`material-symbols-outlined ${s}`,style:a?{fontVariationSettings:"'FILL' 1"}:void 0,"aria-hidden":o?void 0:!0,title:o,role:o?"img":void 0,children:i})}export{e as I};

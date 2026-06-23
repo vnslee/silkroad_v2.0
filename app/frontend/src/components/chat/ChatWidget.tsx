@@ -76,7 +76,12 @@ export function ChatWidget() {
       if (resp.answer) pushAssistant(resp.answer)
       else setTyping(false)
       if (resp.needs_research) {
-        setPending({ domain: target.domain, id: target.id, missingCodes: resp.missing_codes })
+        // 백엔드가 질문에서 식별한 대상 우선(§6.5), 없으면 기존 target 폴백.
+        setPending({
+          domain: resp.resolved_domain ?? target.domain,
+          id: resp.resolved_target_id ?? target.id,
+          missingCodes: resp.missing_codes,
+        })
         pushAssistant(resp.research_suggestion ?? '보유 정보가 없습니다. 리서치를 진행할까요?')
       }
     } catch (e) {

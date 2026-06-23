@@ -36,4 +36,4 @@ ROADMAP 4차(배포) 및 `deploy` 스킬이 참조하는 **배포 대상 고정 
 - ✅ **라이브 검증**: root 200 · `/api/countries` 200 · detail 잡(3차 확장) succeeded
 - **서비스 URL**: http://silk-road-alb-1413394757.ap-northeast-2.elb.amazonaws.com
 - 재배포(이미지 교체): `aws ecs update-service --cluster silk-road --service silk-road --force-new-deployment --region ap-northeast-2`
-- **현재 배포 태그**: `e4f5d70-fix2` (디자인 충실도 재작업 + iframe chrome 제거 + 지도 land 데이터 반영). 이전: `e4f5d70`.
+- **현재 배포 태그**: `47559ad-session` (보고서 공유 UI 제거 + region 보고서 본문 헤더 제거 + 시뮬레이션 버튼 보고서 생성 연결 + 챗봇 대상 LLM 추출). 이전: `e4f5d70-fix2`, `e4f5d70`.

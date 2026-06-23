@@ -1,5 +1,5 @@
 // DetailView(C6, FR-4, L8) — 상세 HTML iframe embed + chrome(원본 렌더 헤더 형식 재현).
-// 헤더: 국기 + [국가/권역 선택 드롭다운] + 상태배지 + [데이터 버전 드롭다운] + 시뮬레이션·보고서·보고서 생성.
+// 헤더: 국기 + [국가/권역 선택 드롭다운] + 상태배지 + [데이터 버전 드롭다운] + 시뮬레이션·보고서.
 // 본문(스탯·차트·표)만 iframe(렌더 엔진 HTML) — chrome은 전부 프론트(PIPELINE §5).
 import { useEffect, useState } from 'react'
 import { api } from '../../api/client'
@@ -9,6 +9,8 @@ import { useJobPolling } from '../../hooks/useJobPolling'
 import { store } from '../../store'
 import { Icon } from '../common/Icon'
 import { HeaderSelect, type SelectOption } from '../common/HeaderSelect'
+import { HeaderEmblem } from '../common/HeaderEmblem'
+import { fitEmbeddedHtml } from '../common/fitEmbeddedHtml'
 import type { EntryMode } from '../../app/route'
 
 interface Props {
@@ -128,14 +130,28 @@ export default function DetailView({ domain, code, mode }: Props) {
     window.location.hash = `#/${domain}/${newCode}/detail?mode=${mode}`
   }
 
+  // [시뮬레이션] — 보고서 생성 잡 트리거 → store 등록 시 ProgressPanel(§5.3)이 진행 바를 노출.
+  const runSimulation = () => {
+    api
+      .createReport(domain, code)
+      .then((job) => {
+        store.addJob({
+          jobId: job.job_id,
+          kind: 'report',
+          domain,
+          id: code,
+          label: `${meta?.name ?? code} 보고서 생성`,
+        })
+      })
+      .catch((e) => setError(`보고서 생성 트리거 실패: ${String(e)}`))
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* 헤더 chrome */}
       <div className="flex shrink-0 items-start justify-between gap-md border-b border-surface-border p-lg pr-16">
         <div className="flex items-center gap-md">
-          <div className="flex h-12 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded border border-surface-border bg-surface-container shadow-sm">
-            <Icon name={isCountry ? 'flag' : 'public'} filled className="text-primary text-[24px]" />
-          </div>
+          <HeaderEmblem domain={domain} code={code} name={meta?.name} />
           <div>
             <div className="flex items-baseline gap-sm">
               {/* 국가/권역 선택 드롭다운 */}
@@ -179,7 +195,10 @@ export default function DetailView({ domain, code, mode }: Props) {
           </div>
         </div>
         <div className="flex shrink-0 gap-sm">
-          <button className="flex items-center gap-xs rounded-lg border border-primary px-4 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-surface-variant">
+          <button
+            className="flex items-center gap-xs rounded-lg border border-primary px-4 py-2 font-label-md text-label-md text-primary transition-colors hover:bg-surface-variant"
+            onClick={runSimulation}
+          >
             <Icon name="play_circle" className="text-[18px]" /> 시뮬레이션
           </button>
           <button
@@ -189,16 +208,6 @@ export default function DetailView({ domain, code, mode }: Props) {
             }}
           >
             보고서
-          </button>
-          <button
-            className="flex items-center gap-xs rounded-lg bg-primary px-4 py-2 font-label-md text-label-md text-on-primary transition-transform hover:scale-[0.98] active:scale-95"
-            onClick={() => {
-              api.createReport(domain, code).then((job) => {
-                store.addJob({ jobId: job.job_id, kind: 'report', domain, id: code, label: `${meta?.name ?? code} 보고서` })
-              })
-            }}
-          >
-            <Icon name="download" className="text-[18px]" /> 보고서 생성
           </button>
         </div>
       </div>
@@ -222,6 +231,7 @@ export default function DetailView({ domain, code, mode }: Props) {
             src={paths.detail(domain, code, version)}
             className="h-full w-full border-0"
             loading="lazy"
+            onLoad={fitEmbeddedHtml}
           />
         )}
       </div>

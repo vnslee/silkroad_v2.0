@@ -11,7 +11,7 @@ import type { CountrySummary, RegionSummary } from '../../api/types'
 import { store, useStore } from '../../store'
 import { TopBar } from './TopBar'
 import { Legend } from './Legend'
-import { COUNTRY_COORDS, COUNTRY_NUMERIC, REGION_COUNTRY_NAMES } from './coords'
+import { COUNTRY_COORDS } from './coords'
 
 interface Props {
   onSelectCountry: (code: string) => void
@@ -26,16 +26,41 @@ interface Marker {
   nameKo?: string
   lon: number
   lat: number
-  status: 'active' | 'planned'
+  // established=기진출국(네이비 고정 링) / candidate=진출후보국(블루 펄스). AISea mockup 2종 구분.
+  status: 'established' | 'candidate'
 }
 
-// 권역 코드 → 영문 대문자 표시명(hover 툴팁용).
-const REGION_EN: Record<string, string> = {
-  EU: 'EUROPE',
-  NORTH_AMERICA: 'NORTH AMERICA',
-  SOUTH_AMERICA: 'SOUTH AMERICA',
-  ASIA: 'ASIA-PACIFIC',
+// 6개 권역 정의(AISea mockup REGIONS6). key=대륙 분류 키, fill=hover 채움색, dark=툴팁 배경,
+// code=백엔드 권역 라우트 코드(데이터 있는 권역만 매칭, ME/AF는 데이터 없을 수 있음).
+interface Region6 {
+  key: string
+  label: string
+  fill: string
+  dark: string
+  code: string
 }
+const REGIONS6: Region6[] = [
+  { key: 'na', label: '북아메리카', fill: '#BFD0EC', dark: '#2C4C86', code: 'NA' },
+  { key: 'sa', label: '남아메리카', fill: '#C8E0D2', dark: '#2E6B4E', code: 'SA' },
+  { key: 'eu', label: '유럽', fill: '#C9D2EE', dark: '#3A4C9A', code: 'EU' },
+  { key: 'me', label: '중동', fill: '#EAD9B8', dark: '#8A6A1E', code: 'ME' },
+  { key: 'ap', label: '아시아·태평양', fill: '#CBC7EC', dark: '#5A4C9A', code: 'APAC' },
+  { key: 'af', label: '아프리카', fill: '#EBCFC2', dark: '#8A4A24', code: 'AF' },
+]
+const REGION_BY_KEY: Record<string, Region6> = Object.fromEntries(REGIONS6.map((r) => [r.key, r]))
+
+// 경위도 centroid로 육지를 6개 권역에 분류(mockup continentOf 동일).
+function classifyRegion(lon: number, lat: number): string {
+  if (lon >= 34 && lon <= 63 && lat >= 12 && lat <= 43) return 'me'
+  if (lon >= -25 && lon <= 45 && lat >= 36) return 'eu'
+  if (lat < 37 && lon >= -20 && lon <= 52) return 'af'
+  if (lon <= -30 && lat < 13) return 'sa'
+  if (lon >= -170 && lon <= -30 && lat >= 12) return 'na'
+  return 'ap'
+}
+
+// 평소 육지 기본색(진출 매력도 틴트 제외 — 단일 중립 탄색). hover 시에만 권역색으로 덮인다.
+const BASE_LAND = '#E2DDCF'
 
 export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -50,8 +75,8 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
   const lang = useStore((s) => s.lang)
   const langRef = useRef(lang)
   langRef.current = lang
-  // hover 툴팁(권역 영문 대문자 / 국가명) — 화면 좌표 기준 HTML 오버레이
-  const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null)
+  // hover 툴팁(권역 라벨 / 국가명) — 화면 좌표 기준 HTML 오버레이. bg=툴팁 배경색(권역/마커별).
+  const [tip, setTip] = useState<{ x: number; y: number; text: string; bg: string } | null>(null)
 
   useEffect(() => {
     Promise.all([api.getCountries(), api.getRegions()])
@@ -68,8 +93,8 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
         .map((c) => {
           const coord = COUNTRY_COORDS[c.code]
           if (!coord) return null
-          // 진출(active) = 보고서 보유(has_report) 또는 기준국 / 그 외 = 진출예정(planned)
-          const status: Marker['status'] = c.is_baseline || c.has_report ? 'active' : 'planned'
+          // 기진출국(established) = 기준국(is_baseline) / 그 외 = 진출후보국(candidate). AISea mockup 2종 구분.
+          const status: Marker['status'] = c.is_baseline ? 'established' : 'candidate'
           const m: Marker = {
             code: c.code,
             name: c.name,
@@ -84,23 +109,6 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
     [countries],
   )
 
-  // 국가명 → 권역코드(대륙 전체). 권역 단위 하이라이트/클릭 영역용.
-  // 정의된 모든 권역(REGION_COUNTRY_NAMES)을 표시하되, 진출/미진출은 enteredRegions로 구분한다.
-  const regionByName = useMemo<Record<string, string>>(() => {
-    const out: Record<string, string> = {}
-    for (const reg of Object.keys(REGION_COUNTRY_NAMES)) {
-      for (const name of REGION_COUNTRY_NAMES[reg]) out[name] = reg
-    }
-    return out
-  }, [])
-
-  // 진출 권역 = 보고서 보유국이 속한 권역(country.region). 그 외 정의 권역은 미진출.
-  const enteredRegions = useMemo<Set<string>>(() => {
-    const s = new Set<string>()
-    for (const c of countries) if (c.region && c.has_report) s.add(c.region)
-    return s
-  }, [countries])
-
   useEffect(() => {
     if (!svgRef.current) return
     const svg = d3.select<SVGSVGElement, unknown>(svgRef.current)
@@ -108,21 +116,6 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
     const width = 960
     const height = 500
 
-    // 코드 → 진출 상태(진출국 색칠용). world-atlas numeric id로 역참조.
-    const numericToCountry: Record<string, CountrySummary> = {}
-    for (const c of countries) {
-      const num = COUNTRY_NUMERIC[c.code]
-      if (num) numericToCountry[num] = c
-    }
-
-    // AISea 톤 — 육지 채색(fake 점수 대신 실제 상태에 매핑).
-    //  진출 권역 → 골드 베이지(진함) / 미진출 권역 → 옅은 베이지(은은) / 권역 외 진출국 → 안정 녹색 / 그 외 → 기본 탄색.
-    const TONE = {
-      active: '#D7E2DC', // 권역에 속하지 않은 진출국
-      regionEntered: '#D6C29A', // 진출 권역
-      regionPlanned: '#E7DEC8', // 미진출 권역(옅게)
-      base: '#E2DDCF', // 일반 육지
-    }
     const topo = worldData as unknown as Topology
     const countriesGeo = feature(topo, topo.objects.countries as never) as unknown as {
       features: GeoJSON.Feature[]
@@ -145,79 +138,73 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
     const g = svg.append('g')
     const path = d3.geoPath(projection)
 
-    // hover 툴팁 위치 계산 — SVG 컨테이너 기준 화면 좌표.
-    const showTip = (e: MouseEvent, text: string) => {
+    // hover 툴팁 위치 계산 — SVG 컨테이너 기준 화면 좌표. bg=툴팁 배경색.
+    const showTip = (e: MouseEvent, text: string, bg: string) => {
       const rect = svgRef.current?.getBoundingClientRect()
       if (!rect) return
-      setTip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text })
+      setTip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text, bg })
     }
     // 마커 툴팁 라벨 — 한/영 토글에 따라 국가명 표시(한글 없으면 영문 폴백).
     const markerLabel = (d: Marker): string =>
       langRef.current === 'ko' ? d.nameKo ?? d.name : d.name
 
-    const featureName = (d: GeoJSON.Feature): string =>
-      String((d.properties as { name?: string } | undefined)?.name ?? '')
-
-    const regionGroups = new Map<string, GeoJSON.Feature[]>()
-    const landFill = (d: GeoJSON.Feature): string => {
-      const reg = regionByName[featureName(d)]
-      if (reg) return enteredRegions.has(reg) ? TONE.regionEntered : TONE.regionPlanned
-      const c = numericToCountry[String((d as { id?: string }).id ?? '')]
-      if (c?.has_report) return TONE.active
-      return TONE.base
+    // 각 육지 feature의 권역키를 centroid 경위도로 1회 계산해 캐시(mockup continentOf).
+    const featRegion = new Map<GeoJSON.Feature, string>()
+    for (const f of countriesGeo.features) {
+      const c = d3.geoCentroid(f as never)
+      featRegion.set(f, classifyRegion(c[0], c[1]))
     }
 
-    // 육지 폴리곤은 정적 채색만(개별 국가 hover/click 없음).
-    // 국가 진입은 오직 마커 클릭, 화면 hover/클릭은 권역 단위(아래 region-overlay)가 담당.
-    g.selectAll('path.land')
+    // 육지 폴리곤 — 평소 단일 기본색(매력도 틴트 제외). hover/click은 권역 단위(mockup 방식).
+    // hover 시 같은 권역 육지 전체를 권역색으로 칠하고 '권역 · OO' 툴팁, click 시 권역 진입.
+    const land = g
+      .selectAll<SVGPathElement, GeoJSON.Feature>('path.land')
       .data(countriesGeo.features)
       .join('path')
       .attr('class', 'land')
       .attr('d', path as never)
-      .attr('fill', (d) => {
-        const reg = regionByName[featureName(d)]
-        if (reg) {
-          const arr = regionGroups.get(reg) ?? []
-          arr.push(d)
-          regionGroups.set(reg, arr)
-        }
-        return landFill(d)
-      })
+      .attr('fill', BASE_LAND)
       .attr('stroke', '#F4F6F8')
       .attr('stroke-width', 0.6)
+      .style('cursor', 'pointer')
 
-    // 권역 외곽선(merge) — 클릭 영역 + 강조. 진출=실선/진한 테두리, 미진출=점선/옅은 테두리.
-    for (const [reg, feats] of regionGroups) {
-      const entered = enteredRegions.has(reg)
-      const fc = { type: 'FeatureCollection', features: feats } as GeoJSON.FeatureCollection
-      const overlay = g
-        .append('path')
-        .datum(fc as never)
-        .attr('class', 'region-overlay')
-        .attr('d', path as never)
-        .attr('fill', entered ? '#C9A875' : '#CBBC97')
-        .attr('fill-opacity', 0.0)
-        .attr('stroke', entered ? '#B89A66' : '#C2B492')
-        .attr('stroke-width', 1.3)
-        .attr('stroke-opacity', entered ? 0.6 : 0.45)
-        .attr('cursor', 'pointer')
-        .attr('role', 'button')
-        .attr('aria-label', `${reg} 권역 선택${entered ? '' : ' (미진출)'}`)
-        .on('mouseenter', function (e: MouseEvent) {
-          d3.select(this).attr('fill-opacity', 0.16)
-          showTip(e, REGION_EN[reg] ?? reg.toUpperCase())
-        })
-        .on('mousemove', (e: MouseEvent) => showTip(e, REGION_EN[reg] ?? reg.toUpperCase()))
-        .on('mouseleave', function () {
-          d3.select(this).attr('fill-opacity', 0.0)
-          setTip(null)
-        })
-        .on('click', () => {
-          setNotif(false)
-          onSelectRegion(reg)
-        })
-      if (!entered) overlay.attr('stroke-dasharray', '4,3')
+    // 권역 강조 페인트 — reg=hover 권역키(null이면 전부 기본색으로 복귀).
+    const paintRegion = (reg: string | null) => {
+      const info = reg ? REGION_BY_KEY[reg] : null
+      land.attr('fill', (d) => (info && featRegion.get(d) === reg ? info.fill : BASE_LAND))
     }
+
+    land
+      .on('mouseenter', function (e: MouseEvent, d) {
+        const reg = featRegion.get(d) ?? 'ap'
+        const info = REGION_BY_KEY[reg]
+        paintRegion(reg)
+        if (info) {
+          setTip({
+            x: e.clientX - (svgRef.current?.getBoundingClientRect().left ?? 0),
+            y: e.clientY - (svgRef.current?.getBoundingClientRect().top ?? 0),
+            text: `권역 · ${info.label}`,
+            bg: info.dark,
+          })
+        }
+      })
+      .on('mousemove', function (e: MouseEvent, d) {
+        const reg = featRegion.get(d) ?? 'ap'
+        const info = REGION_BY_KEY[reg]
+        const rect = svgRef.current?.getBoundingClientRect()
+        if (rect && info)
+          setTip({ x: e.clientX - rect.left, y: e.clientY - rect.top, text: `권역 · ${info.label}`, bg: info.dark })
+      })
+      .on('mouseleave', () => {
+        paintRegion(null)
+        setTip(null)
+      })
+      .on('click', (_e: MouseEvent, d) => {
+        const reg = featRegion.get(d) ?? 'ap'
+        const info = REGION_BY_KEY[reg]
+        setNotif(false)
+        onSelectRegion(info?.code ?? reg.toUpperCase())
+      })
 
     // 마커 — AISea 블루 펄스 링 + 흰 점
     const node = g
@@ -232,42 +219,51 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
       .attr('cursor', 'pointer')
       .attr('role', 'button')
       .attr('aria-label', (d) => `${d.name} 선택`)
-      .on('mouseenter', (e: MouseEvent, d) => showTip(e, markerLabel(d)))
-      .on('mousemove', (e: MouseEvent, d) => showTip(e, markerLabel(d)))
+      .on('mouseenter', (e: MouseEvent, d) =>
+        showTip(e, markerLabel(d), d.status === 'established' ? '#1B3451' : '#3F6CB4'),
+      )
+      .on('mousemove', (e: MouseEvent, d) =>
+        showTip(e, markerLabel(d), d.status === 'established' ? '#1B3451' : '#3F6CB4'),
+      )
       .on('mouseleave', () => setTip(null))
       .on('click', (_e, d) => {
         setNotif(false)
         onSelectCountry(d.code)
       })
 
-    // 펄스 링 — 진출국(active)만 후광 펄스. 진출예정(planned)은 펄스 없음.
-    node
-      .filter((d) => d.status === 'active')
+    // 마커 r 스케일 — viewBox(960×500)가 화면으로 ~2배 늘어나므로 r을 0.5배로 줄여
+    // mockup(컨테이너 실치수 렌더)의 체감 크기에 맞춘다. stroke도 동일 비율 축소.
+    const MS = 0.5
+
+    // ── 기진출국(established): 네이비 3중 고정 링(펄스 없음, 안정) ──
+    const established = node.filter((d) => d.status === 'established')
+    // 외곽 후광(반투명)
+    established.append('circle').attr('r', 8 * MS).attr('fill', 'rgba(27,52,81,0.15)')
+    // 메인 원(네이비 + 흰 테두리)
+    established
       .append('circle')
-      .attr('r', 4)
+      .attr('r', 5 * MS)
+      .attr('fill', '#1B3451')
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 1.8 * MS)
+    // 중심 흰 점
+    established.append('circle').attr('r', 1.8 * MS).attr('fill', '#fff')
+
+    // ── 진출후보국(candidate): 블루 펄스 링 + 블루 중심 핀 ──
+    const candidate = node.filter((d) => d.status === 'candidate')
+    candidate
+      .append('circle')
+      .attr('r', 6 * MS)
       .attr('fill', '#3F6CB4')
       .style('transform-box', 'fill-box')
       .style('transform-origin', 'center')
       .style('animation', 'aisea-pulse 2.4s ease-out infinite')
-
-    // 중심 점 — 진출국: 블루 채움 + 흰 테두리(꽉 찬 핀)
-    node
-      .filter((d) => d.status === 'active')
+    candidate
       .append('circle')
-      .attr('r', 3)
+      .attr('r', 4 * MS)
       .attr('fill', '#3F6CB4')
       .attr('stroke', '#fff')
-      .attr('stroke-width', 1.2)
-
-    // 중심 점 — 진출예정: 흰 채움 + 블루 점선 테두리(빈 핀)로 구분
-    node
-      .filter((d) => d.status === 'planned')
-      .append('circle')
-      .attr('r', 3)
-      .attr('fill', '#fff')
-      .attr('stroke', '#3F6CB4')
-      .attr('stroke-width', 1.2)
-      .attr('stroke-dasharray', '1.8,1.4')
+      .attr('stroke-width', 1.5 * MS)
 
     // 줌/패닝(1~6배) — translateExtent로 지도 영역 밖(공백)으로 끌려나가지 않게 제한.
     const zoom = d3
@@ -293,7 +289,7 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
         .ease(d3.easeCubicOut)
         .call(zoom.transform, d3.zoomIdentity)
     }
-  }, [markers, regionByName, enteredRegions, onSelectCountry, onSelectRegion, enterAnim])
+  }, [markers, onSelectCountry, onSelectRegion, enterAnim])
 
   const zoomBy = (k: number) => {
     const z = zoomRef.current
@@ -322,11 +318,11 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
         aria-label="세계 지도"
       />
 
-      {/* hover 툴팁 — 권역 영문 대문자 / 국가명(한·영) */}
+      {/* hover 툴팁 — 권역 라벨('권역 · OO') / 국가명(한·영). 배경색은 권역/마커별(mockup). */}
       {tip && (
         <div
-          className="pointer-events-none absolute z-chrome -translate-x-1/2 -translate-y-[calc(100%+10px)] whitespace-nowrap rounded-lg bg-primary-container px-sm py-xs font-label-md text-label-md font-semibold text-on-primary shadow-[0_6px_18px_rgba(20,23,28,0.24)]"
-          style={{ left: tip.x, top: tip.y }}
+          className="pointer-events-none absolute z-chrome -translate-x-1/2 -translate-y-[calc(100%+10px)] whitespace-nowrap rounded-lg px-sm py-xs font-label-md text-label-md font-semibold text-white shadow-[0_6px_18px_rgba(20,23,28,0.24)]"
+          style={{ left: tip.x, top: tip.y, background: tip.bg }}
         >
           {tip.text}
         </div>
@@ -334,7 +330,7 @@ export function MapView({ onSelectCountry, onSelectRegion, enterAnim = false }: 
 
       {/* 안내 칩(AISea) — 텍스트 + 챗봇 열기 링크 (헤더 아래로 충분히 내림) */}
       {notif && (
-        <div className="absolute left-1/2 top-[128px] z-chrome flex -translate-x-1/2 items-center gap-sm rounded-[14px] border border-surface-border bg-[rgba(255,255,255,0.92)] px-md py-sm shadow-[0_8px_28px_rgba(20,23,28,0.08)] backdrop-blur-[10px]">
+        <div className="absolute left-1/2 top-[84px] z-chrome flex -translate-x-1/2 items-center gap-sm rounded-[14px] border border-surface-border bg-[rgba(255,255,255,0.92)] px-md py-sm shadow-[0_8px_28px_rgba(20,23,28,0.08)] backdrop-blur-[10px]">
           <span className="font-body-sm text-body-sm text-on-surface-variant">
             진출 후보 시장을 지도에서 선택하거나
           </span>

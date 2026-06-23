@@ -8,7 +8,9 @@ COPY . .
 RUN npm run build
 
 FROM nginx:1.27-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+# vite base=/app/ 이므로 자산 참조가 /app/assets/... 다. dist를 /app 하위로 복사해 경로를 맞춘다
+# (루트에 두면 /app/assets/* 가 try_files fallback으로 index.html(text/html)을 반환 → CSS MIME 오류).
+COPY --from=build /app/dist /usr/share/nginx/html/app
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -137,6 +137,9 @@ class ChatResponse(BaseModel):
     needs_research: bool = False
     research_suggestion: Optional[str] = None
     missing_codes: List[str] = Field(default_factory=list)
+    # 질문에서 식별한 대상(§6.5) — 프론트가 리서치 트리거 대상으로 사용.
+    resolved_domain: Optional[Domain] = None
+    resolved_target_id: Optional[str] = None
 
 
 # ── 룰셋 설정 (FR-6) ────────────────────────────────────────────

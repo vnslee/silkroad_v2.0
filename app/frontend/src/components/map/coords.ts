@@ -39,11 +39,14 @@ export const COUNTRY_NUMERIC: Record<string, string> = {
 
 // 권역 코드 → 폴리곤 채움/테두리 색. DESIGN.md Kinetic Enterprise 팔레트 계열.
 // 진출 권역만 지도 상에서 별도 색으로 강조한다(web_design_spec 5-4 권역 분기).
+// 6개 권역(북미·남미·유럽·중동·아태·아프리카) — AISea mockup REGIONS6 색 계열.
 export const REGION_FILL: Record<string, { fill: string; stroke: string }> = {
-  EU: { fill: '#bcd4ff', stroke: '#599bfe' }, // secondary-container 계열
-  NORTH_AMERICA: { fill: '#cfe0d6', stroke: '#4f9d76' },
-  SOUTH_AMERICA: { fill: '#ffd9c2', stroke: '#e08a4d' },
-  ASIA: { fill: '#e3cdf0', stroke: '#9b6fc2' },
+  EU: { fill: '#c9d2ee', stroke: '#3a4c9a' }, // 유럽
+  NORTH_AMERICA: { fill: '#bfd0ec', stroke: '#2c4c86' }, // 북아메리카
+  SOUTH_AMERICA: { fill: '#c8e0d2', stroke: '#2e6b4e' }, // 남아메리카
+  ASIA: { fill: '#cbc7ec', stroke: '#5a4c9a' }, // 아시아·태평양
+  MIDDLE_EAST: { fill: '#ead9b8', stroke: '#8a6a1e' }, // 중동
+  AFRICA: { fill: '#ebcfc2', stroke: '#8a4a24' }, // 아프리카
 }
 
 // 권역 코드 → world-atlas(countries-110m) 국가명 집합. 권역 단위 하이라이트/클릭 영역 계산용.
@@ -63,9 +66,21 @@ export const REGION_COUNTRY_NAMES: Record<string, string[]> = {
     'Argentina', 'Bolivia', 'Brazil', 'Chile', 'Colombia', 'Ecuador', 'Guyana', 'Paraguay',
     'Peru', 'Suriname', 'Uruguay', 'Venezuela',
   ],
+  // 아시아·태평양 — 동·동남·남아시아 + 오세아니아
   ASIA: [
     'Bangladesh', 'Cambodia', 'China', 'India', 'Indonesia', 'Japan', 'Laos', 'Malaysia',
     'Mongolia', 'Myanmar', 'Nepal', 'North Korea', 'Pakistan', 'Philippines', 'South Korea',
-    'Sri Lanka', 'Taiwan', 'Thailand', 'Vietnam',
+    'Sri Lanka', 'Taiwan', 'Thailand', 'Vietnam', 'Australia', 'New Zealand', 'Papua New Guinea',
+  ],
+  // 중동 — 서아시아·아라비아 반도(world-atlas properties.name 표기)
+  MIDDLE_EAST: [
+    'Saudi Arabia', 'United Arab Emirates', 'Turkey', 'Iran', 'Iraq', 'Israel', 'Jordan',
+    'Kuwait', 'Oman', 'Qatar', 'Lebanon', 'Yemen', 'Syria', 'Bahrain',
+  ],
+  // 아프리카 — 북아프리카 + 사하라 이남
+  AFRICA: [
+    'South Africa', 'Egypt', 'Morocco', 'Nigeria', 'Kenya', 'Algeria', 'Ethiopia', 'Tanzania',
+    'Ghana', 'Angola', 'Tunisia', 'Libya', 'Sudan', 'Mozambique', 'Zambia', 'Zimbabwe',
+    'Uganda', 'Cameroon', "Côte d'Ivoire", 'Senegal', 'Mali', 'Namibia', 'Botswana', 'Madagascar',
   ],
 }

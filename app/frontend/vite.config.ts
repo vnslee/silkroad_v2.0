@@ -5,9 +5,9 @@ import react from '@vitejs/plugin-react'
 // dev proxy: /api → FastAPI(localhost:8000) (requirements-3 Q2=A)
 export default defineConfig({
   plugins: [react()],
-  // 이 환경의 리버스 프록시 규약상 프론트는 `/app/` 경로에서 서빙된다(백엔드 StaticFiles mount).
-  // 자산 URL이 /app/assets/... 로 생성되도록 base 고정. (순수 정적 배포(nginx Dockerfile)는 '/'이지만
-  // 거기서도 /app base는 동작 — 일관성 위해 통일.)
+  // 프론트는 `/app/` 경로에서 서빙된다(백엔드 StaticFiles mount + nginx Dockerfile 모두 /app 하위에 dist 배치).
+  // 자산 URL이 /app/assets/... 로 생성되도록 base 고정. nginx도 dist를 /usr/share/nginx/html/app 에 두고
+  // `location /app/`로 서빙해야 경로가 맞는다(루트 서빙 시 /app/assets/*가 index.html로 fallback → CSS MIME 오류).
   base: '/app/',
   server: {
     // 원격/프록시 도메인(CloudFront 등)으로 dev 서버에 접속할 때 호스트 차단 해제.

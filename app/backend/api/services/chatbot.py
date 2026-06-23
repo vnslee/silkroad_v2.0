@@ -19,6 +19,64 @@ _SYSTEM = (
     "근거 없는 수치를 지어내지 말고, 모르면 모른다고 답하라."
 )
 
+# 대상(target) 추출 — 사용자 메시지에서 어떤 국가/권역에 대한 질문인지 식별.
+_RESOLVE_SYSTEM = (
+    "너는 사용자의 질문에서 '어떤 국가 또는 권역에 대한 질문인지'를 식별하는 분류기다. "
+    "국가는 ISO 3166-1 alpha-2 대문자 코드(예: 스페인→ES, 독일→DE, 이탈리아→IT)로, "
+    "권역은 권역 코드(예: 유럽→EU, 북미→NA, 아시아태평양→APAC, 남미→SA)로 반환하라. "
+    "질문에 명시적 국가/권역이 없으면 found=false 로 답하라. "
+    "국가와 권역이 모두 언급되면 더 구체적인 국가를 우선한다."
+)
+
+_RESOLVE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "found": {"type": "boolean"},
+        "domain": {"type": "string", "enum": ["country", "region"]},
+        "target_id": {"type": "string"},
+    },
+    "required": ["found"],
+}
+
+
+def resolve_target(
+    message: str,
+    history: Optional[List[ChatTurn]] = None,
+) -> Optional[tuple]:
+    """사용자 메시지에서 (domain, target_id)를 LLM으로 추출. 식별 실패 시 None.
+
+    후보(보유 데이터) 목록을 프롬프트에 제공해 코드 정확도를 높인다. Bedrock 오류·
+    형식 불일치는 None 으로 흡수(라우터가 프론트 target_id로 폴백)."""
+    countries = storage_resolver.list_countries()
+    regions = storage_resolver.list_regions()
+    country_lines = ", ".join(f"{c.code}({c.name_ko or c.name})" for c in countries)
+    region_lines = ", ".join(f"{r.code}({r.name_ko or r.name})" for r in regions)
+    recent = ""
+    if history:
+        recent = "\n".join(f"{t.role}: {t.content}" for t in history[-4:])
+    prompt = (
+        f"[보유 국가] {country_lines}\n"
+        f"[보유 권역] {region_lines}\n"
+        f"[최근 대화]\n{recent}\n\n"
+        f"[현재 질문]\n{message}\n\n"
+        "위 질문이 가리키는 국가/권역을 식별해 JSON으로만 답하라. "
+        "보유 목록에 없어도 표준 코드로 추론해 반환하라."
+    )
+    try:
+        out = bedrock_client.generate_structured(
+            prompt, _RESOLVE_SCHEMA, system=_RESOLVE_SYSTEM
+        )
+    except bedrock_client.BedrockError as exc:
+        _log.warning("대상 추출 실패(폴백): %s", exc)
+        return None
+    if not out.get("found"):
+        return None
+    domain = out.get("domain")
+    target_id = (out.get("target_id") or "").upper()
+    if domain not in ("country", "region") or not target_id:
+        return None
+    return domain, target_id
+
 
 def _summarize(data: dict) -> str:
     """L8 컨텍스트 요약 — overall_insight + 핵심 score/gate items(토큰 절약)."""

@@ -1,7 +1,6 @@
-// 상단 바(C4, FR-2.4) — 2단 헤더.
-// 1행: (좌)AISea 로고 · (중앙)현대캐피탈 CI + 타이틀 정중앙 · (우)메뉴 접기/펴기 토글
-// 2행: 내비 메뉴(지도/국가 분석▾/권역 분석▾/보고서▾/룰셋) — 토글로 숨길 수 있음.
-// 드롭다운 항목은 실제 카탈로그(CountrySummary/RegionSummary)로 채우고 상태배지를 표기(가짜 점수 금지).
+// 상단 바(C4, FR-2.4) — AISea mockup 스타일 1단 헤더.
+// 좌→우: (로고 블록=CI+AISea) · (내비: 지도/국가 분석▾/권역 분석▾/보고서▾/룰셋) · spacer · (국가 검색) · (한/EN 토글)
+// 레이아웃 탭·챗 버튼은 제외(사용자 결정). 드롭다운 항목은 실제 카탈로그로 채우고 상태배지 표기(가짜 점수 금지).
 import { useState } from 'react'
 import type { CountrySummary, Domain, RegionSummary } from '../../api/types'
 import { store, useStore } from '../../store'
@@ -33,168 +32,208 @@ function statusBadge(c: { is_baseline?: boolean; has_report: boolean }): {
 
 export function TopBar({ countries, regions, onMap, onGoMap }: Props) {
   const [menu, setMenu] = useState<MenuKey>(null)
-  const [navOpen, setNavOpen] = useState(true)
+  const [search, setSearch] = useState('')
+  const lang = useStore((s) => s.lang)
 
   const blue = onMap ? 'text-primary' : 'text-on-surface-variant'
   const close = () => setMenu(null)
   const toggle = (k: Exclude<MenuKey, null>) => setMenu((m) => (m === k ? null : k))
-  const lang = useStore((s) => s.lang)
+
+  // 검색 — name/name_ko/code 부분일치, 첫 매칭국으로 팝업 진입(AISea mockup onSearchKey 패턴).
+  const runSearch = () => {
+    const q = search.trim().toLowerCase()
+    if (!q) return
+    const hit = countries.find(
+      (c) =>
+        c.code.toLowerCase().includes(q) ||
+        c.name.toLowerCase().includes(q) ||
+        (c.name_ko ?? '').toLowerCase().includes(q),
+    )
+    if (hit) {
+      close()
+      setSearch('')
+      nav(`#/country/${hit.code}/detail?mode=popup`)
+    }
+  }
 
   return (
-    <header className="absolute inset-x-0 top-0 z-chrome border-b border-surface-border bg-[rgba(255,255,255,0.86)] backdrop-blur-[14px]">
-      {/* ── 1행: (좌)한/영 토글 · (중앙)CI 타이틀 · (우)메뉴 토글 ── */}
-      <div className="relative flex h-[60px] items-center px-lg">
-        {/* 좌: 한/영 번역 토글 */}
-        <button
-          type="button"
-          onClick={() => store.setLang(lang === 'ko' ? 'en' : 'ko')}
-          aria-label={lang === 'ko' ? '영문으로 전환' : '한글로 전환'}
-          className="flex items-center gap-xs rounded-lg border border-surface-border bg-surface-container-lowest px-sm py-xs font-label-md text-label-md font-semibold text-on-surface-variant transition-colors hover:bg-surface-container"
-        >
-          <span className={lang === 'ko' ? 'text-primary' : ''}>한</span>
-          <span className="text-outline-variant">/</span>
-          <span className={lang === 'en' ? 'text-primary' : ''}>EN</span>
-        </button>
+    <header
+      className="absolute inset-x-0 top-0 z-chrome flex h-[60px] items-center gap-md border-b border-surface-border bg-[rgba(243,246,249,0.86)] px-lg backdrop-blur-[14px]"
+    >
+      {/* 로고 블록 — CI + 구분선 + AISea(mono). 클릭 시 메인 지도로. */}
+      <button
+        type="button"
+        onClick={() => {
+          close()
+          onGoMap()
+        }}
+        aria-label="메인 지도로 이동"
+        className="flex flex-none items-center gap-md rounded-lg pr-xs transition-opacity hover:opacity-80"
+      >
+        <HyundaiCapitalCI />
+        <span className="h-[17px] w-px bg-surface-border" />
+        <span className="font-mono text-[18px] font-bold tracking-tight text-on-surface">AISea</span>
+      </button>
 
-        {/* 중앙: 현대캐피탈 CI + 타이틀(정중앙 고정) — 클릭 시 메인 지도로 */}
+      {/* 내비 — 각 항목별 드롭다운을 트리거 아래에 앵커 */}
+      <nav className="flex flex-none items-center gap-[2px] whitespace-nowrap text-[14px]">
         <button
-          type="button"
           onClick={() => {
             close()
             onGoMap()
           }}
-          aria-label="메인 지도로 이동"
-          className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-md rounded-lg px-sm py-xs transition-opacity hover:opacity-80"
+          className={`rounded-lg px-md py-sm font-medium ${blue}`}
         >
-          <HyundaiCapitalCI />
-          <span className="h-[18px] w-px bg-surface-border" />
-          <span className="font-headline-md text-[16px] font-bold tracking-tight text-on-surface">
-            글로벌 진출 전략 Agent
-          </span>
+          지도
         </button>
-
-        <div className="flex-1" />
-
-        {/* 우: 메뉴 접기/펴기 */}
+        <NavMenu
+          label="국가 분석"
+          open={menu === 'country'}
+          onToggle={() => toggle('country')}
+          onClose={close}
+        >
+          <Dropdown title="국가 정보 · 풀사이즈">
+            {countries.slice(0, 8).map((c) => {
+              const b = statusBadge(c)
+              return (
+                <DropdownRow
+                  key={c.code}
+                  onClick={() => {
+                    close()
+                    nav(`#/country/${c.code}/detail?mode=fullscreen`)
+                  }}
+                >
+                  <span className="truncate">{c.name_ko ? `${c.name_ko} (${c.name})` : c.name}</span>
+                  <span className={`rounded px-sm py-[1px] font-label-sm text-label-sm ${b.cls}`}>{b.label}</span>
+                </DropdownRow>
+              )
+            })}
+          </Dropdown>
+        </NavMenu>
+        <NavMenu
+          label="권역 분석"
+          open={menu === 'region'}
+          onToggle={() => toggle('region')}
+          onClose={close}
+        >
+          <Dropdown title="권역 정보 · 풀사이즈">
+            {regions.map((r) => {
+              const b = statusBadge(r)
+              return (
+                <DropdownRow
+                  key={r.code}
+                  onClick={() => {
+                    close()
+                    nav(`#/region/${r.code}/detail?mode=fullscreen`)
+                  }}
+                >
+                  <span className="truncate">{r.name_ko ? `${r.name_ko} (${r.name})` : r.name}</span>
+                  <span className={`rounded px-sm py-[1px] font-label-sm text-label-sm ${b.cls}`}>{b.label}</span>
+                </DropdownRow>
+              )
+            })}
+          </Dropdown>
+        </NavMenu>
+        <NavMenu
+          label="보고서"
+          open={menu === 'report'}
+          onToggle={() => toggle('report')}
+          onClose={close}
+        >
+          <Dropdown title="진단 보고서 · 풀사이즈">
+            <DropdownRow
+              onClick={() => {
+                close()
+                openFirstReport('country', countries)
+              }}
+            >
+              <span>📄 국가 진단 보고서</span>
+            </DropdownRow>
+            <DropdownRow
+              onClick={() => {
+                close()
+                openFirstReport('region', regions)
+              }}
+            >
+              <span>🗂️ 권역 진단 보고서</span>
+            </DropdownRow>
+          </Dropdown>
+        </NavMenu>
         <button
-          type="button"
           onClick={() => {
             close()
-            setNavOpen((v) => !v)
+            nav('#/ruleset?mode=fullscreen')
           }}
-          aria-expanded={navOpen}
-          aria-label={navOpen ? '메뉴 숨기기' : '메뉴 보기'}
-          className="flex items-center gap-xs rounded-lg px-md py-sm font-label-md text-label-md font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
+          className="rounded-lg px-md py-sm font-medium text-on-surface-variant"
         >
-          <span className="text-[15px] leading-none">☰</span>
-          <span>메뉴</span>
+          룰셋
         </button>
+      </nav>
+
+      <div className="flex-1" />
+
+      {/* 국가 검색 */}
+      <div className="flex flex-none items-center gap-sm rounded-[9px] border border-surface-border bg-surface-container-lowest px-md py-[7px]">
+        <span className="text-[13px] text-outline">⌕</span>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') runSearch()
+          }}
+          placeholder="국가 검색…"
+          aria-label="국가 검색"
+          className="w-[160px] bg-transparent font-body-sm text-[13px] text-on-surface outline-none placeholder:text-outline"
+        />
       </div>
 
-      {/* ── 2행: 내비(접을 수 있음) — 중앙 정렬 + 옅은 투명 배경(경계 모호) ── */}
-      {navOpen && (
-        <nav className="relative flex h-[44px] items-center justify-center gap-[2px] border-t border-white/30 bg-white/20 px-lg text-[14px] backdrop-blur-[6px]">
-          <button
-            onClick={() => {
-              close()
-              onGoMap()
-            }}
-            className={`rounded-lg px-md py-sm font-medium ${blue}`}
-          >
-            지도
-          </button>
-          <NavItem label="국가 분석" open={menu === 'country'} onClick={() => toggle('country')} />
-          <NavItem label="권역 분석" open={menu === 'region'} onClick={() => toggle('region')} />
-          <NavItem label="보고서" open={menu === 'report'} onClick={() => toggle('report')} />
-          <button
-            onClick={() => {
-              close()
-              nav('#/ruleset?mode=fullscreen')
-            }}
-            className="rounded-lg px-md py-sm font-medium text-on-surface-variant"
-          >
-            룰셋
-          </button>
-
-          {/* 드롭다운들 — 중앙 정렬 메뉴 기준 가운데 표시 */}
-          {menu && <div className="fixed inset-0 z-[1]" onClick={close} />}
-          {menu === 'country' && (
-            <Dropdown title="국가 정보 · 풀사이즈">
-              {countries.slice(0, 8).map((c) => {
-                const b = statusBadge(c)
-                return (
-                  <DropdownRow
-                    key={c.code}
-                    onClick={() => {
-                      close()
-                      nav(`#/country/${c.code}/detail?mode=fullscreen`)
-                    }}
-                  >
-                    <span className="truncate">
-                      {c.name_ko ? `${c.name_ko} (${c.name})` : c.name}
-                    </span>
-                    <span className={`rounded px-sm py-[1px] font-label-sm text-label-sm ${b.cls}`}>{b.label}</span>
-                  </DropdownRow>
-                )
-              })}
-            </Dropdown>
-          )}
-          {menu === 'region' && (
-            <Dropdown title="권역 정보 · 풀사이즈">
-              {regions.map((r) => {
-                const b = statusBadge(r)
-                return (
-                  <DropdownRow
-                    key={r.code}
-                    onClick={() => {
-                      close()
-                      nav(`#/region/${r.code}/detail?mode=fullscreen`)
-                    }}
-                  >
-                    <span className="truncate">{r.name_ko ? `${r.name_ko} (${r.name})` : r.name}</span>
-                    <span className={`rounded px-sm py-[1px] font-label-sm text-label-sm ${b.cls}`}>{b.label}</span>
-                  </DropdownRow>
-                )
-              })}
-            </Dropdown>
-          )}
-          {menu === 'report' && (
-            <Dropdown title="진단 보고서 · 풀사이즈">
-              <DropdownRow
-                onClick={() => {
-                  close()
-                  openFirstReport('country', countries)
-                }}
-              >
-                <span>📄 국가 진단 보고서</span>
-              </DropdownRow>
-              <DropdownRow
-                onClick={() => {
-                  close()
-                  openFirstReport('region', regions)
-                }}
-              >
-                <span>🗂️ 권역 진단 보고서</span>
-              </DropdownRow>
-            </Dropdown>
-          )}
-        </nav>
-      )}
+      {/* 한/EN 번역 토글 */}
+      <button
+        type="button"
+        onClick={() => store.setLang(lang === 'ko' ? 'en' : 'ko')}
+        aria-label={lang === 'ko' ? '영문으로 전환' : '한글로 전환'}
+        className="flex flex-none items-center gap-xs rounded-lg border border-surface-border bg-surface-container-lowest px-sm py-xs font-label-md text-label-md font-semibold text-on-surface-variant transition-colors hover:bg-surface-container"
+      >
+        <span className={lang === 'ko' ? 'text-primary' : ''}>한</span>
+        <span className="text-outline-variant">/</span>
+        <span className={lang === 'en' ? 'text-primary' : ''}>EN</span>
+      </button>
     </header>
   )
 }
 
-function NavItem({ label, open, onClick }: { label: string; open: boolean; onClick: () => void }) {
+// 내비 메뉴 항목 — 트리거 버튼 + (열림 시) 트리거 아래 앵커된 드롭다운.
+function NavMenu({
+  label,
+  open,
+  onToggle,
+  onClose,
+  children,
+}: {
+  label: string
+  open: boolean
+  onToggle: () => void
+  onClose: () => void
+  children: React.ReactNode
+}) {
   return (
-    <button
-      onClick={onClick}
-      aria-haspopup="menu"
-      aria-expanded={open}
-      className="flex items-center gap-xs rounded-lg px-md py-sm font-medium text-on-surface-variant"
-    >
-      {label}
-      <span className="text-[9px] opacity-50">▾</span>
-    </button>
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-xs rounded-lg px-md py-sm font-medium text-on-surface-variant"
+      >
+        {label}
+        <span className="text-[9px] opacity-50">▾</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-[1]" onClick={onClose} />
+          {children}
+        </>
+      )}
+    </div>
   )
 }
 
@@ -202,7 +241,7 @@ function Dropdown({ title, children }: { title: string; children: React.ReactNod
   return (
     <div
       role="menu"
-      className="absolute left-1/2 top-[40px] z-[2] w-[244px] -translate-x-1/2 animate-aisea-pop rounded-[13px] border border-surface-border bg-surface-container-lowest p-[7px] shadow-[0_16px_44px_rgba(20,23,28,0.14)]"
+      className="absolute left-0 top-[calc(100%+6px)] z-[2] w-[244px] animate-aisea-pop rounded-[13px] border border-surface-border bg-surface-container-lowest p-[7px] shadow-[0_16px_44px_rgba(20,23,28,0.14)]"
     >
       <div className="px-md pb-xs pt-sm font-label-sm text-label-sm tracking-wide text-outline">{title}</div>
       {children}
